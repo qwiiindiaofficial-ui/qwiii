@@ -58,6 +58,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAppSettings } from '@/hooks/useAppSettings';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -157,6 +158,7 @@ const AppSidebar = () => {
   const navigate = useNavigate();
   const { state, toggleSidebar } = useSidebar();
   const { user, isMaster, allowedPages, signOut } = useAuth();
+  const { settings } = useAppSettings();
   const isCollapsed = state === 'collapsed';
   const [openGroups, setOpenGroups] = useState<string[]>(
     menuGroups.filter(g => g.defaultOpen).map(g => g.title)
@@ -219,18 +221,26 @@ const AppSidebar = () => {
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary via-primary/80 to-secondary flex items-center justify-center shadow-lg">
-              <Zap className="w-5 h-5 text-primary-foreground" />
-            </div>
+            {settings.logo_url ? (
+              <img 
+                src={settings.logo_url} 
+                alt={settings.app_name}
+                className="w-10 h-10 rounded-lg object-cover shadow-lg"
+              />
+            ) : (
+              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary via-primary/80 to-secondary flex items-center justify-center shadow-lg">
+                <Zap className="w-5 h-5 text-primary-foreground" />
+              </div>
+            )}
             <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full status-online" />
           </div>
           {!isCollapsed && (
             <div className="flex flex-col animate-fade-in">
               <span className="font-display font-bold text-sm text-sidebar-foreground tracking-wide">
-                QWII
+                {settings.app_name}
               </span>
               <span className="text-[10px] text-muted-foreground font-mono tracking-wider">
-                OPTIMIZE VISION
+                {settings.tagline}
               </span>
             </div>
           )}

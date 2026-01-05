@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { SidebarProvider, SidebarInset, SidebarTrigger } from '@/components/ui/sidebar';
 import AppSidebar from './AppSidebar';
+import { useAppSettings } from '@/hooks/useAppSettings';
 import { Menu, Bell, Search, Cpu } from 'lucide-react';
 
 interface DashboardLayoutProps {
@@ -8,6 +9,8 @@ interface DashboardLayoutProps {
 }
 
 const DashboardLayout = ({ children }: DashboardLayoutProps) => {
+  const { settings } = useAppSettings();
+  
   return (
     <SidebarProvider>
       <div className="min-h-screen flex w-full bg-background bg-grid-pattern">
@@ -32,7 +35,7 @@ const DashboardLayout = ({ children }: DashboardLayoutProps) => {
               {/* AI Status */}
               <div className="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-md bg-accent/10 border border-accent/20">
                 <Cpu size={14} className="text-accent" />
-                <span className="text-xs font-medium text-accent">QWII Active</span>
+                <span className="text-xs font-medium text-accent">{settings.app_name} Active</span>
                 <div className="w-1.5 h-1.5 rounded-full bg-accent animate-pulse" />
               </div>
 

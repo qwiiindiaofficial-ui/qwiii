@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAppSettings } from '@/hooks/useAppSettings';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -14,6 +15,7 @@ const passwordSchema = z.string().min(6, 'Password must be at least 6 characters
 const Auth = () => {
   const navigate = useNavigate();
   const { user, signIn, loading } = useAuth();
+  const { settings } = useAppSettings();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -73,11 +75,19 @@ const Auth = () => {
       <div className="w-full max-w-md">
         {/* Logo & Header */}
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary via-primary/80 to-secondary mb-4 shadow-lg">
-            <Zap className="w-8 h-8 text-primary-foreground" />
-          </div>
-          <h1 className="text-3xl font-display font-bold tracking-wide gradient-text">QWII</h1>
-          <p className="text-sm text-muted-foreground font-mono tracking-wider mt-1">OPTIMIZE VISION</p>
+          {settings.logo_url ? (
+            <img 
+              src={settings.logo_url} 
+              alt={settings.app_name}
+              className="w-16 h-16 rounded-2xl object-cover mx-auto mb-4 shadow-lg"
+            />
+          ) : (
+            <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-gradient-to-br from-primary via-primary/80 to-secondary mb-4 shadow-lg">
+              <Zap className="w-8 h-8 text-primary-foreground" />
+            </div>
+          )}
+          <h1 className="text-3xl font-display font-bold tracking-wide gradient-text">{settings.app_name}</h1>
+          <p className="text-sm text-muted-foreground font-mono tracking-wider mt-1">{settings.tagline}</p>
         </div>
 
         {/* Login Card */}
