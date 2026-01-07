@@ -59,6 +59,7 @@ import {
 } from '@/components/ui/collapsible';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAppSettings } from '@/hooks/useAppSettings';
+import { isPreviewDomain } from '@/hooks/usePreviewMode';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import {
   DropdownMenu,
@@ -193,12 +194,18 @@ const AppSidebar = () => {
     return 'U';
   };
 
+  // Check if we're in preview mode
+  const isPreview = isPreviewDomain();
+
   // Filter menu items based on user's allowed pages
   const getFilteredGroups = () => {
     return menuGroups.map(group => ({
       ...group,
       items: group.items.filter(item => {
-        // Admin Panel is removed from sidebar completely
+        // In preview mode, show all pages including admin
+        if (isPreview) return true;
+        
+        // Admin Panel is removed from sidebar completely for non-preview
         if (item.url === '/admin') return false;
         
         // Master users can see all pages
