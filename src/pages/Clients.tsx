@@ -32,12 +32,14 @@ import {
   Loader2,
   RefreshCw,
   FileSpreadsheet,
+  Link2,
+  Copy,
 } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import type { Client } from '@/hooks/useClients';
 
 const Clients = () => {
-  const { clients, loading, stats, createClient, updateClient, deleteClient, fetchClients } = useClients();
+  const { clients, loading, stats, createClient, updateClient, deleteClient, fetchClients, regeneratePortalLink } = useClients();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [isAddDialogOpen, setIsAddDialogOpen] = useState(false);
@@ -613,6 +615,10 @@ const Clients = () => {
                           <DropdownMenuItem onClick={() => openEditDialog(client)}>
                             <Edit size={14} className="mr-2" />
                             Edit
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => regeneratePortalLink(client.id)}>
+                            <Link2 size={14} className="mr-2" />
+                            Generate Portal Link
                           </DropdownMenuItem>
                           {client.phone && (
                             <DropdownMenuItem onClick={() => window.open(`tel:${client.phone}`)}>

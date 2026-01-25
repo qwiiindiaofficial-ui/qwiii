@@ -39,6 +39,7 @@ import Invoices from "./pages/Invoices";
 import Quotations from "./pages/Quotations";
 import Agreements from "./pages/Agreements";
 import DigitalSignatures from "./pages/DigitalSignatures";
+import ClientPortal from "./pages/ClientPortal";
 import Terms from "./pages/Terms";
 import Privacy from "./pages/Privacy";
 import Refund from "./pages/Refund";
@@ -58,6 +59,7 @@ const App = () => (
               {/* Public Routes */}
               <Route path="/" element={<Landing />} />
               <Route path="/auth" element={<Auth />} />
+              <Route path="/portal/:token" element={<ClientPortal />} />
               <Route path="/terms" element={<Terms />} />
               <Route path="/privacy" element={<Privacy />} />
               <Route path="/refund" element={<Refund />} />

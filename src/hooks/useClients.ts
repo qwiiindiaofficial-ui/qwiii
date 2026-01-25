@@ -22,6 +22,7 @@ export interface Client {
   outstanding_amount: number;
   total_orders: number;
   notes: string | null;
+  client_portal_token: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -176,6 +177,46 @@ export function useClients() {
     return clients.find(c => c.id === id);
   };
 
+  const regeneratePortalLink = async (clientId: string): Promise<string | null> => {
+    try {
+      const newToken = Array.from(crypto.getRandomValues(new Uint8Array(32)))
+        .map(b => b.toString(16).padStart(2, '0'))
+        .join('');
+
+      const { data, error } = await supabase
+        .from('clients')
+        .update({ client_portal_token: newToken })
+        .eq('id', clientId)
+        .select('client_portal_token')
+        .single();
+
+      if (error) throw error;
+
+      setClients(prev => prev.map(c =>
+        c.id === clientId ? { ...c, client_portal_token: newToken } : c
+      ));
+
+      const portalUrl = `${window.location.origin}/portal/${newToken}`;
+
+      await navigator.clipboard.writeText(portalUrl);
+
+      toast({
+        title: "Portal link generated",
+        description: "Link has been copied to clipboard"
+      });
+
+      return portalUrl;
+    } catch (err: any) {
+      console.error('Error regenerating portal link:', err);
+      toast({
+        title: "Error generating link",
+        description: err.message,
+        variant: "destructive"
+      });
+      return null;
+    }
+  };
+
   useEffect(() => {
     fetchClients();
   }, [user]);
@@ -200,6 +241,7 @@ export function useClients() {
     createClient,
     updateClient,
     deleteClient,
-    getClientById
+    getClientById,
+    regeneratePortalLink
   };
 }
