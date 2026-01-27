@@ -37,6 +37,7 @@ import {
   RefreshCw,
   Loader2,
   FileSpreadsheet,
+  Share2,
 } from 'lucide-react';
 
 const typeConfig = {
@@ -593,6 +594,21 @@ const Agreements = () => {
                 )}
 
                 <div className="flex gap-2 pt-4 border-t">
+                  <Button
+                    variant="outline"
+                    className="flex-1 gap-2"
+                    onClick={() => {
+                      if (selectedAgreement?.client?.client_portal_token) {
+                        const portalLink = `${window.location.origin}/portal/${selectedAgreement.client.client_portal_token}`;
+                        navigator.clipboard.writeText(portalLink);
+                        toast({ title: 'Link Copied!', description: 'Client portal link copied to clipboard' });
+                      } else {
+                        toast({ title: 'No Portal Access', description: 'This client does not have portal access', variant: 'destructive' });
+                      }
+                    }}
+                  >
+                    <Share2 size={14} /> Copy Link
+                  </Button>
                   <Button
                     variant="outline"
                     className="flex-1 gap-2"
