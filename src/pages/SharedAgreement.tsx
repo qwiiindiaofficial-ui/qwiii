@@ -74,10 +74,10 @@ const SharedAgreement = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen p-6" style={{ backgroundColor: '#f9fafb' }}>
         <div className="max-w-4xl mx-auto space-y-6">
-          <div className="h-32 w-full bg-gray-200 rounded animate-pulse" />
-          <div className="h-96 w-full bg-gray-200 rounded animate-pulse" />
+          <div className="h-32 w-full rounded" style={{ backgroundColor: '#e5e7eb' }} />
+          <div className="h-96 w-full rounded" style={{ backgroundColor: '#e5e7eb' }} />
         </div>
       </div>
     );
@@ -85,11 +85,11 @@ const SharedAgreement = () => {
 
   if (error || !agreement) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-sm border p-12 text-center">
-          <FileText size={48} className="mx-auto mb-4 text-gray-400 opacity-50" />
-          <h2 className="text-2xl font-bold mb-2 text-gray-900">Agreement Not Found</h2>
-          <p className="text-gray-600">
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ backgroundColor: '#f9fafb' }}>
+        <div className="max-w-md w-full rounded-lg shadow-sm p-12 text-center" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
+          <FileText size={48} className="mx-auto mb-4" style={{ color: '#9ca3af', opacity: 0.5 }} />
+          <h2 className="text-2xl font-bold mb-2" style={{ color: '#111827' }}>Agreement Not Found</h2>
+          <p style={{ color: '#6b7280' }}>
             {error || 'The agreement you are looking for does not exist or has been removed.'}
           </p>
         </div>
@@ -98,7 +98,7 @@ const SharedAgreement = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen p-6" style={{ backgroundColor: '#f9fafb', color: '#111827' }}>
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>

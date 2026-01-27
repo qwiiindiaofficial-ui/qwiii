@@ -83,10 +83,10 @@ const SharedInvoice = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gray-50 p-6">
+      <div className="min-h-screen p-6" style={{ backgroundColor: '#f9fafb' }}>
         <div className="max-w-4xl mx-auto space-y-6">
-          <div className="h-32 w-full bg-gray-200 rounded animate-pulse" />
-          <div className="h-96 w-full bg-gray-200 rounded animate-pulse" />
+          <div className="h-32 w-full rounded" style={{ backgroundColor: '#e5e7eb' }} />
+          <div className="h-96 w-full rounded" style={{ backgroundColor: '#e5e7eb' }} />
         </div>
       </div>
     );
@@ -94,11 +94,11 @@ const SharedInvoice = () => {
 
   if (error || !invoice) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
-        <div className="max-w-md w-full bg-white rounded-lg shadow-sm border p-12 text-center">
-          <FileText size={48} className="mx-auto mb-4 text-gray-400 opacity-50" />
-          <h2 className="text-2xl font-bold mb-2 text-gray-900">Invoice Not Found</h2>
-          <p className="text-gray-600">
+      <div className="min-h-screen flex items-center justify-center p-6" style={{ backgroundColor: '#f9fafb' }}>
+        <div className="max-w-md w-full rounded-lg shadow-sm p-12 text-center" style={{ backgroundColor: '#ffffff', border: '1px solid #e5e7eb' }}>
+          <FileText size={48} className="mx-auto mb-4" style={{ color: '#9ca3af', opacity: 0.5 }} />
+          <h2 className="text-2xl font-bold mb-2" style={{ color: '#111827' }}>Invoice Not Found</h2>
+          <p style={{ color: '#6b7280' }}>
             {error || 'The invoice you are looking for does not exist or has been removed.'}
           </p>
         </div>
@@ -107,7 +107,7 @@ const SharedInvoice = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 p-6">
+    <div className="min-h-screen p-6" style={{ backgroundColor: '#f9fafb', color: '#111827' }}>
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
@@ -186,13 +186,13 @@ const SharedInvoice = () => {
                     </tr>
                   </thead>
                   <tbody>
-                    {invoice.items.map((item, index) => (
+                    {invoice.items && invoice.items.length > 0 && invoice.items.map((item, index) => (
                       <tr key={index} className="border-t">
-                        <td className="p-3 text-sm">{index + 1}</td>
-                        <td className="p-3 text-sm">{item.description}</td>
-                        <td className="p-3 text-sm text-center">{item.quantity}</td>
-                        <td className="p-3 text-sm text-right">{formatCurrency(item.rate)}</td>
-                        <td className="p-3 text-sm text-right font-medium">{formatCurrency(item.amount)}</td>
+                        <td className="p-3 text-sm text-gray-900">{index + 1}</td>
+                        <td className="p-3 text-sm text-gray-900">{item.description}</td>
+                        <td className="p-3 text-sm text-center text-gray-900">{item.quantity}</td>
+                        <td className="p-3 text-sm text-right text-gray-900">{formatCurrency(item.rate)}</td>
+                        <td className="p-3 text-sm text-right font-medium text-gray-900">{formatCurrency(item.amount)}</td>
                       </tr>
                     ))}
                   </tbody>
