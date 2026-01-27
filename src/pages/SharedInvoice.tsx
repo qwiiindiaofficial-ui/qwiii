@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { generateInvoicePDF } from '@/lib/pdfUtils';
 import { formatDate } from '@/lib/exportUtils';
 import { Download, FileText } from 'lucide-react';
@@ -86,10 +83,10 @@ const SharedInvoice = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-6">
+      <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-4xl mx-auto space-y-6">
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-96 w-full" />
+          <div className="h-32 w-full bg-gray-200 rounded animate-pulse" />
+          <div className="h-96 w-full bg-gray-200 rounded animate-pulse" />
         </div>
       </div>
     );
@@ -97,67 +94,65 @@ const SharedInvoice = () => {
 
   if (error || !invoice) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-6">
-        <Card className="max-w-md w-full">
-          <CardContent className="p-12 text-center">
-            <FileText size={48} className="mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h2 className="text-2xl font-bold mb-2">Invoice Not Found</h2>
-            <p className="text-muted-foreground">
-              {error || 'The invoice you are looking for does not exist or has been removed.'}
-            </p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-sm border p-12 text-center">
+          <FileText size={48} className="mx-auto mb-4 text-gray-400 opacity-50" />
+          <h2 className="text-2xl font-bold mb-2 text-gray-900">Invoice Not Found</h2>
+          <p className="text-gray-600">
+            {error || 'The invoice you are looking for does not exist or has been removed.'}
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-6">
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Invoice</h1>
-            <p className="text-muted-foreground">#{invoice.invoice_number}</p>
+            <h1 className="text-3xl font-bold text-gray-900">Invoice</h1>
+            <p className="text-gray-600">#{invoice.invoice_number}</p>
           </div>
-          <Button
+          <button
             onClick={() => {
               generateInvoicePDF(invoice);
             }}
-            className="gap-2"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
           >
             <Download size={16} /> Download PDF
-          </Button>
+          </button>
         </div>
 
-        <Card>
-          <CardHeader className="border-b bg-muted/50">
+        <div className="bg-white rounded-lg shadow-sm border">
+          <div className="border-b bg-gray-50 p-6">
             <div className="flex justify-between items-start">
               <div>
-                <h2 className="text-2xl font-bold">QWII</h2>
-                <p className="text-sm text-muted-foreground">Optimize Vision</p>
+                <h2 className="text-2xl font-bold text-gray-900">QWII</h2>
+                <p className="text-sm text-gray-600">Optimize Vision</p>
               </div>
               <div className="text-right">
                 <div className={`inline-block px-3 py-1 rounded text-sm font-medium ${
-                  invoice.status === 'paid' ? 'bg-accent/20 text-accent' :
-                  invoice.status === 'sent' ? 'bg-warning/20 text-warning' :
-                  'bg-muted text-muted-foreground'
+                  invoice.status === 'paid' ? 'bg-green-100 text-green-700' :
+                  invoice.status === 'sent' ? 'bg-yellow-100 text-yellow-700' :
+                  'bg-gray-100 text-gray-700'
                 }`}>
                   {invoice.status.toUpperCase()}
                 </div>
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="p-6 space-y-6">
+          </div>
+          <div className="p-6 space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <h3 className="font-semibold mb-2">Bill To:</h3>
-                <div className="text-sm space-y-1">
+                <h3 className="font-semibold mb-2 text-gray-900">Bill To:</h3>
+                <div className="text-sm space-y-1 text-gray-900">
                   <p className="font-medium">{invoice.client.company || invoice.client.name}</p>
                   {invoice.client.gst_number && <p>GSTIN: {invoice.client.gst_number}</p>}
                   {invoice.client.email && <p>{invoice.client.email}</p>}
                   {invoice.client.phone && <p>{invoice.client.phone}</p>}
                   {invoice.client.address && (
-                    <p className="text-muted-foreground">
+                    <p className="text-gray-600">
                       {[invoice.client.address, invoice.client.city, invoice.client.state, invoice.client.country]
                         .filter(Boolean)
                         .join(', ')}
@@ -166,22 +161,22 @@ const SharedInvoice = () => {
                 </div>
               </div>
               <div>
-                <h3 className="font-semibold mb-2">Invoice Details:</h3>
-                <div className="text-sm space-y-1">
-                  <p><span className="text-muted-foreground">Issue Date:</span> {formatDate(invoice.issue_date)}</p>
-                  <p><span className="text-muted-foreground">Due Date:</span> {formatDate(invoice.due_date)}</p>
+                <h3 className="font-semibold mb-2 text-gray-900">Invoice Details:</h3>
+                <div className="text-sm space-y-1 text-gray-900">
+                  <p><span className="text-gray-600">Issue Date:</span> {formatDate(invoice.issue_date)}</p>
+                  <p><span className="text-gray-600">Due Date:</span> {formatDate(invoice.due_date)}</p>
                   {invoice.payment_date && (
-                    <p><span className="text-muted-foreground">Paid On:</span> {formatDate(invoice.payment_date)}</p>
+                    <p><span className="text-gray-600">Paid On:</span> {formatDate(invoice.payment_date)}</p>
                   )}
                 </div>
               </div>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-3">Items:</h3>
+              <h3 className="font-semibold mb-3 text-gray-900">Items:</h3>
               <div className="border rounded-lg overflow-hidden">
                 <table className="w-full">
-                  <thead className="bg-muted">
+                  <thead className="bg-gray-50">
                     <tr>
                       <th className="text-left p-3 text-sm font-semibold">#</th>
                       <th className="text-left p-3 text-sm font-semibold">Description</th>
@@ -208,24 +203,24 @@ const SharedInvoice = () => {
             <div className="flex justify-end">
               <div className="w-full max-w-xs space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal:</span>
+                  <span className="text-gray-600">Subtotal:</span>
                   <span className="font-medium">{formatCurrency(invoice.subtotal)}</span>
                 </div>
                 {invoice.cgst > 0 && (
                   <>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">CGST:</span>
+                      <span className="text-gray-600">CGST:</span>
                       <span className="font-medium">{formatCurrency(invoice.cgst)}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">SGST:</span>
+                      <span className="text-gray-600">SGST:</span>
                       <span className="font-medium">{formatCurrency(invoice.sgst)}</span>
                     </div>
                   </>
                 )}
                 {invoice.igst > 0 && (
                   <div className="flex justify-between text-sm">
-                    <span className="text-muted-foreground">IGST:</span>
+                    <span className="text-gray-600">IGST:</span>
                     <span className="font-medium">{formatCurrency(invoice.igst)}</span>
                   </div>
                 )}
@@ -238,14 +233,14 @@ const SharedInvoice = () => {
 
             {invoice.notes && (
               <div className="border-t pt-4">
-                <h3 className="font-semibold mb-2">Notes:</h3>
-                <p className="text-sm text-muted-foreground whitespace-pre-line">{invoice.notes}</p>
+                <h3 className="font-semibold mb-2 text-gray-900">Notes:</h3>
+                <p className="text-sm text-gray-600 whitespace-pre-line">{invoice.notes}</p>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <div className="text-center text-sm text-muted-foreground">
+        <div className="text-center text-sm text-gray-600">
           <p>Thank you for your business!</p>
         </div>
       </div>

@@ -1,9 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Skeleton } from '@/components/ui/skeleton';
 import { generateQuotationPDF } from '@/lib/pdfUtils';
 import { formatDate } from '@/lib/exportUtils';
 import { Download, FileText } from 'lucide-react';
@@ -83,10 +80,10 @@ const SharedQuotation = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-6">
+      <div className="min-h-screen bg-gray-50 p-6">
         <div className="max-w-4xl mx-auto space-y-6">
-          <Skeleton className="h-32 w-full" />
-          <Skeleton className="h-96 w-full" />
+          <div className="h-32 w-full bg-gray-200 rounded animate-pulse" />
+          <div className="h-96 w-full bg-gray-200 rounded animate-pulse" />
         </div>
       </div>
     );
@@ -94,109 +91,107 @@ const SharedQuotation = () => {
 
   if (error || !quotation) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 flex items-center justify-center p-6">
-        <Card className="max-w-md w-full">
-          <CardContent className="p-12 text-center">
-            <FileText size={48} className="mx-auto mb-4 text-muted-foreground opacity-50" />
-            <h2 className="text-2xl font-bold mb-2">Quotation Not Found</h2>
-            <p className="text-muted-foreground">
-              {error || 'The quotation you are looking for does not exist or has been removed.'}
-            </p>
-          </CardContent>
-        </Card>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-white rounded-lg shadow-sm border p-12 text-center">
+          <FileText size={48} className="mx-auto mb-4 text-gray-400 opacity-50" />
+          <h2 className="text-2xl font-bold mb-2 text-gray-900">Quotation Not Found</h2>
+          <p className="text-gray-600">
+            {error || 'The quotation you are looking for does not exist or has been removed.'}
+          </p>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5 p-6">
+    <div className="min-h-screen bg-gray-50 p-6">
       <div className="max-w-4xl mx-auto space-y-6">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold">Quotation</h1>
-            <p className="text-muted-foreground">#{quotation.quote_number}</p>
+            <h1 className="text-3xl font-bold text-gray-900">Quotation</h1>
+            <p className="text-gray-600">#{quotation.quote_number}</p>
           </div>
-          <Button
+          <button
             onClick={() => {
               generateQuotationPDF(quotation);
             }}
-            className="gap-2"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
           >
             <Download size={16} /> Download PDF
-          </Button>
+          </button>
         </div>
 
-        <Card>
-          <CardHeader className="border-b bg-muted/50">
+        <div className="bg-white rounded-lg shadow-sm border">
+          <div className="border-b bg-gray-50 p-6">
             <div className="flex justify-between items-start">
               <div>
-                <h2 className="text-2xl font-bold">QWII</h2>
-                <p className="text-sm text-muted-foreground">Optimize Vision</p>
+                <h2 className="text-2xl font-bold text-gray-900">QWII</h2>
+                <p className="text-sm text-gray-600">Optimize Vision</p>
               </div>
               <div className="text-right">
                 <div className={`inline-block px-3 py-1 rounded text-sm font-medium ${
-                  quotation.status === 'accepted' ? 'bg-accent/20 text-accent' :
-                  quotation.status === 'sent' ? 'bg-warning/20 text-warning' :
-                  quotation.status === 'rejected' ? 'bg-destructive/20 text-destructive' :
-                  'bg-muted text-muted-foreground'
+                  quotation.status === 'accepted' ? 'bg-green-100 text-green-700' :
+                  quotation.status === 'sent' ? 'bg-yellow-100 text-yellow-700' :
+                  quotation.status === 'rejected' ? 'bg-red-100 text-red-700' :
+                  'bg-gray-100 text-gray-700'
                 }`}>
                   {quotation.status.toUpperCase()}
                 </div>
               </div>
             </div>
-          </CardHeader>
-          <CardContent className="p-6 space-y-6">
+          </div>
+          <div className="p-6 space-y-6">
             <div className="grid md:grid-cols-2 gap-6">
               <div>
-                <h3 className="font-semibold mb-2">Quote For:</h3>
-                <div className="text-sm space-y-1">
+                <h3 className="font-semibold mb-2 text-gray-900">Quote For:</h3>
+                <div className="text-sm space-y-1 text-gray-900">
                   <p className="font-medium">{quotation.client.company || quotation.client.name}</p>
                   {quotation.client.email && <p>{quotation.client.email}</p>}
                   {quotation.client.phone && <p>{quotation.client.phone}</p>}
                   {quotation.client.address && (
-                    <p className="text-muted-foreground">{quotation.client.address}</p>
+                    <p className="text-gray-600">{quotation.client.address}</p>
                   )}
                 </div>
               </div>
               <div>
-                <h3 className="font-semibold mb-2">Quote Details:</h3>
-                <div className="text-sm space-y-1">
-                  <p><span className="text-muted-foreground">Created On:</span> {formatDate(quotation.created_at)}</p>
-                  <p><span className="text-muted-foreground">Valid Until:</span> {formatDate(quotation.valid_until)}</p>
+                <h3 className="font-semibold mb-2 text-gray-900">Quote Details:</h3>
+                <div className="text-sm space-y-1 text-gray-900">
+                  <p><span className="text-gray-600">Created On:</span> {formatDate(quotation.created_at)}</p>
+                  <p><span className="text-gray-600">Valid Until:</span> {formatDate(quotation.valid_until)}</p>
                 </div>
               </div>
             </div>
 
             <div>
-              <h3 className="font-semibold mb-3">Items:</h3>
+              <h3 className="font-semibold mb-3 text-gray-900">Items:</h3>
               <div className="border rounded-lg overflow-hidden">
                 <table className="w-full">
-                  <thead className="bg-muted">
+                  <thead className="bg-gray-50">
                     <tr>
-                      <th className="text-left p-3 text-sm font-semibold">#</th>
-                      <th className="text-left p-3 text-sm font-semibold">Product</th>
-                      <th className="text-center p-3 text-sm font-semibold">Qty</th>
-                      <th className="text-right p-3 text-sm font-semibold">Unit Price</th>
-                      <th className="text-center p-3 text-sm font-semibold">Disc</th>
-                      <th className="text-right p-3 text-sm font-semibold">Total</th>
+                      <th className="text-left p-3 text-sm font-semibold text-gray-900">#</th>
+                      <th className="text-left p-3 text-sm font-semibold text-gray-900">Product</th>
+                      <th className="text-center p-3 text-sm font-semibold text-gray-900">Qty</th>
+                      <th className="text-right p-3 text-sm font-semibold text-gray-900">Unit Price</th>
+                      <th className="text-center p-3 text-sm font-semibold text-gray-900">Disc</th>
+                      <th className="text-right p-3 text-sm font-semibold text-gray-900">Total</th>
                     </tr>
                   </thead>
                   <tbody>
                     {quotation.items.map((item, index) => (
                       <tr key={index} className="border-t">
-                        <td className="p-3 text-sm">{index + 1}</td>
-                        <td className="p-3 text-sm">
+                        <td className="p-3 text-sm text-gray-900">{index + 1}</td>
+                        <td className="p-3 text-sm text-gray-900">
                           <div>
                             <p className="font-medium">{item.product}</p>
                             {item.description && (
-                              <p className="text-xs text-muted-foreground">{item.description}</p>
+                              <p className="text-xs text-gray-600">{item.description}</p>
                             )}
                           </div>
                         </td>
-                        <td className="p-3 text-sm text-center">{item.quantity}</td>
-                        <td className="p-3 text-sm text-right">{formatCurrency(item.unit_price)}</td>
-                        <td className="p-3 text-sm text-center">{item.discount ? `${item.discount}%` : '-'}</td>
-                        <td className="p-3 text-sm text-right font-medium">{formatCurrency(item.total)}</td>
+                        <td className="p-3 text-sm text-center text-gray-900">{item.quantity}</td>
+                        <td className="p-3 text-sm text-right text-gray-900">{formatCurrency(item.unit_price)}</td>
+                        <td className="p-3 text-sm text-center text-gray-900">{item.discount ? `${item.discount}%` : '-'}</td>
+                        <td className="p-3 text-sm text-right font-medium text-gray-900">{formatCurrency(item.total)}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -207,43 +202,43 @@ const SharedQuotation = () => {
             <div className="flex justify-end">
               <div className="w-full max-w-xs space-y-2">
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Subtotal:</span>
-                  <span className="font-medium">{formatCurrency(quotation.subtotal)}</span>
+                  <span className="text-gray-600">Subtotal:</span>
+                  <span className="font-medium text-gray-900">{formatCurrency(quotation.subtotal)}</span>
                 </div>
                 {quotation.discount > 0 && (
-                  <div className="flex justify-between text-sm text-accent">
+                  <div className="flex justify-between text-sm text-green-600">
                     <span>Discount:</span>
                     <span className="font-medium">-{formatCurrency(quotation.discount)}</span>
                   </div>
                 )}
                 <div className="flex justify-between text-sm">
-                  <span className="text-muted-foreground">Tax:</span>
-                  <span className="font-medium">{formatCurrency(quotation.tax)}</span>
+                  <span className="text-gray-600">Tax:</span>
+                  <span className="font-medium text-gray-900">{formatCurrency(quotation.tax)}</span>
                 </div>
                 <div className="border-t pt-2 flex justify-between">
-                  <span className="font-bold text-lg">Total:</span>
-                  <span className="font-bold text-lg">{formatCurrency(quotation.total)}</span>
+                  <span className="font-bold text-lg text-gray-900">Total:</span>
+                  <span className="font-bold text-lg text-gray-900">{formatCurrency(quotation.total)}</span>
                 </div>
               </div>
             </div>
 
             {quotation.terms && (
               <div className="border-t pt-4">
-                <h3 className="font-semibold mb-2">Terms & Conditions:</h3>
-                <p className="text-sm text-muted-foreground whitespace-pre-line">{quotation.terms}</p>
+                <h3 className="font-semibold mb-2 text-gray-900">Terms & Conditions:</h3>
+                <p className="text-sm text-gray-600 whitespace-pre-line">{quotation.terms}</p>
               </div>
             )}
 
             {quotation.notes && (
               <div className="border-t pt-4">
-                <h3 className="font-semibold mb-2">Notes:</h3>
-                <p className="text-sm text-muted-foreground whitespace-pre-line">{quotation.notes}</p>
+                <h3 className="font-semibold mb-2 text-gray-900">Notes:</h3>
+                <p className="text-sm text-gray-600 whitespace-pre-line">{quotation.notes}</p>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
-        <div className="text-center text-sm text-muted-foreground">
+        <div className="text-center text-sm text-gray-600">
           <p>Thank you for your interest!</p>
         </div>
       </div>

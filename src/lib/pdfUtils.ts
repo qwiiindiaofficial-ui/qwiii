@@ -80,144 +80,91 @@ interface QuotationPDFData {
   notes?: string;
 }
 
-const COLORS = {
-  primary: [16, 185, 129],
-  secondary: [59, 130, 246],
-  dark: [17, 24, 39],
-  gray: [107, 114, 128],
-  lightGray: [243, 244, 246],
-  white: [255, 255, 255],
-  accent: [139, 92, 246],
+const formatCurrency = (amount: number): string => {
+  return amount.toFixed(2);
 };
 
-const addModernHeader = (doc: jsPDF, title: string, docNumber: string) => {
+const addHeader = (doc: jsPDF, title: string, docNumber: string) => {
   const pageWidth = doc.internal.pageSize.width;
 
-  doc.setFillColor(...COLORS.dark);
-  doc.rect(0, 0, pageWidth, 50, 'F');
+  doc.setLineWidth(0.5);
+  doc.setDrawColor(0, 0, 0);
+  doc.line(20, 15, pageWidth - 20, 15);
 
-  doc.setFillColor(...COLORS.primary);
-  doc.rect(0, 50, pageWidth, 3, 'F');
-
-  doc.setTextColor(...COLORS.white);
-  doc.setFontSize(28);
+  doc.setFontSize(22);
   doc.setFont('helvetica', 'bold');
   doc.text('QWII', 20, 25);
 
   doc.setFontSize(9);
   doc.setFont('helvetica', 'normal');
-  doc.text('OPTIMIZE VISION', 20, 33);
-  doc.text('Email: contact@qwii.com', 20, 39);
-  doc.text('Phone: +91 XXXXXXXXXX', 20, 45);
+  doc.text('Optimize Vision', 20, 31);
+  doc.text('Email: contact@qwii.com', 20, 36);
+  doc.text('Phone: +91 XXXXXXXXXX', 20, 41);
 
-  doc.setFontSize(24);
+  doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
   doc.text(title, pageWidth - 20, 25, { align: 'right' });
 
-  doc.setFontSize(11);
+  doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.text(docNumber, pageWidth - 20, 35, { align: 'right' });
+  doc.text(docNumber, pageWidth - 20, 32, { align: 'right' });
 
-  doc.setTextColor(...COLORS.dark);
+  doc.setLineWidth(0.5);
+  doc.line(20, 47, pageWidth - 20, 47);
 };
 
-const addModernFooter = (doc: jsPDF, pageNumber: number, totalPages: number = 1) => {
+const addFooter = (doc: jsPDF, pageNumber: number) => {
   const pageHeight = doc.internal.pageSize.height;
   const pageWidth = doc.internal.pageSize.width;
 
-  doc.setDrawColor(...COLORS.primary);
   doc.setLineWidth(0.5);
-  doc.line(20, pageHeight - 25, pageWidth - 20, pageHeight - 25);
+  doc.setDrawColor(0, 0, 0);
+  doc.line(20, pageHeight - 20, pageWidth - 20, pageHeight - 20);
 
   doc.setFontSize(8);
-  doc.setTextColor(...COLORS.gray);
   doc.setFont('helvetica', 'normal');
-
-  doc.text(
-    'Thank you for your business!',
-    20,
-    pageHeight - 18
-  );
-
-  doc.text(
-    `Generated: ${new Date().toLocaleDateString('en-IN', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })}`,
-    pageWidth / 2,
-    pageHeight - 18,
-    { align: 'center' }
-  );
-
-  doc.text(
-    `Page ${pageNumber}${totalPages > 1 ? ` of ${totalPages}` : ''}`,
-    pageWidth - 20,
-    pageHeight - 18,
-    { align: 'right' }
-  );
-
-  doc.setFontSize(7);
-  doc.text(
-    'QWII - Optimize Vision | Textile Industry Solutions',
-    pageWidth / 2,
-    pageHeight - 10,
-    { align: 'center' }
-  );
-};
-
-const formatIndianCurrency = (amount: number): string => {
-  return new Intl.NumberFormat('en-IN', {
-    style: 'currency',
-    currency: 'INR',
-    minimumFractionDigits: 2,
-    maximumFractionDigits: 2,
-  }).format(amount);
-};
-
-const addInfoBox = (
-  doc: jsPDF,
-  x: number,
-  y: number,
-  width: number,
-  title: string,
-  content: Array<{ label: string; value: string; bold?: boolean }>
-) => {
-  doc.setFillColor(...COLORS.lightGray);
-  doc.roundedRect(x, y, width, 6 + content.length * 6, 2, 2, 'F');
-
-  doc.setFillColor(...COLORS.secondary);
-  doc.roundedRect(x, y, width, 6, 2, 2, 'F');
-
-  doc.setTextColor(...COLORS.white);
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.text(title, x + 3, y + 4);
-
-  doc.setTextColor(...COLORS.dark);
-  doc.setFontSize(9);
-
-  content.forEach((item, index) => {
-    const lineY = y + 10 + index * 6;
-    doc.setFont('helvetica', 'normal');
-    doc.setTextColor(...COLORS.gray);
-    doc.text(item.label, x + 3, lineY);
-
-    doc.setFont('helvetica', item.bold ? 'bold' : 'normal');
-    doc.setTextColor(...COLORS.dark);
-    doc.text(item.value, x + width - 3, lineY, { align: 'right' });
-  });
+  doc.text('Thank you for your business', 20, pageHeight - 13);
+  doc.text(`Page ${pageNumber}`, pageWidth - 20, pageHeight - 13, { align: 'right' });
+  doc.text('QWII - Optimize Vision | Textile Industry Solutions', pageWidth / 2, pageHeight - 8, { align: 'center' });
 };
 
 export const generateInvoicePDF = (data: InvoicePDFData) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
 
-  addModernHeader(doc, 'TAX INVOICE', `#${data.invoice_number}`);
+  addHeader(doc, 'TAX INVOICE', `#${data.invoice_number}`);
 
-  let yPos = 63;
+  let yPos = 57;
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('BILL TO:', 20, yPos);
+  doc.text('INVOICE DETAILS:', 115, yPos);
+
+  yPos += 6;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
 
   const clientName = data.client.company || data.client.name || 'N/A';
+  doc.text(clientName, 20, yPos);
+  yPos += 5;
+
+  if (data.client.gst_number) {
+    doc.text(`GSTIN: ${data.client.gst_number}`, 20, yPos);
+    yPos += 5;
+  }
+
+  if (data.client.email) {
+    doc.text(data.client.email, 20, yPos);
+    yPos += 5;
+  }
+
+  if (data.client.phone) {
+    doc.text(data.client.phone, 20, yPos);
+    yPos += 5;
+  }
+
   const clientAddress = [
     data.client.address,
     data.client.city,
@@ -225,143 +172,119 @@ export const generateInvoicePDF = (data: InvoicePDFData) => {
     data.client.country
   ].filter(Boolean).join(', ');
 
-  addInfoBox(doc, 20, yPos, 85, 'BILL TO', [
-    { label: 'Client:', value: clientName, bold: true },
-    ...(data.client.gst_number ? [{ label: 'GSTIN:', value: data.client.gst_number }] : []),
-    ...(data.client.email ? [{ label: 'Email:', value: data.client.email }] : []),
-    ...(data.client.phone ? [{ label: 'Phone:', value: data.client.phone }] : []),
-    ...(clientAddress ? [{ label: 'Address:', value: clientAddress }] : []),
-  ]);
+  if (clientAddress) {
+    const addressLines = doc.splitTextToSize(clientAddress, 85);
+    doc.text(addressLines, 20, yPos);
+  }
 
-  addInfoBox(doc, 110, yPos, 85, 'INVOICE DETAILS', [
-    { label: 'Invoice Number:', value: data.invoice_number, bold: true },
-    { label: 'Issue Date:', value: formatDate(data.issue_date) },
-    { label: 'Due Date:', value: formatDate(data.due_date) },
-    ...(data.payment_date ? [{ label: 'Paid On:', value: formatDate(data.payment_date) }] : []),
-  ]);
+  let detailsY = 63;
+  doc.text(`Invoice Number: ${data.invoice_number}`, 115, detailsY);
+  detailsY += 5;
+  doc.text(`Issue Date: ${formatDate(data.issue_date)}`, 115, detailsY);
+  detailsY += 5;
+  doc.text(`Due Date: ${formatDate(data.due_date)}`, 115, detailsY);
+  detailsY += 5;
 
-  yPos += Math.max(30, 24 + Math.max(
-    (data.client.gst_number ? 1 : 0) +
-    (data.client.email ? 1 : 0) +
-    (data.client.phone ? 1 : 0) +
-    (clientAddress ? 1 : 0),
-    2 + (data.payment_date ? 1 : 0)
-  ) * 6);
+  if (data.payment_date) {
+    doc.text(`Paid On: ${formatDate(data.payment_date)}`, 115, detailsY);
+    detailsY += 5;
+  }
 
-  doc.setFillColor(...COLORS.secondary);
-  doc.roundedRect(20, yPos, pageWidth - 40, 8, 2, 2, 'F');
+  yPos = Math.max(yPos, detailsY) + 8;
 
-  doc.setTextColor(...COLORS.white);
-  doc.setFontSize(12);
   doc.setFont('helvetica', 'bold');
-  doc.text('ITEM DETAILS', 25, yPos + 5);
-  doc.setTextColor(...COLORS.dark);
-
-  yPos += 12;
+  doc.setFontSize(11);
+  doc.text('ITEM DETAILS', 20, yPos);
+  yPos += 5;
 
   const tableData = data.items.map((item, index) => [
     String(index + 1),
     item.description,
     String(item.quantity),
-    formatIndianCurrency(item.rate),
-    formatIndianCurrency(item.amount),
+    formatCurrency(item.rate),
+    formatCurrency(item.amount),
   ]);
 
   autoTable(doc, {
     startY: yPos,
-    head: [['#', 'Description', 'Qty', 'Rate', 'Amount']],
+    head: [['#', 'Description', 'Qty', 'Rate (₹)', 'Amount (₹)']],
     body: tableData,
     theme: 'grid',
-    headStyles: {
-      fillColor: COLORS.primary,
-      textColor: COLORS.white,
-      fontStyle: 'bold',
-      fontSize: 10,
-      halign: 'center',
-      cellPadding: 4,
-    },
-    bodyStyles: {
-      fontSize: 10,
+    styles: {
+      fontSize: 9,
       cellPadding: 3,
     },
-    alternateRowStyles: {
-      fillColor: COLORS.lightGray,
+    headStyles: {
+      fillColor: [255, 255, 255],
+      textColor: [0, 0, 0],
+      fontStyle: 'bold',
+      lineWidth: 0.5,
+      lineColor: [0, 0, 0],
+    },
+    bodyStyles: {
+      textColor: [0, 0, 0],
+      lineWidth: 0.3,
+      lineColor: [128, 128, 128],
     },
     columnStyles: {
-      0: { cellWidth: 12, halign: 'center' },
-      1: { cellWidth: 80 },
-      2: { cellWidth: 18, halign: 'center' },
-      3: { cellWidth: 38, halign: 'right' },
-      4: { cellWidth: 38, halign: 'right' },
+      0: { cellWidth: 15, halign: 'center' },
+      1: { cellWidth: 85 },
+      2: { cellWidth: 20, halign: 'center' },
+      3: { cellWidth: 30, halign: 'right' },
+      4: { cellWidth: 35, halign: 'right' },
     },
     margin: { left: 20, right: 20 },
   });
 
-  yPos = (doc as any).lastAutoTable.finalY + 15;
+  yPos = (doc as any).lastAutoTable.finalY + 10;
 
-  const summaryX = pageWidth - 90;
-  const summaryWidth = 70;
+  const summaryX = pageWidth - 75;
 
-  doc.setFillColor(...COLORS.lightGray);
-  doc.roundedRect(summaryX, yPos - 3, summaryWidth,
-    8 + (data.cgst > 0 ? 18 : 0) + (data.igst > 0 ? 6 : 0) + 12, 2, 2, 'F');
-
-  doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.setTextColor(...COLORS.dark);
+  doc.setFontSize(9);
 
-  doc.text('Subtotal:', summaryX + 3, yPos);
-  doc.text(formatIndianCurrency(data.subtotal), summaryX + summaryWidth - 3, yPos, { align: 'right' });
-  yPos += 6;
+  doc.text('Subtotal:', summaryX, yPos);
+  doc.text(formatCurrency(data.subtotal), summaryX + 50, yPos, { align: 'right' });
+  yPos += 5;
 
   if (data.cgst > 0) {
-    doc.text('CGST:', summaryX + 3, yPos);
-    doc.text(formatIndianCurrency(data.cgst), summaryX + summaryWidth - 3, yPos, { align: 'right' });
-    yPos += 6;
+    doc.text('CGST:', summaryX, yPos);
+    doc.text(formatCurrency(data.cgst), summaryX + 50, yPos, { align: 'right' });
+    yPos += 5;
 
-    doc.text('SGST:', summaryX + 3, yPos);
-    doc.text(formatIndianCurrency(data.sgst), summaryX + summaryWidth - 3, yPos, { align: 'right' });
-    yPos += 6;
+    doc.text('SGST:', summaryX, yPos);
+    doc.text(formatCurrency(data.sgst), summaryX + 50, yPos, { align: 'right' });
+    yPos += 5;
   }
 
   if (data.igst > 0) {
-    doc.text('IGST:', summaryX + 3, yPos);
-    doc.text(formatIndianCurrency(data.igst), summaryX + summaryWidth - 3, yPos, { align: 'right' });
-    yPos += 6;
+    doc.text('IGST:', summaryX, yPos);
+    doc.text(formatCurrency(data.igst), summaryX + 50, yPos, { align: 'right' });
+    yPos += 5;
   }
 
-  doc.setDrawColor(...COLORS.primary);
-  doc.setLineWidth(0.5);
-  doc.line(summaryX + 3, yPos, summaryX + summaryWidth - 3, yPos);
+  doc.setLineWidth(0.3);
+  doc.line(summaryX, yPos, summaryX + 50, yPos);
   yPos += 6;
 
-  doc.setFillColor(...COLORS.primary);
-  doc.roundedRect(summaryX, yPos - 3, summaryWidth, 10, 2, 2, 'F');
-
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.setTextColor(...COLORS.white);
-  doc.text('TOTAL', summaryX + 3, yPos + 3);
-  doc.text(formatIndianCurrency(data.total), summaryX + summaryWidth - 3, yPos + 3, { align: 'right' });
-  doc.setTextColor(...COLORS.dark);
-  yPos += 15;
+  doc.setFontSize(11);
+  doc.text('TOTAL (₹):', summaryX, yPos);
+  doc.text(formatCurrency(data.total), summaryX + 50, yPos, { align: 'right' });
+  yPos += 8;
 
   if (data.notes) {
-    doc.setFillColor(...COLORS.lightGray);
-    const notesLines = doc.splitTextToSize(data.notes, pageWidth - 50);
-    const notesHeight = notesLines.length * 5 + 8;
-    doc.roundedRect(20, yPos, pageWidth - 40, notesHeight, 2, 2, 'F');
-
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
-    doc.text('Notes:', 23, yPos + 5);
+    doc.text('Notes:', 20, yPos);
+    yPos += 5;
 
     doc.setFont('helvetica', 'normal');
-    doc.text(notesLines, 23, yPos + 10);
-    yPos += notesHeight + 5;
+    const notesLines = doc.splitTextToSize(data.notes, pageWidth - 40);
+    doc.text(notesLines, 20, yPos);
   }
 
-  addModernFooter(doc, 1);
+  addFooter(doc, 1);
 
   doc.save(`Invoice-${data.invoice_number}.pdf`);
 };
@@ -370,125 +293,136 @@ export const generateAgreementPDF = (data: AgreementPDFData) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
 
-  addModernHeader(doc, 'AGREEMENT', `#${data.agreement_number}`);
+  addHeader(doc, 'AGREEMENT', `#${data.agreement_number}`);
 
-  let yPos = 65;
+  let yPos = 57;
 
-  doc.setFillColor(...COLORS.secondary);
-  doc.roundedRect(20, yPos, pageWidth - 40, 10, 2, 2, 'F');
-
-  doc.setTextColor(...COLORS.white);
-  doc.setFontSize(14);
   doc.setFont('helvetica', 'bold');
-  const titleLines = doc.splitTextToSize(data.title, pageWidth - 50);
-  doc.text(titleLines, pageWidth / 2, yPos + 6, { align: 'center' });
-  doc.setTextColor(...COLORS.dark);
+  doc.setFontSize(12);
+  const titleLines = doc.splitTextToSize(data.title, pageWidth - 40);
+  doc.text(titleLines, pageWidth / 2, yPos, { align: 'center' });
+  yPos += titleLines.length * 6 + 4;
 
-  yPos += 10 + titleLines.length * 3;
+  doc.setFontSize(9);
+  doc.text(`Type: ${data.type.toUpperCase()}`, pageWidth / 2, yPos, { align: 'center' });
+  yPos += 8;
 
-  addInfoBox(doc, 20, yPos, 85, 'PARTY DETAILS', [
-    { label: 'Client:', value: data.client.company || data.client.name || 'N/A', bold: true },
-    ...(data.client.email ? [{ label: 'Email:', value: data.client.email }] : []),
-    ...(data.client.phone ? [{ label: 'Phone:', value: data.client.phone }] : []),
-    ...(data.client.address ? [{ label: 'Address:', value: data.client.address }] : []),
-  ]);
+  doc.setFontSize(10);
+  doc.text('PARTY DETAILS:', 20, yPos);
+  doc.text('AGREEMENT INFO:', 115, yPos);
+  yPos += 6;
 
-  addInfoBox(doc, 110, yPos, 85, 'AGREEMENT INFO', [
-    { label: 'Type:', value: data.type.toUpperCase(), bold: true },
-    { label: 'Start Date:', value: formatDate(data.start_date) },
-    { label: 'End Date:', value: formatDate(data.end_date) },
-    { label: 'Value:', value: data.value > 0 ? formatIndianCurrency(data.value) : 'N/A' },
-    ...(data.signed_date ? [{ label: 'Signed On:', value: formatDate(data.signed_date) }] : []),
-  ]);
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
 
-  yPos += Math.max(30, 24 + Math.max(
-    (data.client.email ? 1 : 0) + (data.client.phone ? 1 : 0) + (data.client.address ? 1 : 0),
-    3 + (data.signed_date ? 1 : 0)
-  ) * 6);
+  const clientName = data.client.company || data.client.name || 'N/A';
+  doc.text(clientName, 20, yPos);
+
+  let infoY = yPos;
+  doc.text(`Start Date: ${formatDate(data.start_date)}`, 115, infoY);
+  infoY += 5;
+  doc.text(`End Date: ${formatDate(data.end_date)}`, 115, infoY);
+  infoY += 5;
+
+  if (data.value > 0) {
+    doc.text(`Value: ₹${formatCurrency(data.value)}`, 115, infoY);
+    infoY += 5;
+  }
+
+  if (data.signed_date) {
+    doc.text(`Signed On: ${formatDate(data.signed_date)}`, 115, infoY);
+    infoY += 5;
+  }
+
+  yPos += 5;
+  if (data.client.email) {
+    doc.text(data.client.email, 20, yPos);
+    yPos += 5;
+  }
+
+  if (data.client.phone) {
+    doc.text(data.client.phone, 20, yPos);
+    yPos += 5;
+  }
+
+  if (data.client.address) {
+    const addressLines = doc.splitTextToSize(data.client.address, 85);
+    doc.text(addressLines, 20, yPos);
+    yPos += addressLines.length * 5;
+  }
+
+  yPos = Math.max(yPos, infoY) + 8;
 
   if (data.terms && data.terms.length > 0) {
-    doc.setFillColor(...COLORS.secondary);
-    doc.roundedRect(20, yPos, pageWidth - 40, 8, 2, 2, 'F');
-
-    doc.setTextColor(...COLORS.white);
-    doc.setFontSize(12);
     doc.setFont('helvetica', 'bold');
-    doc.text('TERMS & CONDITIONS', 25, yPos + 5);
-    doc.setTextColor(...COLORS.dark);
+    doc.setFontSize(11);
+    doc.text('TERMS & CONDITIONS', 20, yPos);
+    yPos += 6;
 
-    yPos += 12;
-
-    doc.setFontSize(10);
     doc.setFont('helvetica', 'normal');
+    doc.setFontSize(9);
 
     data.terms.forEach((term, index) => {
       if (yPos > 250) {
-        addModernFooter(doc, 1);
+        addFooter(doc, 1);
         doc.addPage();
-        addModernHeader(doc, 'AGREEMENT', `#${data.agreement_number}`);
-        yPos = 65;
+        addHeader(doc, 'AGREEMENT', `#${data.agreement_number}`);
+        yPos = 57;
       }
 
-      doc.setFillColor(...COLORS.lightGray);
-      const termLines = doc.splitTextToSize(term, pageWidth - 55);
-      const boxHeight = termLines.length * 5 + 4;
-      doc.roundedRect(20, yPos - 2, pageWidth - 40, boxHeight, 1, 1, 'F');
-
       doc.setFont('helvetica', 'bold');
-      doc.setTextColor(...COLORS.secondary);
-      doc.text(`${index + 1}.`, 23, yPos + 2);
+      doc.text(`${index + 1}.`, 20, yPos);
 
       doc.setFont('helvetica', 'normal');
-      doc.setTextColor(...COLORS.dark);
-      doc.text(termLines, 30, yPos + 2);
+      const termLines = doc.splitTextToSize(term, pageWidth - 50);
+      doc.text(termLines, 27, yPos);
 
-      yPos += boxHeight + 3;
+      yPos += termLines.length * 5 + 3;
     });
 
     yPos += 5;
   }
 
-  if (yPos > 230) {
-    addModernFooter(doc, 1);
+  if (yPos > 220) {
+    addFooter(doc, 1);
     doc.addPage();
-    addModernHeader(doc, 'AGREEMENT', `#${data.agreement_number}`);
-    yPos = 65;
+    addHeader(doc, 'AGREEMENT', `#${data.agreement_number}`);
+    yPos = 57;
   }
-
-  doc.setFillColor(...COLORS.secondary);
-  doc.roundedRect(20, yPos, pageWidth - 40, 8, 2, 2, 'F');
-
-  doc.setTextColor(...COLORS.white);
-  doc.setFontSize(12);
-  doc.setFont('helvetica', 'bold');
-  doc.text('SIGNATURES', 25, yPos + 5);
-  doc.setTextColor(...COLORS.dark);
-
-  yPos += 14;
-
-  doc.setFillColor(...COLORS.lightGray);
-  doc.roundedRect(20, yPos, 75, 30, 2, 2, 'F');
-  doc.roundedRect(120, yPos, 75, 30, 2, 2, 'F');
-
-  doc.setFontSize(10);
-  doc.setFont('helvetica', 'bold');
-  doc.text('Client Representative', 23, yPos + 5);
-  doc.text('Company Representative', 123, yPos + 5);
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(11);
-  doc.text(data.signatory_client || '___________________', 23, yPos + 12);
-  doc.text(data.signatory_company || '___________________', 123, yPos + 12);
+  doc.text('SIGNATURES', 20, yPos);
+  yPos += 8;
+
+  doc.setFontSize(9);
+  doc.text('Client Representative', 20, yPos);
+  doc.text('Company Representative', 115, yPos);
+  yPos += 6;
 
   doc.setFont('helvetica', 'normal');
-  doc.setFontSize(9);
-  doc.text('Signature: ___________________', 23, yPos + 20);
-  doc.text('Signature: ___________________', 123, yPos + 20);
+  doc.text(data.signatory_client || '_____________________', 20, yPos);
+  doc.text(data.signatory_company || '_____________________', 115, yPos);
+  yPos += 10;
 
-  doc.text('Date: ___________________', 23, yPos + 26);
-  doc.text('Date: ___________________', 123, yPos + 26);
+  doc.text('Signature: _____________________', 20, yPos);
+  doc.text('Signature: _____________________', 115, yPos);
+  yPos += 8;
 
-  addModernFooter(doc, 1);
+  doc.text('Date: _____________________', 20, yPos);
+  doc.text('Date: _____________________', 115, yPos);
+
+  if (data.notes) {
+    yPos += 10;
+    doc.setFont('helvetica', 'bold');
+    doc.text('Notes:', 20, yPos);
+    yPos += 5;
+    doc.setFont('helvetica', 'normal');
+    const notesLines = doc.splitTextToSize(data.notes, pageWidth - 40);
+    doc.text(notesLines, 20, yPos);
+  }
+
+  addFooter(doc, 1);
 
   doc.save(`Agreement-${data.agreement_number}.pdf`);
 };
@@ -497,41 +431,53 @@ export const generateQuotationPDF = (data: QuotationPDFData) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
 
-  addModernHeader(doc, 'QUOTATION', `#${data.quote_number}`);
+  addHeader(doc, 'QUOTATION', `#${data.quote_number}`);
 
-  let yPos = 63;
+  let yPos = 57;
+
+  doc.setFontSize(10);
+  doc.setFont('helvetica', 'bold');
+  doc.text('QUOTE FOR:', 20, yPos);
+  doc.text('QUOTE DETAILS:', 115, yPos);
+
+  yPos += 6;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(9);
 
   const clientName = data.client.company || data.client.name || 'N/A';
-  const clientAddress = data.client.address || '';
+  doc.text(clientName, 20, yPos);
+  yPos += 5;
 
-  addInfoBox(doc, 20, yPos, 85, 'QUOTE FOR', [
-    { label: 'Client:', value: clientName, bold: true },
-    ...(data.client.email ? [{ label: 'Email:', value: data.client.email }] : []),
-    ...(data.client.phone ? [{ label: 'Phone:', value: data.client.phone }] : []),
-    ...(clientAddress ? [{ label: 'Address:', value: clientAddress }] : []),
-  ]);
+  if (data.client.email) {
+    doc.text(data.client.email, 20, yPos);
+    yPos += 5;
+  }
 
-  addInfoBox(doc, 110, yPos, 85, 'QUOTE DETAILS', [
-    { label: 'Quote Number:', value: data.quote_number, bold: true },
-    { label: 'Created On:', value: formatDate(data.created_at) },
-    { label: 'Valid Until:', value: formatDate(data.valid_until) },
-  ]);
+  if (data.client.phone) {
+    doc.text(data.client.phone, 20, yPos);
+    yPos += 5;
+  }
 
-  yPos += Math.max(30, 24 + Math.max(
-    (data.client.email ? 1 : 0) + (data.client.phone ? 1 : 0) + (clientAddress ? 1 : 0),
-    2
-  ) * 6);
+  if (data.client.address) {
+    const addressLines = doc.splitTextToSize(data.client.address, 85);
+    doc.text(addressLines, 20, yPos);
+  }
 
-  doc.setFillColor(...COLORS.secondary);
-  doc.roundedRect(20, yPos, pageWidth - 40, 8, 2, 2, 'F');
+  let detailsY = 63;
+  doc.text(`Quote Number: ${data.quote_number}`, 115, detailsY);
+  detailsY += 5;
+  doc.text(`Created On: ${formatDate(data.created_at)}`, 115, detailsY);
+  detailsY += 5;
+  doc.text(`Valid Until: ${formatDate(data.valid_until)}`, 115, detailsY);
+  detailsY += 5;
 
-  doc.setTextColor(...COLORS.white);
-  doc.setFontSize(12);
+  yPos = Math.max(yPos, detailsY) + 8;
+
   doc.setFont('helvetica', 'bold');
-  doc.text('ITEMS & PRICING', 25, yPos + 5);
-  doc.setTextColor(...COLORS.dark);
-
-  yPos += 12;
+  doc.setFontSize(11);
+  doc.text('ITEMS & PRICING', 20, yPos);
+  yPos += 5;
 
   const tableData = data.items.map((item, index) => {
     const productText = item.product + (item.description ? `\n${item.description}` : '');
@@ -539,118 +485,99 @@ export const generateQuotationPDF = (data: QuotationPDFData) => {
       String(index + 1),
       productText,
       String(item.quantity),
-      formatIndianCurrency(item.unit_price),
+      formatCurrency(item.unit_price),
       item.discount ? `${item.discount}%` : '-',
-      formatIndianCurrency(item.total),
+      formatCurrency(item.total),
     ];
   });
 
   autoTable(doc, {
     startY: yPos,
-    head: [['#', 'Product', 'Qty', 'Unit Price', 'Disc', 'Total']],
+    head: [['#', 'Product', 'Qty', 'Unit Price (₹)', 'Disc', 'Total (₹)']],
     body: tableData,
     theme: 'grid',
-    headStyles: {
-      fillColor: COLORS.primary,
-      textColor: COLORS.white,
-      fontStyle: 'bold',
-      fontSize: 10,
-      halign: 'center',
-      cellPadding: 4,
-    },
-    bodyStyles: {
-      fontSize: 10,
+    styles: {
+      fontSize: 9,
       cellPadding: 3,
     },
-    alternateRowStyles: {
-      fillColor: COLORS.lightGray,
+    headStyles: {
+      fillColor: [255, 255, 255],
+      textColor: [0, 0, 0],
+      fontStyle: 'bold',
+      lineWidth: 0.5,
+      lineColor: [0, 0, 0],
+    },
+    bodyStyles: {
+      textColor: [0, 0, 0],
+      lineWidth: 0.3,
+      lineColor: [128, 128, 128],
     },
     columnStyles: {
       0: { cellWidth: 12, halign: 'center' },
-      1: { cellWidth: 68 },
+      1: { cellWidth: 70 },
       2: { cellWidth: 18, halign: 'center' },
-      3: { cellWidth: 34, halign: 'right' },
-      4: { cellWidth: 18, halign: 'center' },
-      5: { cellWidth: 36, halign: 'right' },
+      3: { cellWidth: 30, halign: 'right' },
+      4: { cellWidth: 15, halign: 'center' },
+      5: { cellWidth: 35, halign: 'right' },
     },
     margin: { left: 20, right: 20 },
   });
 
-  yPos = (doc as any).lastAutoTable.finalY + 15;
+  yPos = (doc as any).lastAutoTable.finalY + 10;
 
-  const summaryX = pageWidth - 90;
-  const summaryWidth = 70;
+  const summaryX = pageWidth - 75;
 
-  doc.setFillColor(...COLORS.lightGray);
-  doc.roundedRect(summaryX, yPos - 3, summaryWidth,
-    8 + (data.discount > 0 ? 6 : 0) + 12, 2, 2, 'F');
-
-  doc.setFontSize(10);
   doc.setFont('helvetica', 'normal');
-  doc.setTextColor(...COLORS.dark);
+  doc.setFontSize(9);
 
-  doc.text('Subtotal:', summaryX + 3, yPos);
-  doc.text(formatIndianCurrency(data.subtotal), summaryX + summaryWidth - 3, yPos, { align: 'right' });
-  yPos += 6;
+  doc.text('Subtotal:', summaryX, yPos);
+  doc.text(formatCurrency(data.subtotal), summaryX + 50, yPos, { align: 'right' });
+  yPos += 5;
 
   if (data.discount > 0) {
-    doc.setTextColor(...COLORS.primary);
-    doc.text('Discount:', summaryX + 3, yPos);
-    doc.text(`-${formatIndianCurrency(data.discount)}`, summaryX + summaryWidth - 3, yPos, { align: 'right' });
-    doc.setTextColor(...COLORS.dark);
-    yPos += 6;
+    doc.text('Discount:', summaryX, yPos);
+    doc.text(`-${formatCurrency(data.discount)}`, summaryX + 50, yPos, { align: 'right' });
+    yPos += 5;
   }
 
-  doc.text('Tax:', summaryX + 3, yPos);
-  doc.text(formatIndianCurrency(data.tax), summaryX + summaryWidth - 3, yPos, { align: 'right' });
-  yPos += 6;
+  doc.text('Tax:', summaryX, yPos);
+  doc.text(formatCurrency(data.tax), summaryX + 50, yPos, { align: 'right' });
+  yPos += 5;
 
-  doc.setDrawColor(...COLORS.primary);
-  doc.setLineWidth(0.5);
-  doc.line(summaryX + 3, yPos, summaryX + summaryWidth - 3, yPos);
+  doc.setLineWidth(0.3);
+  doc.line(summaryX, yPos, summaryX + 50, yPos);
   yPos += 6;
-
-  doc.setFillColor(...COLORS.primary);
-  doc.roundedRect(summaryX, yPos - 3, summaryWidth, 10, 2, 2, 'F');
 
   doc.setFont('helvetica', 'bold');
-  doc.setFontSize(13);
-  doc.setTextColor(...COLORS.white);
-  doc.text('TOTAL', summaryX + 3, yPos + 3);
-  doc.text(formatIndianCurrency(data.total), summaryX + summaryWidth - 3, yPos + 3, { align: 'right' });
-  doc.setTextColor(...COLORS.dark);
-  yPos += 15;
+  doc.setFontSize(11);
+  doc.text('TOTAL (₹):', summaryX, yPos);
+  doc.text(formatCurrency(data.total), summaryX + 50, yPos, { align: 'right' });
+  yPos += 8;
 
   if (data.terms) {
-    doc.setFillColor(...COLORS.lightGray);
-    const termsLines = doc.splitTextToSize(data.terms, pageWidth - 50);
-    const termsHeight = termsLines.length * 5 + 8;
-    doc.roundedRect(20, yPos, pageWidth - 40, termsHeight, 2, 2, 'F');
-
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
-    doc.text('Terms & Conditions:', 23, yPos + 5);
+    doc.text('Terms & Conditions:', 20, yPos);
+    yPos += 5;
 
     doc.setFont('helvetica', 'normal');
-    doc.text(termsLines, 23, yPos + 10);
-    yPos += termsHeight + 5;
+    const termsLines = doc.splitTextToSize(data.terms, pageWidth - 40);
+    doc.text(termsLines, 20, yPos);
+    yPos += termsLines.length * 5 + 5;
   }
 
   if (data.notes) {
-    doc.setFillColor(...COLORS.lightGray);
-    const notesLines = doc.splitTextToSize(data.notes, pageWidth - 50);
-    const notesHeight = notesLines.length * 5 + 8;
-    doc.roundedRect(20, yPos, pageWidth - 40, notesHeight, 2, 2, 'F');
-
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(9);
-    doc.text('Notes:', 23, yPos + 5);
+    doc.text('Notes:', 20, yPos);
+    yPos += 5;
 
     doc.setFont('helvetica', 'normal');
-    doc.text(notesLines, 23, yPos + 10);
+    const notesLines = doc.splitTextToSize(data.notes, pageWidth - 40);
+    doc.text(notesLines, 20, yPos);
   }
 
-  addModernFooter(doc, 1);
+  addFooter(doc, 1);
 
   doc.save(`Quotation-${data.quote_number}.pdf`);
 };
