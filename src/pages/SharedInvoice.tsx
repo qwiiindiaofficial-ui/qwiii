@@ -57,7 +57,9 @@ const SharedInvoice = () => {
   useEffect(() => {
     const fetchInvoice = async () => {
       try {
-        const { data: invoiceData, error: invoiceError } = await supabaseAnon
+        const client = supabaseAnon;
+
+        const { data: invoiceData, error: invoiceError } = await client
           .from('invoices')
           .select(`
             *,
