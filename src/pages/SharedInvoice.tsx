@@ -43,6 +43,18 @@ const SharedInvoice = () => {
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    document.body.style.backgroundColor = '#f9fafb';
+    document.body.style.color = '#111827';
+    document.documentElement.style.backgroundColor = '#f9fafb';
+
+    return () => {
+      document.body.style.backgroundColor = '';
+      document.body.style.color = '';
+      document.documentElement.style.backgroundColor = '';
+    };
+  }, []);
+
+  useEffect(() => {
     const fetchInvoice = async () => {
       try {
         const { data, error } = await supabase
