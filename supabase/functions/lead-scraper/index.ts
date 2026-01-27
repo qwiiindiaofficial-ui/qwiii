@@ -32,6 +32,11 @@ const cityCoordinates = {
   Jaipur: { lat: 26.9124, lon: 75.7873, state: "Rajasthan" },
   Ahmedabad: { lat: 23.0225, lon: 72.5714, state: "Gujarat" },
   Lucknow: { lat: 26.8467, lon: 80.9462, state: "Uttar Pradesh" },
+  Surat: { lat: 21.1702, lon: 72.8311, state: "Gujarat" },
+  Nagpur: { lat: 21.1458, lon: 79.0882, state: "Maharashtra" },
+  Indore: { lat: 22.7196, lon: 75.8577, state: "Madhya Pradesh" },
+  Bhopal: { lat: 23.2599, lon: 77.4126, state: "Madhya Pradesh" },
+  Chandigarh: { lat: 30.7333, lon: 76.7794, state: "Chandigarh" },
 };
 
 const industryToOSMTags = {
@@ -52,41 +57,85 @@ function buildOverpassQuery(industry: string, city: string, limit: number): stri
   const coords = cityCoordinates[city] || cityCoordinates.Mumbai;
   const tags = industryToOSMTags[industry.toLowerCase()] || industryToOSMTags["default"];
 
-  const radius = 15000;
+  const radius = 25000;
 
-  const tagQueries = tags.map(tag => `node["${tag.split('=')[0]}"="${tag.split('=')[1]}"](around:${radius},${coords.lat},${coords.lon});`).join('\n  ');
+  const nodeQueries = tags.map(tag => {
+    const [key, value] = tag.split('=');
+    return `node["${key}"="${value}"](around:${radius},${coords.lat},${coords.lon});`;
+  }).join('\n  ');
 
-  return `[out:json][timeout:25];
+  const wayQueries = tags.map(tag => {
+    const [key, value] = tag.split('=');
+    return `way["${key}"="${value}"](around:${radius},${coords.lat},${coords.lon});`;
+  }).join('\n  ');
+
+  return `[out:json][timeout:30];
 (
-  ${tagQueries}
+  ${nodeQueries}
+  ${wayQueries}
 );
-out body ${limit};`;
+out center body ${limit * 2};`;
 }
 
 async function scrapeFromOverpass(industry: string, location: string, limit: number): Promise<ScrapedLead[]> {
   const query = buildOverpassQuery(industry, location, limit);
 
-  const response = await fetch('https://overpass-api.de/api/interpreter', {
-    method: 'POST',
-    body: query,
-    headers: {
-      'Content-Type': 'application/x-www-form-urlencoded',
-    },
-  });
+  const overpassServers = [
+    'https://overpass-api.de/api/interpreter',
+    'https://overpass.kumi.systems/api/interpreter',
+    'https://overpass.openstreetmap.ru/api/interpreter'
+  ];
 
-  if (!response.ok) {
-    throw new Error(`Overpass API error: ${response.statusText}`);
+  let lastError: Error | null = null;
+
+  for (const server of overpassServers) {
+    try {
+      console.log(`Trying ${server}...`);
+
+      const response = await fetch(server, {
+        method: 'POST',
+        body: query,
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+      });
+
+      if (!response.ok) {
+        console.log(`Server ${server} returned ${response.status}`);
+        continue;
+      }
+
+      const data = await response.json();
+      const cityData = cityCoordinates[location] || cityCoordinates.Mumbai;
+
+      if (data.elements && data.elements.length > 0) {
+        console.log(`Success! Found ${data.elements.length} elements from ${server}`);
+        return parseOverpassData(data, location, cityData, industry, limit);
+      }
+    } catch (error) {
+      console.error(`Error with ${server}:`, error.message);
+      lastError = error;
+      continue;
+    }
   }
 
-  const data = await response.json();
-  const cityData = cityCoordinates[location] || cityCoordinates.Mumbai;
+  console.log('All servers failed or returned no results');
+  return [];
+}
 
+function parseOverpassData(data: any, location: string, cityData: any, industry: string, limit: number): ScrapedLead[] {
   const leads: ScrapedLead[] = [];
+  const seenNames = new Set<string>();
 
   for (const element of data.elements || []) {
     if (!element.tags) continue;
 
-    const name = element.tags.name || element.tags.brand || element.tags.operator || "Unnamed Business";
+    const name = element.tags.name || element.tags.brand || element.tags.operator || null;
+
+    if (!name || name === "Unnamed Business") continue;
+
+    if (seenNames.has(name.toLowerCase())) continue;
+    seenNames.add(name.toLowerCase());
 
     const streetParts = [];
     if (element.tags["addr:street"]) streetParts.push(element.tags["addr:street"]);
@@ -95,7 +144,10 @@ async function scrapeFromOverpass(industry: string, location: string, limit: num
 
     const address = streetParts.length > 0
       ? streetParts.join(", ")
-      : element.tags["addr:full"] || "Address not available";
+      : element.tags["addr:full"] || `${location}, India`;
+
+    const lat = element.lat || element.center?.lat;
+    const lon = element.lon || element.center?.lon;
 
     const lead: ScrapedLead = {
       name: name,
@@ -108,11 +160,13 @@ async function scrapeFromOverpass(industry: string, location: string, limit: num
       business_type: element.tags.amenity || element.tags.shop || element.tags.tourism || industry,
       industry: industry,
       google_place_id: `osm_${element.type}_${element.id}`,
-      latitude: element.lat,
-      longitude: element.lon,
+      latitude: lat,
+      longitude: lon,
     };
 
     leads.push(lead);
+
+    if (leads.length >= limit) break;
   }
 
   return leads;

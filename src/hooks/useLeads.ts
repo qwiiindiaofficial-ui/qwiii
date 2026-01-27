@@ -158,7 +158,12 @@ export const useLeads = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       queryClient.invalidateQueries({ queryKey: ["lead_generation_logs"] });
-      toast.success(`Successfully generated ${data.leads_generated} leads!`);
+
+      if (data.leads_generated === 0) {
+        toast.warning(`No leads found. Try a different industry or location. OpenStreetMap may have limited data for this combination.`);
+      } else {
+        toast.success(`Successfully generated ${data.leads_generated} leads with phone numbers!`);
+      }
     },
     onError: (error: Error) => {
       toast.error(`Failed to generate leads: ${error.message}`);
