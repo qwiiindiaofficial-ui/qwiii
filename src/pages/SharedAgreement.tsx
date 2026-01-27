@@ -119,9 +119,15 @@ const SharedAgreement = () => {
           </div>
           <button
             onClick={() => {
-              generateAgreementPDF(agreement);
+              try {
+                generateAgreementPDF(agreement);
+              } catch (error) {
+                console.error('Error generating PDF:', error);
+                alert('Failed to generate PDF. Please try again.');
+              }
             }}
-            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2"
+            className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 flex items-center gap-2 cursor-pointer transition-colors"
+            style={{ zIndex: 10 }}
           >
             <Download size={16} /> Download PDF
           </button>
