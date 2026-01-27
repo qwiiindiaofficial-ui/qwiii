@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { supabaseAnonAnon } from '@/lib/supabaseAnonAnonymous';
+import { supabaseAnon } from '@/lib/supabaseAnonymous';
 import { generateQuotationPDF } from '@/lib/pdfUtils';
 import { formatDate } from '@/lib/exportUtils';
 import { Download, FileText } from 'lucide-react';
