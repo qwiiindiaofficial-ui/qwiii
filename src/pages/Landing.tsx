@@ -497,7 +497,7 @@ const Landing = () => {
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold mb-1">Mayank Bajaj</h3>
-                    <p className="text-primary font-semibold mb-2">Co-Founder</p>
+                    <p className="text-primary font-semibold mb-2">Founder</p>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       Visionary entrepreneur with a passion for leveraging AI to transform business operations and drive innovation.
                     </p>
@@ -516,7 +516,7 @@ const Landing = () => {
                   </div>
                   <div>
                     <h3 className="text-2xl font-bold mb-1">Himanshu Kumar</h3>
-                    <p className="text-accent font-semibold mb-2">Co-Founder</p>
+                    <p className="text-accent font-semibold mb-2">Founder</p>
                     <p className="text-sm text-muted-foreground leading-relaxed">
                       Tech innovator dedicated to building intelligent systems that empower businesses to make data-driven decisions.
                     </p>

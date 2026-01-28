@@ -10,7 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Loader2, CheckCircle2, CreditCard, Phone } from 'lucide-react';
+import { Loader2, CheckCircle2, CreditCard, Phone, Copy, Check, QrCode } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -31,6 +31,7 @@ const PlanRegistrationForm = ({
 }: PlanRegistrationFormProps) => {
   const [step, setStep] = useState<'form' | 'payment'>('form');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [copiedUPI, setCopiedUPI] = useState(false);
   const [formData, setFormData] = useState({
     fullName: '',
     email: '',
@@ -38,6 +39,16 @@ const PlanRegistrationForm = ({
     companyName: '',
     message: '',
   });
+
+  const upiId = 'your-upi-id@paytm';
+  const qrCodeUrl = 'https://exkmbvfehmzehnsnfzww.supabase.co/storage/v1/object/public/logos/logo-1767650736764.png';
+
+  const copyUPIId = () => {
+    navigator.clipboard.writeText(upiId);
+    setCopiedUPI(true);
+    toast.success('UPI ID copied to clipboard!');
+    setTimeout(() => setCopiedUPI(false), 2000);
+  };
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({
@@ -222,10 +233,62 @@ const PlanRegistrationForm = ({
                 </h4>
 
                 <div className="space-y-3">
+                  <div className="p-4 border-2 border-primary/50 rounded-lg space-y-3 bg-primary/5">
+                    <p className="font-semibold flex items-center gap-2">
+                      <QrCode className="w-5 h-5 text-primary" />
+                      UPI Payment (Recommended)
+                    </p>
+
+                    <div className="flex flex-col md:flex-row gap-4 items-center">
+                      <div className="flex-1 space-y-3 w-full">
+                        <div>
+                          <p className="text-xs text-muted-foreground mb-2">UPI ID:</p>
+                          <div className="flex items-center gap-2">
+                            <div className="flex-1 p-3 bg-background rounded-lg border font-mono text-sm">
+                              {upiId}
+                            </div>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={copyUPIId}
+                              className="gap-2"
+                            >
+                              {copiedUPI ? (
+                                <>
+                                  <Check className="w-4 h-4" />
+                                  Copied
+                                </>
+                              ) : (
+                                <>
+                                  <Copy className="w-4 h-4" />
+                                  Copy
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                        <p className="text-xs text-muted-foreground">
+                          Scan QR code or copy UPI ID to make payment using any UPI app (GPay, PhonePe, Paytm, etc.)
+                        </p>
+                      </div>
+
+                      <div className="flex-shrink-0">
+                        <div className="p-3 bg-white rounded-lg border-2 border-primary/20">
+                          <img
+                            src={qrCodeUrl}
+                            alt="UPI QR Code"
+                            className="w-32 h-32 object-contain"
+                          />
+                        </div>
+                        <p className="text-xs text-center text-muted-foreground mt-2">Scan to Pay</p>
+                      </div>
+                    </div>
+                  </div>
+
                   <div className="p-4 border rounded-lg space-y-2">
-                    <p className="font-semibold">Bank Transfer / UPI</p>
+                    <p className="font-semibold">Bank Transfer</p>
                     <p className="text-sm text-muted-foreground">
-                      Contact us for bank account details and UPI payment options
+                      Contact our sales team for bank account details
                     </p>
                   </div>
 
