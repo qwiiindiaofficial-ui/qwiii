@@ -4,16 +4,18 @@ import { Button } from '@/components/ui/button';
 import { Switch } from '@/components/ui/switch';
 import { Badge } from '@/components/ui/badge';
 import { useAppSettings } from '@/hooks/useAppSettings';
-import { 
-  Brain, 
-  BarChart3, 
-  TrendingUp, 
-  MessageSquare, 
-  Palette, 
-  Users, 
-  Factory, 
-  Package, 
-  Shield, 
+import WhatsAppButton from '@/components/WhatsAppButton';
+import PlanRegistrationForm from '@/components/PlanRegistrationForm';
+import {
+  Brain,
+  BarChart3,
+  TrendingUp,
+  MessageSquare,
+  Palette,
+  Users,
+  Factory,
+  Package,
+  Shield,
   Zap,
   CheckCircle,
   ArrowRight,
@@ -31,13 +33,21 @@ import {
   Award,
   Globe,
   HeartHandshake,
-  Rocket
+  Rocket,
+  Briefcase,
+  Code
 } from 'lucide-react';
 
 const Landing = () => {
   const { settings } = useAppSettings();
   const [isAnnual, setIsAnnual] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
+  const [registrationDialogOpen, setRegistrationDialogOpen] = useState(false);
+  const [selectedPlan, setSelectedPlan] = useState<{
+    name: string;
+    price: number;
+    billingCycle: 'monthly' | 'annual';
+  } | null>(null);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -60,6 +70,16 @@ const Landing = () => {
 
   const whatsappNumber = '917303408500';
   const whatsappLink = `https://wa.me/${whatsappNumber}?text=Hi! I'm interested in QWII platform.`;
+  const qwiiLogoUrl = 'https://exkmbvfehmzehnsnfzww.supabase.co/storage/v1/object/public/logos/logo-1767650736764.png';
+
+  const handlePlanSelection = (planName: string, price: number) => {
+    setSelectedPlan({
+      name: planName,
+      price: price,
+      billingCycle: isAnnual ? 'annual' : 'monthly',
+    });
+    setRegistrationDialogOpen(true);
+  };
 
   const features = [
     {
@@ -203,13 +223,7 @@ const Landing = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="flex items-center gap-3">
-              {settings.logo_url ? (
-                <img src={settings.logo_url} alt="Logo" className="h-10 w-auto" />
-              ) : (
-                <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                  <Sparkles className="w-6 h-6 text-primary-foreground" />
-                </div>
-              )}
+              <img src={qwiiLogoUrl} alt="QWII Logo" className="h-10 w-auto" />
               <div>
                 <span className="text-xl font-display font-bold gradient-text">{settings.app_name}</span>
                 <span className="hidden sm:block text-xs text-muted-foreground">{settings.tagline}</span>
@@ -422,15 +436,14 @@ const Landing = () => {
                   ))}
                 </ul>
 
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="block">
-                  <Button 
-                    className="w-full gap-2" 
-                    variant={plan.popular ? 'default' : 'outline'}
-                  >
-                    👉 {plan.cta}
-                    <ChevronRight size={16} />
-                  </Button>
-                </a>
+                <Button
+                  className="w-full gap-2"
+                  variant={plan.popular ? 'default' : 'outline'}
+                  onClick={() => handlePlanSelection(plan.name, isAnnual ? plan.annualPrice : plan.monthlyPrice)}
+                >
+                  {plan.cta}
+                  <ChevronRight size={16} />
+                </Button>
               </div>
             ))}
           </div>
@@ -471,20 +484,44 @@ const Landing = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-6">
-              <div className="glass-card p-8 text-center">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-primary to-accent mx-auto mb-4 flex items-center justify-center">
-                  <span className="text-3xl font-bold text-primary-foreground">MB</span>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="glass-card p-8 hover:shadow-xl transition-shadow">
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="relative">
+                    <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary via-accent to-primary mx-auto flex items-center justify-center shadow-lg">
+                      <span className="text-4xl font-bold text-primary-foreground">MB</span>
+                    </div>
+                    <div className="absolute -bottom-2 -right-2 w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-md">
+                      <Briefcase className="w-6 h-6 text-primary-foreground" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold mb-1">Mayank Bajaj</h3>
+                    <p className="text-primary font-semibold mb-2">Co-Founder</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Visionary entrepreneur with a passion for leveraging AI to transform business operations and drive innovation.
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold">Mayank Bajaj</h3>
-                <p className="text-sm text-primary">Co-Founder</p>
               </div>
-              <div className="glass-card p-8 text-center">
-                <div className="w-24 h-24 rounded-full bg-gradient-to-br from-accent to-primary mx-auto mb-4 flex items-center justify-center">
-                  <span className="text-3xl font-bold text-primary-foreground">HK</span>
+              <div className="glass-card p-8 hover:shadow-xl transition-shadow">
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="relative">
+                    <div className="w-32 h-32 rounded-full bg-gradient-to-br from-accent via-primary to-accent mx-auto flex items-center justify-center shadow-lg">
+                      <span className="text-4xl font-bold text-primary-foreground">HK</span>
+                    </div>
+                    <div className="absolute -bottom-2 -right-2 w-12 h-12 rounded-full bg-accent flex items-center justify-center shadow-md">
+                      <Code className="w-6 h-6 text-primary-foreground" />
+                    </div>
+                  </div>
+                  <div>
+                    <h3 className="text-2xl font-bold mb-1">Himanshu Kumar</h3>
+                    <p className="text-accent font-semibold mb-2">Co-Founder</p>
+                    <p className="text-sm text-muted-foreground leading-relaxed">
+                      Tech innovator dedicated to building intelligent systems that empower businesses to make data-driven decisions.
+                    </p>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold">Himanshu Kumar</h3>
-                <p className="text-sm text-accent">Co-Founder</p>
               </div>
             </div>
           </div>
@@ -531,13 +568,7 @@ const Landing = () => {
             {/* Brand */}
             <div className="md:col-span-1">
               <div className="flex items-center gap-3 mb-4">
-                {settings.logo_url ? (
-                  <img src={settings.logo_url} alt="Logo" className="h-10 w-auto" />
-                ) : (
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-accent flex items-center justify-center">
-                    <Sparkles className="w-6 h-6 text-primary-foreground" />
-                  </div>
-                )}
+                <img src={qwiiLogoUrl} alt="QWII Logo" className="h-10 w-auto" />
                 <span className="text-xl font-display font-bold gradient-text">{settings.app_name}</span>
               </div>
               <p className="text-sm text-muted-foreground mb-4">
@@ -583,8 +614,14 @@ const Landing = () => {
               <ul className="space-y-3 text-sm">
                 <li className="flex items-center gap-2 text-muted-foreground">
                   <Phone size={14} />
-                  <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="hover:text-foreground">
+                  <a href="tel:+917303408500" className="hover:text-foreground">
                     +91 73034 08500
+                  </a>
+                </li>
+                <li className="flex items-center gap-2 text-muted-foreground">
+                  <Phone size={14} />
+                  <a href="tel:+918383954181" className="hover:text-foreground">
+                    +91 83839 54181
                   </a>
                 </li>
                 <li className="flex items-center gap-2 text-muted-foreground">
@@ -613,6 +650,18 @@ const Landing = () => {
           </div>
         </div>
       </footer>
+
+      <WhatsAppButton />
+
+      {selectedPlan && (
+        <PlanRegistrationForm
+          open={registrationDialogOpen}
+          onOpenChange={setRegistrationDialogOpen}
+          planName={selectedPlan.name}
+          planPrice={selectedPlan.price}
+          billingCycle={selectedPlan.billingCycle}
+        />
+      )}
     </div>
   );
 };

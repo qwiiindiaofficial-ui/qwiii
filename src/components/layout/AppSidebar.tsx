@@ -150,6 +150,7 @@ const menuGroups: MenuGroup[] = [
     items: [
       { title: 'Buyer Management', url: '/buyers', icon: Users },
       { title: 'Global Markets', url: '/markets', icon: Globe },
+      { title: 'Plan Registrations', url: '/plan-registrations', icon: Target, badge: 'New', badgeColor: 'accent' },
       { title: 'Notifications', url: '/notifications', icon: Bell },
       { title: 'Settings', url: '/settings', icon: Settings },
     ],
@@ -166,6 +167,7 @@ const AppSidebar = () => {
   const [openGroups, setOpenGroups] = useState<string[]>(
     menuGroups.filter(g => g.defaultOpen).map(g => g.title)
   );
+  const qwiiLogoUrl = 'https://exkmbvfehmzehnsnfzww.supabase.co/storage/v1/object/public/logos/logo-1767650736764.png';
 
   const toggleGroup = (title: string) => {
     setOpenGroups(prev =>
@@ -230,17 +232,11 @@ const AppSidebar = () => {
       <SidebarHeader className="border-b border-sidebar-border p-4">
         <div className="flex items-center gap-3">
           <div className="relative">
-            {settings.logo_url ? (
-              <img 
-                src={settings.logo_url} 
-                alt={settings.app_name}
-                className="w-10 h-10 rounded-lg object-cover shadow-lg"
-              />
-            ) : (
-              <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary via-primary/80 to-secondary flex items-center justify-center shadow-lg">
-                <Zap className="w-5 h-5 text-primary-foreground" />
-              </div>
-            )}
+            <img
+              src={qwiiLogoUrl}
+              alt={settings.app_name}
+              className="w-10 h-10 rounded-lg object-cover shadow-lg"
+            />
             <div className="absolute -bottom-0.5 -right-0.5 w-2.5 h-2.5 rounded-full status-online" />
           </div>
           {!isCollapsed && (
