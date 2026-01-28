@@ -211,41 +211,41 @@ const PlanRegistrationForm = ({
             </DialogHeader>
 
             <div className="space-y-6 mt-6">
-              <div className="bg-gradient-to-br from-primary/10 to-primary/5 p-5 rounded-xl border-2 border-primary/20">
+              <div className="bg-gradient-to-br from-primary/20 to-primary/10 dark:from-primary/30 dark:to-primary/15 p-5 rounded-xl border-2 border-primary/40 dark:border-primary/50">
                 <div className="grid grid-cols-3 gap-4 text-center">
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Plan</p>
+                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Plan</p>
                     <p className="font-bold text-primary text-lg">{planName}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Amount</p>
-                    <p className="font-bold text-2xl">{formatPrice(planPrice)}</p>
+                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Amount</p>
+                    <p className="font-bold text-2xl text-gray-900 dark:text-gray-100">{formatPrice(planPrice)}</p>
                   </div>
                   <div>
-                    <p className="text-xs text-muted-foreground mb-1">Billing</p>
-                    <p className="font-bold text-lg capitalize">{billingCycle}</p>
+                    <p className="text-xs font-semibold text-gray-600 dark:text-gray-400 mb-1">Billing</p>
+                    <p className="font-bold text-lg capitalize text-gray-900 dark:text-gray-100">{billingCycle}</p>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-gradient-to-br from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20 p-6 rounded-xl border-2 border-green-500/30">
+              <div className="bg-gradient-to-br from-green-100 to-emerald-100 dark:from-green-900/40 dark:to-emerald-900/40 p-6 rounded-xl border-2 border-green-600/50 dark:border-green-500/60">
                 <div className="flex items-center gap-2 mb-4">
-                  <QrCode className="w-6 h-6 text-green-600" />
-                  <h4 className="font-bold text-lg">UPI Payment (Recommended)</h4>
+                  <QrCode className="w-6 h-6 text-green-700 dark:text-green-400" />
+                  <h4 className="font-bold text-lg text-green-900 dark:text-green-100">UPI Payment (Recommended)</h4>
                 </div>
 
                 <div className="grid md:grid-cols-2 gap-6">
                   <div className="space-y-4">
                     <div>
-                      <Label className="text-xs text-muted-foreground mb-2 block">UPI ID</Label>
+                      <Label className="text-xs font-semibold text-green-800 dark:text-green-300 mb-2 block">UPI ID</Label>
                       <div className="flex gap-2">
-                        <div className="flex-1 p-3 bg-white dark:bg-gray-900 rounded-lg border-2 border-green-200 dark:border-green-800 font-mono text-sm font-semibold">
+                        <div className="flex-1 p-3 bg-white dark:bg-gray-950 rounded-lg border-2 border-green-300 dark:border-green-700 font-mono text-sm font-semibold text-gray-900 dark:text-gray-100">
                           {upiId}
                         </div>
                         <Button
                           size="sm"
                           onClick={copyUPIId}
-                          className="gap-2 bg-green-600 hover:bg-green-700"
+                          className="gap-2 bg-green-600 hover:bg-green-700 dark:bg-green-600 dark:hover:bg-green-700 text-white"
                         >
                           {copiedUPI ? (
                             <>
@@ -262,26 +262,26 @@ const PlanRegistrationForm = ({
                       </div>
                     </div>
 
-                    <div className="bg-white dark:bg-gray-900 p-4 rounded-lg border-2 border-green-200 dark:border-green-800">
-                      <h5 className="font-semibold text-sm mb-2">Payment Instructions:</h5>
-                      <ol className="text-xs space-y-1.5 text-muted-foreground list-decimal list-inside">
+                    <div className="bg-white dark:bg-gray-950 p-4 rounded-lg border-2 border-green-300 dark:border-green-700">
+                      <h5 className="font-semibold text-sm mb-2 text-green-900 dark:text-green-100">Payment Instructions:</h5>
+                      <ol className="text-xs space-y-1.5 text-gray-700 dark:text-gray-300 list-decimal list-inside">
                         <li>Open any UPI app (GPay, PhonePe, Paytm)</li>
                         <li>Scan the QR code or use the UPI ID</li>
-                        <li>Enter amount: <span className="font-bold text-foreground">{formatPrice(planPrice)}</span></li>
+                        <li>Enter amount: <span className="font-bold text-gray-900 dark:text-gray-100">{formatPrice(planPrice)}</span></li>
                         <li>Complete the payment</li>
                       </ol>
                     </div>
                   </div>
 
                   <div className="flex flex-col items-center justify-center">
-                    <div className="bg-white p-4 rounded-xl border-4 border-green-500 shadow-lg">
+                    <div className="bg-white dark:bg-gray-950 p-4 rounded-xl border-4 border-green-600 dark:border-green-500 shadow-lg">
                       <img
                         src={qrCodeUrl}
                         alt="UPI QR Code"
                         className="w-48 h-48 object-cover"
                       />
                     </div>
-                    <p className="text-sm font-semibold text-green-700 dark:text-green-400 mt-3">
+                    <p className="text-sm font-semibold text-green-800 dark:text-green-300 mt-3">
                       Scan to Pay {formatPrice(planPrice)}
                     </p>
                   </div>
@@ -289,34 +289,34 @@ const PlanRegistrationForm = ({
               </div>
 
               <div className="grid md:grid-cols-2 gap-3">
-                <div className="p-4 border-2 rounded-xl space-y-2 hover:border-primary/50 transition-colors">
-                  <p className="font-semibold flex items-center gap-2">
+                <div className="p-4 bg-slate-50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-700 rounded-xl space-y-2 hover:border-primary/50 transition-colors">
+                  <p className="font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
                     <CreditCard className="w-5 h-5 text-primary" />
                     Bank Transfer
                   </p>
-                  <p className="text-sm text-muted-foreground">
+                  <p className="text-sm text-gray-600 dark:text-gray-400">
                     Contact our sales team for bank account details
                   </p>
                 </div>
 
-                <div className="p-4 border-2 rounded-xl space-y-2 hover:border-primary/50 transition-colors">
-                  <p className="font-semibold flex items-center gap-2">
-                    <Phone className="w-5 h-5 text-primary" />
+                <div className="p-4 bg-blue-50 dark:bg-blue-900/20 border-2 border-blue-200 dark:border-blue-700 rounded-xl space-y-2 hover:border-primary/50 transition-colors">
+                  <p className="font-semibold flex items-center gap-2 text-gray-900 dark:text-gray-100">
+                    <Phone className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     Need Help?
                   </p>
                   <div className="flex flex-col gap-1">
-                    <a href="tel:+917303408500" className="text-sm text-primary hover:underline">
+                    <a href="tel:+917303408500" className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium">
                       +91 73034 08500
                     </a>
-                    <a href="https://wa.me/917303408500" target="_blank" rel="noopener noreferrer" className="text-sm text-primary hover:underline">
+                    <a href="https://wa.me/917303408500" target="_blank" rel="noopener noreferrer" className="text-sm text-blue-600 dark:text-blue-400 hover:underline font-medium">
                       WhatsApp Support
                     </a>
                   </div>
                 </div>
               </div>
 
-              <div className="bg-muted/50 p-4 rounded-lg border">
-                <p className="text-xs text-muted-foreground text-center">
+              <div className="bg-amber-50 dark:bg-amber-900/20 p-4 rounded-lg border-2 border-amber-200 dark:border-amber-700">
+                <p className="text-xs text-amber-900 dark:text-amber-100 text-center font-medium">
                   Our team will verify your payment and activate your account within 24 hours. You will receive a confirmation email once your account is active.
                 </p>
               </div>
