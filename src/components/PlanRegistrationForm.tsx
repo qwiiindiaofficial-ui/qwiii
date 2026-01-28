@@ -41,7 +41,7 @@ const PlanRegistrationForm = ({
   });
 
   const upiId = '7303408500@kotak811';
-  const qrCodeUrl = 'https://ibb.co/xtXt8B4Z';
+  const qrCodeUrl = 'https://i.ibb.co/hJLJ14q0/Whats-App-Image-2026-01-29-at-03-50-23.jpg';
 
   const copyUPIId = () => {
     navigator.clipboard.writeText(upiId);
