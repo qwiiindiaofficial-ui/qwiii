@@ -112,7 +112,7 @@ Deno.serve(async (req: Request) => {
       throw new Error("Invalid authentication token");
     }
 
-    const { targetIndustry, targetLocation, limit = 7 } = await req.json().catch(() => ({}));
+    const { targetIndustry, targetLocation, limit = 20 } = await req.json().catch(() => ({}));
 
     const logEntry = await supabase
       .from("lead_generation_logs")

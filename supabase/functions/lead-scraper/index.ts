@@ -26,7 +26,7 @@ interface ScrapedLead {
   formatted_address?: string;
 }
 
-const indianCities = {
+const indianCities: Record<string, { lat: number; lng: number; state: string; radius: number }> = {
   Mumbai: { lat: 19.0760, lng: 72.8777, state: "Maharashtra", radius: 30000 },
   Delhi: { lat: 28.7041, lng: 77.1025, state: "Delhi", radius: 35000 },
   Bangalore: { lat: 12.9716, lng: 77.5946, state: "Karnataka", radius: 30000 },
@@ -49,20 +49,28 @@ const indianCities = {
   Vishakhapatnam: { lat: 17.6868, lng: 83.2185, state: "Andhra Pradesh", radius: 20000 },
 };
 
-const industryToPlaceTypes = {
-  retail: ["store", "shopping_mall", "supermarket", "convenience_store", "department_store"],
-  restaurant: ["restaurant", "meal_takeaway", "meal_delivery"],
-  education: ["school", "university"],
-  healthcare: ["hospital", "doctor", "pharmacy"],
-  salon: ["beauty_salon", "spa"],
-  gym: ["gym", "health"],
-  hotel: ["lodging", "hotel"],
-  cafe: ["cafe", "bakery"],
-  textile: ["clothing_store", "shoe_store"],
-  manufacturing: ["establishment", "store"],
-  events: ["event_venue"],
-  "e-commerce": ["store"],
-  "default": ["store", "restaurant", "cafe", "shopping_mall"],
+const industrySearchKeywords: Record<string, string[]> = {
+  retail: ["retail store", "supermarket", "department store", "shopping store", "general store"],
+  restaurant: ["restaurant", "dhaba", "food restaurant", "dining restaurant"],
+  education: ["school", "college", "coaching institute", "training institute", "academy"],
+  healthcare: ["hospital", "clinic", "medical center", "nursing home", "diagnostic center"],
+  salon: ["beauty salon", "hair salon", "spa", "parlour"],
+  gym: ["gym", "fitness center", "health club", "workout center"],
+  hotel: ["hotel", "resort", "guest house", "lodge"],
+  cafe: ["cafe", "coffee shop", "bakery", "tea shop"],
+  textile: ["textile shop", "clothing store", "garment shop", "fabric store", "boutique"],
+  manufacturing: ["factory", "manufacturing unit", "production unit", "workshop"],
+  events: ["event management", "wedding planner", "event venue", "banquet hall"],
+  "e-commerce": ["online store", "ecommerce business", "delivery service"],
+  pharmacy: ["pharmacy", "medical store", "chemist", "drug store"],
+  automobile: ["car showroom", "automobile dealer", "auto parts", "garage", "car service"],
+  electronics: ["electronics store", "mobile shop", "computer store", "gadget shop"],
+  real_estate: ["real estate agency", "property dealer", "builders", "construction company"],
+  logistics: ["courier service", "logistics company", "transport company", "delivery company"],
+  printing: ["printing press", "print shop", "digital printing", "offset printing"],
+  food_processing: ["food processing", "food manufacturer", "snack manufacturer", "bakery"],
+  packaging: ["packaging company", "box manufacturer", "packaging supplier"],
+  default: ["business", "company", "shop", "store", "enterprise"],
 };
 
 async function sleep(ms: number) {
@@ -80,7 +88,6 @@ async function retryWithBackoff<T>(
     } catch (error) {
       if (i === maxRetries - 1) throw error;
       const delay = baseDelay * Math.pow(2, i);
-      console.log(`Retry ${i + 1}/${maxRetries} after ${delay}ms...`);
       await sleep(delay);
     }
   }
@@ -100,122 +107,155 @@ async function getPlaceDetails(placeId: string, apiKey: string): Promise<any> {
     "geometry",
     "types",
     "business_status",
-    "opening_hours",
   ].join(",");
 
   const url = `https://maps.googleapis.com/maps/api/place/details/json?place_id=${placeId}&fields=${fields}&key=${apiKey}`;
 
   return retryWithBackoff(async () => {
     const response = await fetch(url);
-    if (!response.ok) {
-      throw new Error(`Place Details API error: ${response.status}`);
-    }
+    if (!response.ok) throw new Error(`Place Details API error: ${response.status}`);
     const data = await response.json();
-    if (data.status !== "OK") {
-      throw new Error(`Place Details API status: ${data.status}`);
-    }
+    if (data.status !== "OK") throw new Error(`Place Details API status: ${data.status}`);
     return data.result;
   });
 }
 
-async function searchNearbyPlaces(
+async function fetchAllPagesFromTextSearch(
+  query: string,
+  cityData: { lat: number; lng: number; radius: number },
+  apiKey: string,
+  maxResults: number,
+  seenPlaceIds: Set<string>
+): Promise<any[]> {
+  const allResults: any[] = [];
+  let pageToken: string | undefined = undefined;
+  let pageCount = 0;
+  const maxPages = 3;
+
+  do {
+    const urlParts = [
+      `https://maps.googleapis.com/maps/api/place/textsearch/json`,
+      `?query=${encodeURIComponent(query)}`,
+      `&location=${cityData.lat},${cityData.lng}`,
+      `&radius=${cityData.radius}`,
+      `&key=${apiKey}`,
+    ];
+
+    if (pageToken) {
+      urlParts.push(`&pagetoken=${pageToken}`);
+      await sleep(2000);
+    }
+
+    const searchUrl = urlParts.join("");
+
+    const data = await retryWithBackoff(async () => {
+      const response = await fetch(searchUrl);
+      if (!response.ok) throw new Error(`Text Search API error: ${response.status}`);
+      const json = await response.json();
+      if (json.status === "ZERO_RESULTS") return { results: [] };
+      if (json.status !== "OK" && json.status !== "ZERO_RESULTS") {
+        throw new Error(`Text Search API status: ${json.status} - ${json.error_message || ""}`);
+      }
+      return json;
+    });
+
+    if (data.results) {
+      for (const place of data.results) {
+        if (!seenPlaceIds.has(place.place_id) && place.business_status === "OPERATIONAL") {
+          seenPlaceIds.add(place.place_id);
+          allResults.push(place);
+          if (allResults.length >= maxResults) break;
+        }
+      }
+    }
+
+    pageToken = data.next_page_token;
+    pageCount++;
+
+    if (allResults.length >= maxResults) break;
+
+  } while (pageToken && pageCount < maxPages);
+
+  return allResults;
+}
+
+async function searchPlacesForIndustry(
   industry: string,
   location: string,
   apiKey: string,
   limit: number
 ): Promise<ScrapedLead[]> {
   const cityData = indianCities[location] || indianCities.Mumbai;
-  const placeTypes = industryToPlaceTypes[industry.toLowerCase()] || industryToPlaceTypes.default;
+  const keywords = industrySearchKeywords[industry.toLowerCase()] || industrySearchKeywords.default;
 
   const leads: ScrapedLead[] = [];
   const seenPlaceIds = new Set<string>();
-  let apiCallCount = 0;
+  const candidatePlaces: any[] = [];
 
-  for (const placeType of placeTypes) {
+  for (const keyword of keywords) {
+    if (candidatePlaces.length >= limit * 4) break;
+
+    const query = `${keyword} in ${location}`;
+    console.log(`Searching: "${query}"`);
+
+    try {
+      const places = await fetchAllPagesFromTextSearch(
+        query,
+        cityData,
+        apiKey,
+        limit * 4 - candidatePlaces.length,
+        seenPlaceIds
+      );
+
+      candidatePlaces.push(...places);
+      console.log(`Keyword "${keyword}": found ${places.length} places (total candidates: ${candidatePlaces.length})`);
+
+      await sleep(300);
+    } catch (err) {
+      console.error(`Text search failed for "${keyword}":`, err.message);
+      continue;
+    }
+  }
+
+  console.log(`Total candidates: ${candidatePlaces.length}, fetching details for up to ${limit} with phone...`);
+
+  for (const place of candidatePlaces) {
     if (leads.length >= limit) break;
 
     try {
-      const searchUrl = `https://maps.googleapis.com/maps/api/place/nearbysearch/json?location=${cityData.lat},${cityData.lng}&radius=${cityData.radius}&type=${placeType}&key=${apiKey}`;
+      await sleep(150);
 
-      const searchData = await retryWithBackoff(async () => {
-        const response = await fetch(searchUrl);
-        apiCallCount++;
+      const details = await getPlaceDetails(place.place_id, apiKey);
+      const phone = details.formatted_phone_number || details.international_phone_number;
 
-        if (!response.ok) {
-          throw new Error(`Nearby Search API error: ${response.status}`);
-        }
-
-        const data = await response.json();
-
-        if (data.status === "ZERO_RESULTS") {
-          console.log(`No results for ${placeType} in ${location}`);
-          return { results: [] };
-        }
-
-        if (data.status !== "OK") {
-          throw new Error(`Nearby Search API status: ${data.status}`);
-        }
-
-        return data;
-      });
-
-      if (!searchData.results || searchData.results.length === 0) {
+      if (!phone) {
+        console.log(`Skipping ${place.name} - no phone number`);
         continue;
       }
 
-      console.log(`Found ${searchData.results.length} places for ${placeType}`);
+      const lead: ScrapedLead = {
+        name: details.name || place.name,
+        company_name: details.name || place.name,
+        phone,
+        website: details.website,
+        address: details.formatted_address,
+        formatted_address: details.formatted_address,
+        city: location,
+        state: cityData.state,
+        business_type: place.types?.[0] || industry,
+        industry,
+        google_place_id: place.place_id,
+        latitude: details.geometry?.location?.lat || place.geometry?.location?.lat,
+        longitude: details.geometry?.location?.lng || place.geometry?.location?.lng,
+        google_rating: details.rating,
+        google_reviews_count: details.user_ratings_total || 0,
+      };
 
-      for (const place of searchData.results) {
-        if (leads.length >= limit) break;
-        if (seenPlaceIds.has(place.place_id)) continue;
+      leads.push(lead);
+      console.log(`Added: ${lead.company_name} (${lead.phone})`);
 
-        if (place.business_status !== "OPERATIONAL") continue;
-
-        seenPlaceIds.add(place.place_id);
-
-        try {
-          await sleep(100);
-
-          const details = await getPlaceDetails(place.place_id, apiKey);
-          apiCallCount++;
-
-          const phone = details.formatted_phone_number || details.international_phone_number;
-
-          if (!phone) {
-            console.log(`Skipping ${place.name} - no phone number`);
-            continue;
-          }
-
-          const lead: ScrapedLead = {
-            name: details.name || place.name,
-            company_name: details.name || place.name,
-            phone: phone,
-            email: undefined,
-            website: details.website,
-            address: details.formatted_address,
-            formatted_address: details.formatted_address,
-            city: location,
-            state: cityData.state,
-            business_type: place.types?.[0] || placeType,
-            industry: industry,
-            google_place_id: place.place_id,
-            latitude: details.geometry?.location?.lat || place.geometry?.location?.lat,
-            longitude: details.geometry?.location?.lng || place.geometry?.location?.lng,
-            google_rating: details.rating,
-            google_reviews_count: details.user_ratings_total || 0,
-          };
-
-          leads.push(lead);
-          console.log(`Added: ${lead.company_name} (${lead.phone})`);
-
-        } catch (detailError) {
-          console.error(`Error getting details for ${place.name}:`, detailError.message);
-          continue;
-        }
-      }
-
-    } catch (error) {
-      console.error(`Error searching ${placeType}:`, error.message);
+    } catch (detailError) {
+      console.error(`Error getting details for ${place.name}:`, detailError.message);
       continue;
     }
   }
@@ -257,7 +297,7 @@ Deno.serve(async (req: Request) => {
 
     const apiKey = googleMapsApiKey.data.value;
 
-    const { industry, location, limit = 10 } = await req.json();
+    const { industry, location, limit = 20 } = await req.json();
 
     if (!industry) {
       return new Response(
@@ -273,10 +313,11 @@ Deno.serve(async (req: Request) => {
     }
 
     const targetCity = location || "Mumbai";
+    const targetLimit = Math.min(Number(limit), 60);
 
-    console.log(`Searching ${limit} leads for ${industry} in ${targetCity}...`);
+    console.log(`Searching ${targetLimit} leads for ${industry} in ${targetCity}...`);
 
-    const leads = await searchNearbyPlaces(industry, targetCity, apiKey, limit);
+    const leads = await searchPlacesForIndustry(industry, targetCity, apiKey, targetLimit);
 
     if (leads.length === 0) {
       return new Response(
@@ -284,9 +325,9 @@ Deno.serve(async (req: Request) => {
           success: true,
           leads: [],
           count: 0,
-          industry: industry,
+          industry,
           location: targetCity,
-          message: "No businesses found with valid phone numbers for this industry in the selected location. Try a different city or industry.",
+          message: "No businesses with phone numbers found. Try a different city or industry.",
         }),
         {
           status: 200,
@@ -298,10 +339,10 @@ Deno.serve(async (req: Request) => {
     return new Response(
       JSON.stringify({
         success: true,
-        leads: leads,
+        leads,
         count: leads.length,
         api_calls: leads.length * 2,
-        industry: industry,
+        industry,
         location: targetCity,
         source: "Google Places API",
         message: `Found ${leads.length} verified businesses with real phone numbers from Google Maps.`,
