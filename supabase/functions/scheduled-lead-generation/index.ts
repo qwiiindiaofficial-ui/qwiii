@@ -88,14 +88,24 @@ Deno.serve(async (req: Request) => {
 
     const token = authHeader.replace("Bearer ", "");
 
-    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
+    let userId: string;
+    try {
+      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
+      const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
+      const userClient = createClient(supabaseUrl, supabaseAnonKey);
 
-    if (authError || !user) {
-      console.error("Auth error:", authError);
+      const { data: { user }, error: authError } = await userClient.auth.getUser(token);
+
+      if (authError || !user) {
+        console.error("Auth error:", authError);
+        throw new Error("Invalid authentication token");
+      }
+
+      userId = user.id;
+    } catch (error) {
+      console.error("Token validation error:", error);
       throw new Error("Invalid authentication token");
     }
-
-    const userId = user.id;
 
     const { targetIndustry, targetLocation, limit = 7 } = await req.json().catch(() => ({}));
 
