@@ -88,23 +88,14 @@ Deno.serve(async (req: Request) => {
 
     const token = authHeader.replace("Bearer ", "");
 
-    let userId: string;
-    try {
-      const parts = token.split('.');
-      if (parts.length !== 3) {
-        throw new Error("Invalid JWT format");
-      }
+    const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
-      const decoded = JSON.parse(atob(parts[1]));
-      userId = decoded.sub;
-
-      if (!userId) {
-        throw new Error("No user ID in token");
-      }
-    } catch (error) {
-      console.error("Token decode error:", error);
+    if (authError || !user) {
+      console.error("Auth error:", authError);
       throw new Error("Invalid authentication token");
     }
+
+    const userId = user.id;
 
     const { targetIndustry, targetLocation, limit = 7 } = await req.json().catch(() => ({}));
 
