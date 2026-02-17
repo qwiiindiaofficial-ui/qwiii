@@ -124,6 +124,7 @@ Deno.serve(async (req: Request) => {
 
     let industry = targetIndustry;
     let location = targetLocation;
+    let sourceId: string | null = null;
 
     if (!industry || !location) {
       const dayOfWeek = new Date().getDay();
@@ -160,6 +161,7 @@ Deno.serve(async (req: Request) => {
 
       if (leadSource.data) {
         const source = leadSource.data;
+        sourceId = source.id;
         industry = industry || source.industry_name;
         const locations = source.target_locations || ["Mumbai"];
         location = location || locations[Math.floor(Math.random() * locations.length)];
@@ -327,13 +329,15 @@ Deno.serve(async (req: Request) => {
       }
     }
 
-    await supabase
-      .from("lead_sources")
-      .update({
-        total_leads_generated: source.total_leads_generated + successfulLeads,
-        last_used_date: new Date().toISOString(),
-      })
-      .eq("id", source.id);
+    if (sourceId) {
+      await supabase
+        .from("lead_sources")
+        .update({
+          total_leads_generated: successfulLeads,
+          last_used_date: new Date().toISOString(),
+        })
+        .eq("id", sourceId);
+    }
 
     const durationSeconds = (Date.now() - startTime) / 1000;
     const successRate = scrapedLeads.length > 0 ? (successfulLeads / scrapedLeads.length) * 100 : 0;
