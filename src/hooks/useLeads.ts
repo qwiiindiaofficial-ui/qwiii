@@ -160,7 +160,7 @@ export const useLeads = () => {
       queryClient.invalidateQueries({ queryKey: ["lead_generation_logs"] });
 
       if (data.leads_generated === 0) {
-        toast.warning(`No leads found. Try a different industry or location. OpenStreetMap may have limited data for this combination.`);
+        toast.warning(`No leads found. Try a different industry or location. Google Places API may have limited results for this combination.`);
       } else {
         toast.success(`Successfully generated ${data.leads_generated} leads with phone numbers!`);
       }

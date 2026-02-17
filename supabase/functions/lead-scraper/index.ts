@@ -50,19 +50,19 @@ const indianCities = {
 };
 
 const industryToPlaceTypes = {
-  retail: ["supermarket", "convenience_store", "department_store", "shopping_mall", "store"],
-  restaurant: ["restaurant", "meal_takeaway", "meal_delivery", "food"],
-  education: ["school", "university", "secondary_school", "primary_school"],
-  healthcare: ["hospital", "doctor", "pharmacy", "physiotherapist", "dentist"],
-  salon: ["beauty_salon", "hair_care", "spa"],
-  gym: ["gym"],
+  retail: ["store", "shopping_mall", "supermarket", "convenience_store", "department_store"],
+  restaurant: ["restaurant", "meal_takeaway", "meal_delivery"],
+  education: ["school", "university"],
+  healthcare: ["hospital", "doctor", "pharmacy"],
+  salon: ["beauty_salon", "spa"],
+  gym: ["gym", "health"],
   hotel: ["lodging", "hotel"],
   cafe: ["cafe", "bakery"],
   textile: ["clothing_store", "shoe_store"],
-  manufacturing: ["general_contractor", "electrician", "plumber"],
-  events: ["event_planner", "banquet_hall"],
-  "e-commerce": ["store", "electronics_store"],
-  default: ["store", "restaurant", "cafe"],
+  manufacturing: ["establishment", "store"],
+  events: ["event_venue"],
+  "e-commerce": ["store"],
+  "default": ["store", "restaurant", "cafe", "shopping_mall"],
 };
 
 async function sleep(ms: number) {
