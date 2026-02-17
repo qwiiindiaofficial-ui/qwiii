@@ -151,7 +151,7 @@ const Leads = () => {
     generateLeads({
       targetIndustry: selectedIndustry === "all" ? undefined : selectedIndustry,
       targetLocation: selectedLocation === "auto" ? undefined : selectedLocation,
-      limit: 7,
+      limit: 20,
     });
   };
 

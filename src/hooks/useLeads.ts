@@ -123,7 +123,7 @@ export const useLeads = () => {
     mutationFn: async ({
       targetIndustry,
       targetLocation,
-      limit = 7,
+      limit = 20,
     }: {
       targetIndustry?: string;
       targetLocation?: string;
@@ -159,10 +159,12 @@ export const useLeads = () => {
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       queryClient.invalidateQueries({ queryKey: ["lead_generation_logs"] });
 
-      if (data.leads_generated === 0) {
-        toast.warning(`No leads found. Try a different industry or location. Google Places API may have limited results for this combination.`);
+      if (data.leads_generated === 0 && data.skipped_duplicates > 0) {
+        toast.warning(`All ${data.skipped_duplicates} businesses found are already in your database. Try a different city or industry to find new leads.`);
+      } else if (data.leads_generated === 0) {
+        toast.warning(`No businesses found for this combination. Try a different city or industry.`);
       } else {
-        toast.success(`Successfully generated ${data.leads_generated} leads with phone numbers!`);
+        toast.success(`Successfully generated ${data.leads_generated} new leads!${data.skipped_duplicates > 0 ? ` (${data.skipped_duplicates} duplicates skipped)` : ""}`);
       }
     },
     onError: (error: Error) => {
