@@ -122,46 +122,53 @@ Deno.serve(async (req: Request) => {
 
     logId = logEntry.data?.id;
 
-    let dayOfWeek = new Date().getDay();
+    let industry = targetIndustry;
+    let location = targetLocation;
 
-    let leadSource;
-    if (targetIndustry && targetLocation) {
-      leadSource = await supabase
-        .from("lead_sources")
-        .select("*")
-        .eq("user_id", userId)
-        .eq("industry_name", targetIndustry)
-        .eq("is_active", true)
-        .maybeSingle();
-    } else {
-      leadSource = await supabase
-        .from("lead_sources")
-        .select("*")
-        .eq("user_id", userId)
-        .eq("day_of_week", dayOfWeek)
-        .eq("is_active", true)
-        .maybeSingle();
+    if (!industry || !location) {
+      const dayOfWeek = new Date().getDay();
 
-      if (!leadSource.data) {
+      let leadSource;
+      if (targetIndustry) {
         leadSource = await supabase
           .from("lead_sources")
           .select("*")
           .eq("user_id", userId)
+          .eq("industry_name", targetIndustry)
           .eq("is_active", true)
-          .order("priority", { ascending: false })
-          .limit(1)
           .maybeSingle();
+      } else {
+        leadSource = await supabase
+          .from("lead_sources")
+          .select("*")
+          .eq("user_id", userId)
+          .eq("day_of_week", dayOfWeek)
+          .eq("is_active", true)
+          .maybeSingle();
+
+        if (!leadSource.data) {
+          leadSource = await supabase
+            .from("lead_sources")
+            .select("*")
+            .eq("user_id", userId)
+            .eq("is_active", true)
+            .order("priority", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+        }
+      }
+
+      if (leadSource.data) {
+        const source = leadSource.data;
+        industry = industry || source.industry_name;
+        const locations = source.target_locations || ["Mumbai"];
+        location = location || locations[Math.floor(Math.random() * locations.length)];
       }
     }
 
-    if (!leadSource.data) {
-      throw new Error("No active lead source found. Please configure lead sources in settings.");
+    if (!industry || !location) {
+      throw new Error("Please provide industry and location, or configure lead sources in settings.");
     }
-
-    const source = leadSource.data;
-    const industry = targetIndustry || source.industry_name;
-    const locations = targetLocation ? [targetLocation] : (source.target_locations || ["Mumbai"]);
-    const location = locations[Math.floor(Math.random() * locations.length)];
 
     console.log(`Generating leads for ${industry} in ${location}`);
 
