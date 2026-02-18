@@ -54,6 +54,8 @@ import {
   MoreVertical,
   FileText,
   Table2,
+  Navigation,
+  Tag,
 } from "lucide-react";
 import { format } from "date-fns";
 import { exportToCSV } from "@/lib/exportUtils";
@@ -69,6 +71,7 @@ const Leads = () => {
     leadSources = [],
     generateLeads,
     isGenerating,
+    lastGenerationResult,
     updateLead,
     convertToClient,
     addActivity,
@@ -428,6 +431,53 @@ const Leads = () => {
                 </Button>
               </div>
             </div>
+
+            {lastGenerationResult && (
+              <div className="mt-4 rounded-lg border bg-muted/40 p-4 space-y-3">
+                <p className="text-sm font-medium text-muted-foreground">Last generation details</p>
+                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+                  {lastGenerationResult.district_used && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Navigation className="h-4 w-4 text-blue-500 shrink-0" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">District searched</p>
+                        <p className="font-medium">{lastGenerationResult.district_used}</p>
+                      </div>
+                    </div>
+                  )}
+                  {lastGenerationResult.keyword_used && (
+                    <div className="flex items-center gap-2 text-sm">
+                      <Tag className="h-4 w-4 text-green-500 shrink-0" />
+                      <div>
+                        <p className="text-xs text-muted-foreground">Keyword used</p>
+                        <p className="font-medium capitalize">{lastGenerationResult.keyword_used}</p>
+                      </div>
+                    </div>
+                  )}
+                  {lastGenerationResult.rotation && lastGenerationResult.rotation.total_districts > 0 && (
+                    <div className="flex items-center gap-2 text-sm sm:col-span-2">
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <p className="text-xs text-muted-foreground">District coverage</p>
+                          <p className="text-xs font-medium">
+                            {lastGenerationResult.rotation.district_index + 1} / {lastGenerationResult.rotation.total_districts} districts
+                          </p>
+                        </div>
+                        <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
+                          <div
+                            className="h-full rounded-full bg-blue-500 transition-all"
+                            style={{ width: `${lastGenerationResult.rotation.districts_coverage_pct}%` }}
+                          />
+                        </div>
+                        <p className="text-xs text-muted-foreground mt-1">
+                          {lastGenerationResult.rotation.districts_coverage_pct}% of {lastGenerationResult.location} covered
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </CardContent>
         </Card>
 
@@ -710,11 +760,20 @@ const Leads = () => {
                       <Calendar className="h-4 w-4 text-muted-foreground" />
                       <div>
                         <p className="font-medium">
-                          {log.target_industry || "Mixed Industries"} - {log.target_location || "Multiple Cities"}
+                          {log.target_industry || "Mixed Industries"} -{" "}
+                          {log.district_used ? `${log.district_used}, ` : ""}
+                          {log.target_location || "Multiple Cities"}
                         </p>
-                        <p className="text-sm text-muted-foreground">
-                          {format(new Date(log.run_date), "MMM dd, yyyy 'at' hh:mm a")}
-                        </p>
+                        <div className="flex items-center gap-3 mt-0.5">
+                          <p className="text-sm text-muted-foreground">
+                            {format(new Date(log.run_date), "MMM dd, yyyy 'at' hh:mm a")}
+                          </p>
+                          {log.keyword_used && (
+                            <span className="text-xs bg-muted px-2 py-0.5 rounded-full text-muted-foreground">
+                              {log.keyword_used}
+                            </span>
+                          )}
+                        </div>
                       </div>
                     </div>
                     <div className="flex items-center gap-4">

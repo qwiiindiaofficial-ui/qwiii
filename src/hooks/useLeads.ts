@@ -52,6 +52,8 @@ export interface LeadGenerationLog {
   search_query?: string;
   target_industry?: string;
   target_location?: string;
+  district_used?: string;
+  keyword_used?: string;
   google_maps_calls?: number;
   groq_calls?: number;
   gemini_calls?: number;
@@ -59,6 +61,17 @@ export interface LeadGenerationLog {
   success_rate?: number;
   error_message?: string;
   created_at: string;
+}
+
+export interface LeadSearchState {
+  id: string;
+  user_id: string;
+  city: string;
+  industry: string;
+  last_district_index: number;
+  last_keyword_index: number;
+  total_districts: number;
+  updated_at: string;
 }
 
 export interface LeadSource {
@@ -119,6 +132,16 @@ export const useLeads = () => {
     },
   });
 
+  const getSearchState = async (city: string, industry: string): Promise<LeadSearchState | null> => {
+    const { data } = await supabase
+      .from("lead_search_state")
+      .select("*")
+      .eq("city", city)
+      .eq("industry", industry)
+      .maybeSingle();
+    return data as LeadSearchState | null;
+  };
+
   const generateLeadsMutation = useMutation({
     mutationFn: async ({
       targetIndustry,
@@ -158,13 +181,15 @@ export const useLeads = () => {
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["leads"] });
       queryClient.invalidateQueries({ queryKey: ["lead_generation_logs"] });
+      queryClient.invalidateQueries({ queryKey: ["lead_search_state"] });
 
       if (data.leads_generated === 0 && data.skipped_duplicates > 0) {
         toast.warning(`All ${data.skipped_duplicates} businesses found are already in your database. Try a different city or industry to find new leads.`);
       } else if (data.leads_generated === 0) {
         toast.warning(`No businesses found for this combination. Try a different city or industry.`);
       } else {
-        toast.success(`Successfully generated ${data.leads_generated} new leads!${data.skipped_duplicates > 0 ? ` (${data.skipped_duplicates} duplicates skipped)` : ""}`);
+        const locationLabel = data.district_used ? `${data.district_used}, ${data.location}` : data.location;
+        toast.success(`Generated ${data.leads_generated} new leads from ${locationLabel}!${data.skipped_duplicates > 0 ? ` (${data.skipped_duplicates} duplicates skipped)` : ""}`);
       }
     },
     onError: (error: Error) => {
@@ -306,8 +331,10 @@ export const useLeads = () => {
     isLoading,
     leadGenerationLogs,
     leadSources,
+    getSearchState,
     generateLeads: generateLeadsMutation.mutate,
     isGenerating: generateLeadsMutation.isPending,
+    lastGenerationResult: generateLeadsMutation.data,
     updateLead: updateLeadMutation.mutate,
     deleteLead: deleteLeadMutation.mutate,
     convertToClient: convertToClientMutation.mutate,

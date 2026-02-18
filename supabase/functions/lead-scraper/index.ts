@@ -183,25 +183,47 @@ async function searchPlacesForIndustry(
   industry: string,
   location: string,
   apiKey: string,
-  limit: number
-): Promise<ScrapedLead[]> {
+  limit: number,
+  district?: string,
+  districtLat?: number,
+  districtLng?: number,
+  districtRadius?: number,
+  keywordIndex?: number
+): Promise<{ leads: ScrapedLead[]; keywordUsed: string }> {
   const cityData = indianCities[location] || indianCities.Mumbai;
   const keywords = industrySearchKeywords[industry.toLowerCase()] || industrySearchKeywords.default;
+
+  const effectiveCityData = (districtLat !== undefined && districtLng !== undefined)
+    ? { lat: districtLat, lng: districtLng, radius: districtRadius ?? 5000, state: cityData.state }
+    : cityData;
+
+  const startKeywordIdx = (keywordIndex !== undefined && keywordIndex >= 0 && keywordIndex < keywords.length)
+    ? keywordIndex
+    : 0;
+
+  const orderedKeywords = [
+    ...keywords.slice(startKeywordIdx),
+    ...keywords.slice(0, startKeywordIdx),
+  ];
+
+  const keywordUsed = orderedKeywords[0];
 
   const leads: ScrapedLead[] = [];
   const seenPlaceIds = new Set<string>();
   const candidatePlaces: any[] = [];
 
-  for (const keyword of keywords) {
+  const locationLabel = district ? `${district}, ${location}` : location;
+
+  for (const keyword of orderedKeywords) {
     if (candidatePlaces.length >= limit * 4) break;
 
-    const query = `${keyword} in ${location}`;
+    const query = `${keyword} in ${locationLabel}`;
     console.log(`Searching: "${query}"`);
 
     try {
       const places = await fetchAllPagesFromTextSearch(
         query,
-        cityData,
+        effectiveCityData,
         apiKey,
         limit * 4 - candidatePlaces.length,
         seenPlaceIds
@@ -260,7 +282,7 @@ async function searchPlacesForIndustry(
     }
   }
 
-  return leads;
+  return { leads, keywordUsed };
 }
 
 Deno.serve(async (req: Request) => {
@@ -297,7 +319,7 @@ Deno.serve(async (req: Request) => {
 
     const apiKey = googleMapsApiKey.data.value;
 
-    const { industry, location, limit = 20 } = await req.json();
+    const { industry, location, limit = 20, district, district_lat, district_lng, district_radius, keyword_index } = await req.json();
 
     if (!industry) {
       return new Response(
@@ -315,9 +337,19 @@ Deno.serve(async (req: Request) => {
     const targetCity = location || "Mumbai";
     const targetLimit = Math.min(Number(limit), 60);
 
-    console.log(`Searching ${targetLimit} leads for ${industry} in ${targetCity}...`);
+    console.log(`Searching ${targetLimit} leads for ${industry} in ${district ? `${district}, ` : ""}${targetCity} (keyword_index=${keyword_index ?? 0})...`);
 
-    const leads = await searchPlacesForIndustry(industry, targetCity, apiKey, targetLimit);
+    const { leads, keywordUsed } = await searchPlacesForIndustry(
+      industry,
+      targetCity,
+      apiKey,
+      targetLimit,
+      district,
+      district_lat,
+      district_lng,
+      district_radius,
+      keyword_index
+    );
 
     if (leads.length === 0) {
       return new Response(
@@ -327,6 +359,8 @@ Deno.serve(async (req: Request) => {
           count: 0,
           industry,
           location: targetCity,
+          district: district ?? null,
+          keyword_used: keywordUsed,
           message: "No businesses with phone numbers found. Try a different city or industry.",
         }),
         {
@@ -344,6 +378,8 @@ Deno.serve(async (req: Request) => {
         api_calls: leads.length * 2,
         industry,
         location: targetCity,
+        district: district ?? null,
+        keyword_used: keywordUsed,
         source: "Google Places API",
         message: `Found ${leads.length} verified businesses with real phone numbers from Google Maps.`,
       }),

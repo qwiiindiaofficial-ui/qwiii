@@ -177,7 +177,73 @@ Deno.serve(async (req: Request) => {
       throw new Error("Please provide industry and location, or configure lead sources in settings.");
     }
 
-    console.log(`Generating leads for ${industry} in ${location}`);
+    const industryKeywords: Record<string, string[]> = {
+      retail: ["retail store", "supermarket", "department store", "shopping store", "general store"],
+      restaurant: ["restaurant", "dhaba", "food restaurant", "dining restaurant"],
+      education: ["school", "college", "coaching institute", "training institute", "academy"],
+      healthcare: ["hospital", "clinic", "medical center", "nursing home", "diagnostic center"],
+      salon: ["beauty salon", "hair salon", "spa", "parlour"],
+      gym: ["gym", "fitness center", "health club", "workout center"],
+      hotel: ["hotel", "resort", "guest house", "lodge"],
+      cafe: ["cafe", "coffee shop", "bakery", "tea shop"],
+      textile: ["textile shop", "clothing store", "garment shop", "fabric store", "boutique"],
+      manufacturing: ["factory", "manufacturing unit", "production unit", "workshop"],
+      events: ["event management", "wedding planner", "event venue", "banquet hall"],
+      "e-commerce": ["online store", "ecommerce business", "delivery service"],
+      pharmacy: ["pharmacy", "medical store", "chemist", "drug store"],
+      automobile: ["car showroom", "automobile dealer", "auto parts", "garage", "car service"],
+      electronics: ["electronics store", "mobile shop", "computer store", "gadget shop"],
+      real_estate: ["real estate agency", "property dealer", "builders", "construction company"],
+      logistics: ["courier service", "logistics company", "transport company", "delivery company"],
+      printing: ["printing press", "print shop", "digital printing", "offset printing"],
+      food_processing: ["food processing", "food manufacturer", "snack manufacturer", "bakery"],
+      packaging: ["packaging company", "box manufacturer", "packaging supplier"],
+      default: ["business", "company", "shop", "store", "enterprise"],
+    };
+
+    const industryKeywordList = industryKeywords[industry.toLowerCase()] || industryKeywords.default;
+    const totalKeywords = industryKeywordList.length;
+
+    const { data: districts } = await supabase
+      .from("city_districts")
+      .select("id, district_name, lat, lng, search_radius")
+      .eq("city", location)
+      .order("display_order", { ascending: true });
+
+    const totalDistricts = districts?.length ?? 0;
+
+    const { data: searchState } = await supabase
+      .from("lead_search_state")
+      .select("*")
+      .eq("user_id", userId)
+      .eq("city", location)
+      .eq("industry", industry)
+      .maybeSingle();
+
+    const lastDistrictIndex = searchState?.last_district_index ?? -1;
+    const lastKeywordIndex = searchState?.last_keyword_index ?? -1;
+
+    const nextDistrictIndex = totalDistricts > 0 ? (lastDistrictIndex + 1) % totalDistricts : -1;
+    const nextKeywordIndex = (lastKeywordIndex + 1) % totalKeywords;
+
+    const activeDistrict = totalDistricts > 0 ? districts![nextDistrictIndex] : null;
+    const activeKeyword = industryKeywordList[nextKeywordIndex];
+
+    console.log(`Generating leads for ${industry} in ${activeDistrict ? `${activeDistrict.district_name}, ` : ""}${location} | keyword: "${activeKeyword}"`);
+
+    const scraperBody: Record<string, unknown> = {
+      industry,
+      location,
+      limit,
+      keyword_index: nextKeywordIndex,
+    };
+
+    if (activeDistrict) {
+      scraperBody.district = activeDistrict.district_name;
+      scraperBody.district_lat = activeDistrict.lat;
+      scraperBody.district_lng = activeDistrict.lng;
+      scraperBody.district_radius = activeDistrict.search_radius;
+    }
 
     const scraperResponse = await fetch(`${supabaseUrl}/functions/v1/lead-scraper`, {
       method: "POST",
@@ -185,11 +251,7 @@ Deno.serve(async (req: Request) => {
         "Authorization": `Bearer ${supabaseKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        industry: industry,
-        location: location,
-        limit: limit,
-      }),
+      body: JSON.stringify(scraperBody),
     });
 
     if (!scraperResponse.ok) {
@@ -199,6 +261,8 @@ Deno.serve(async (req: Request) => {
 
     const scraperData = await scraperResponse.json();
     const scrapedLeads = scraperData.leads || [];
+    const keywordUsed = scraperData.keyword_used || activeKeyword;
+    const districtUsed = activeDistrict?.district_name ?? null;
 
     let googleMapsCallsTotal = scraperData.api_calls || 0;
     let groqCallsTotal = 0;
@@ -344,6 +408,20 @@ Deno.serve(async (req: Request) => {
         .eq("id", sourceId);
     }
 
+    if (totalDistricts > 0 || totalKeywords > 0) {
+      await supabase
+        .from("lead_search_state")
+        .upsert({
+          user_id: userId,
+          city: location,
+          industry: industry,
+          last_district_index: nextDistrictIndex,
+          last_keyword_index: nextKeywordIndex,
+          total_districts: totalDistricts,
+          updated_at: new Date().toISOString(),
+        }, { onConflict: "user_id,city,industry" });
+    }
+
     const durationSeconds = (Date.now() - startTime) / 1000;
     const successRate = scrapedLeads.length > 0 ? (successfulLeads / scrapedLeads.length) * 100 : 0;
 
@@ -353,7 +431,9 @@ Deno.serve(async (req: Request) => {
         .update({
           status: "completed",
           leads_generated: successfulLeads,
-          search_query: `${industry} in ${location}`,
+          search_query: `${industry} in ${districtUsed ? `${districtUsed}, ` : ""}${location}`,
+          district_used: districtUsed,
+          keyword_used: keywordUsed,
           google_maps_calls: googleMapsCallsTotal,
           groq_calls: groqCallsTotal,
           gemini_calls: geminiCallsTotal,
@@ -372,6 +452,15 @@ Deno.serve(async (req: Request) => {
         total_processed: scrapedLeads.length,
         industry: industry,
         location: location,
+        district_used: districtUsed,
+        keyword_used: keywordUsed,
+        rotation: {
+          district_index: nextDistrictIndex,
+          keyword_index: nextKeywordIndex,
+          total_districts: totalDistricts,
+          total_keywords: totalKeywords,
+          districts_coverage_pct: totalDistricts > 0 ? Math.round(((nextDistrictIndex + 1) / totalDistricts) * 100) : 0,
+        },
         api_usage: {
           google_maps: googleMapsCallsTotal,
           groq: groqCallsTotal,
@@ -379,7 +468,7 @@ Deno.serve(async (req: Request) => {
         },
         duration_seconds: durationSeconds,
         success_rate: successRate,
-        message: `Successfully generated ${successfulLeads} new leads. Skipped ${skippedDuplicates} duplicates.`,
+        message: `Successfully generated ${successfulLeads} new leads from ${districtUsed ? `${districtUsed}, ` : ""}${location} using "${keywordUsed}". Skipped ${skippedDuplicates} duplicates.`,
       }),
       {
         status: 200,
