@@ -65,6 +65,10 @@ async function checkForDuplicate(supabase: any, lead: any, userId: string): Prom
   return false;
 }
 
+function sseEvent(event: string, data: unknown): string {
+  return `event: ${event}\ndata: ${JSON.stringify(data)}\n\n`;
+}
+
 Deno.serve(async (req: Request) => {
   if (req.method === "OPTIONS") {
     return new Response(null, {
@@ -74,7 +78,6 @@ Deno.serve(async (req: Request) => {
   }
 
   const startTime = Date.now();
-  let logId: string | null = null;
 
   try {
     const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
@@ -90,13 +93,9 @@ Deno.serve(async (req: Request) => {
 
     let userId: string;
     try {
-      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
       const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
       const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-        auth: {
-          autoRefreshToken: false,
-          persistSession: false,
-        }
+        auth: { autoRefreshToken: false, persistSession: false },
       });
 
       const { data: { user }, error: authError } = await userClient.auth.getUser(token);
@@ -125,7 +124,7 @@ Deno.serve(async (req: Request) => {
       .select()
       .single();
 
-    logId = logEntry.data?.id;
+    const logId = logEntry.data?.id ?? null;
 
     let industry = targetIndustry;
     let location = targetLocation;
@@ -273,228 +272,236 @@ Deno.serve(async (req: Request) => {
 
     console.log(`Scraped ${scrapedLeads.length} leads from Google Maps`);
 
-    for (const scrapedLead of scrapedLeads) {
+    const { readable, writable } = new TransformStream();
+    const writer = writable.getWriter();
+    const encoder = new TextEncoder();
+
+    const write = (chunk: string) => writer.write(encoder.encode(chunk));
+
+    EdgeRuntime.waitUntil((async () => {
       try {
-        const isDuplicate = await checkForDuplicate(supabase, scrapedLead, userId);
+        await write(sseEvent("start", {
+          total: scrapedLeads.length,
+          industry,
+          location,
+        }));
 
-        if (isDuplicate) {
-          console.log(`Skipping duplicate lead: ${scrapedLead.company_name}`);
-          skippedDuplicates++;
-          continue;
-        }
+        for (let i = 0; i < scrapedLeads.length; i++) {
+          const scrapedLead = scrapedLeads[i];
+          try {
+            const isDuplicate = await checkForDuplicate(supabase, scrapedLead, userId);
 
-        await sleep(500);
+            if (isDuplicate) {
+              console.log(`Skipping duplicate lead: ${scrapedLead.company_name}`);
+              skippedDuplicates++;
+              await write(sseEvent("progress", {
+                current: i + 1,
+                total: scrapedLeads.length,
+                skipped: true,
+                company_name: scrapedLead.company_name,
+              }));
+              continue;
+            }
 
-        const enrichmentResponse = await fetch(`${supabaseUrl}/functions/v1/lead-enrichment`, {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${supabaseKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            lead: scrapedLead,
-          }),
-        });
+            await sleep(500);
 
-        let enrichedData = {
-          potential_sticker_needs: ["Product labels", "Branding stickers"],
-          estimated_order_value: 15000,
-          suggested_pitch: "Custom stickers for your business",
-          ai_insights: "Potential customer based on industry",
-        };
+            const enrichmentResponse = await fetch(`${supabaseUrl}/functions/v1/lead-enrichment`, {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${supabaseKey}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ lead: scrapedLead }),
+            });
 
-        if (enrichmentResponse.ok) {
-          const enrichmentResult = await enrichmentResponse.json();
-          if (enrichmentResult.success && enrichmentResult.enriched_data) {
-            enrichedData = enrichmentResult.enriched_data;
-            groqCallsTotal += enrichmentResult.api_calls || 0;
+            let enrichedData = {
+              potential_sticker_needs: ["Product labels", "Branding stickers"],
+              estimated_order_value: 15000,
+              suggested_pitch: "Custom stickers for your business",
+              ai_insights: "Potential customer based on industry",
+            };
+
+            if (enrichmentResponse.ok) {
+              const enrichmentResult = await enrichmentResponse.json();
+              if (enrichmentResult.success && enrichmentResult.enriched_data) {
+                enrichedData = enrichmentResult.enriched_data;
+                groqCallsTotal += enrichmentResult.api_calls || 0;
+              }
+            } else {
+              console.warn(`Enrichment failed for ${scrapedLead.company_name}, using defaults`);
+            }
+
+            const leadWithEnrichment = { ...scrapedLead, ...enrichedData, industry };
+
+            await sleep(500);
+
+            const scoringResponse = await fetch(`${supabaseUrl}/functions/v1/lead-scoring`, {
+              method: "POST",
+              headers: {
+                "Authorization": `Bearer ${supabaseKey}`,
+                "Content-Type": "application/json",
+              },
+              body: JSON.stringify({ lead: leadWithEnrichment }),
+            });
+
+            let scoringData = {
+              score: 50,
+              priority: "warm",
+              confidence_level: "medium",
+              scoring_rationale: "Default scoring applied",
+            };
+
+            if (scoringResponse.ok) {
+              const scoringResult = await scoringResponse.json();
+              if (scoringResult.success && scoringResult.scoring) {
+                scoringData = scoringResult.scoring;
+                geminiCallsTotal += scoringResult.api_calls || 0;
+              }
+            } else {
+              console.warn(`Scoring failed for ${scrapedLead.company_name}, using defaults`);
+            }
+
+            const finalLead = {
+              user_id: userId,
+              company_name: scrapedLead.company_name,
+              name: scrapedLead.name,
+              industry,
+              phone: scrapedLead.phone,
+              email: scrapedLead.email,
+              website: scrapedLead.website,
+              address: scrapedLead.address,
+              city: scrapedLead.city || location,
+              state: scrapedLead.state,
+              latitude: scrapedLead.latitude,
+              longitude: scrapedLead.longitude,
+              google_place_id: scrapedLead.google_place_id,
+              google_rating: scrapedLead.google_rating,
+              google_reviews_count: scrapedLead.google_reviews_count,
+              business_type: scrapedLead.business_type,
+              potential_sticker_needs: enrichedData.potential_sticker_needs,
+              estimated_order_value: enrichedData.estimated_order_value,
+              suggested_pitch: enrichedData.suggested_pitch,
+              ai_insights: enrichedData.ai_insights,
+              score: scoringData.score,
+              priority: scoringData.priority,
+              confidence_level: scoringData.confidence_level,
+              source: "google_maps",
+              search_query: `${industry} in ${location}`,
+              status: "new",
+            };
+
+            const insertResult = await supabase
+              .from("leads")
+              .insert(finalLead)
+              .select()
+              .single();
+
+            if (insertResult.error) {
+              console.error(`Failed to insert lead ${scrapedLead.company_name}:`, insertResult.error);
+              failedLeads++;
+              await write(sseEvent("progress", {
+                current: i + 1,
+                total: scrapedLeads.length,
+                failed: true,
+                company_name: scrapedLead.company_name,
+              }));
+            } else if (insertResult.data) {
+              successfulLeads++;
+              console.log(`Successfully saved lead: ${scrapedLead.company_name}`);
+              await write(sseEvent("lead", {
+                current: i + 1,
+                total: scrapedLeads.length,
+                lead: insertResult.data,
+              }));
+            }
+
+          } catch (error) {
+            console.error(`Error processing lead ${scrapedLead.company_name}:`, error);
+            failedLeads++;
+            await write(sseEvent("progress", {
+              current: i + 1,
+              total: scrapedLeads.length,
+              failed: true,
+              company_name: scrapedLead.company_name,
+            }));
           }
-        } else {
-          console.warn(`Enrichment failed for ${scrapedLead.company_name}, using defaults`);
         }
 
-        const leadWithEnrichment = {
-          ...scrapedLead,
-          ...enrichedData,
-          industry: industry,
-        };
-
-        await sleep(500);
-
-        const scoringResponse = await fetch(`${supabaseUrl}/functions/v1/lead-scoring`, {
-          method: "POST",
-          headers: {
-            "Authorization": `Bearer ${supabaseKey}`,
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            lead: leadWithEnrichment,
-          }),
-        });
-
-        let scoringData = {
-          score: 50,
-          priority: "warm",
-          confidence_level: "medium",
-          scoring_rationale: "Default scoring applied",
-        };
-
-        if (scoringResponse.ok) {
-          const scoringResult = await scoringResponse.json();
-          if (scoringResult.success && scoringResult.scoring) {
-            scoringData = scoringResult.scoring;
-            geminiCallsTotal += scoringResult.api_calls || 0;
-          }
-        } else {
-          console.warn(`Scoring failed for ${scrapedLead.company_name}, using defaults`);
+        if (sourceId) {
+          await supabase
+            .from("lead_sources")
+            .update({
+              total_leads_generated: successfulLeads,
+              last_used_date: new Date().toISOString(),
+            })
+            .eq("id", sourceId);
         }
 
-        const finalLead = {
-          user_id: userId,
-          company_name: scrapedLead.company_name,
-          name: scrapedLead.name,
-          industry: industry,
-          phone: scrapedLead.phone,
-          email: scrapedLead.email,
-          website: scrapedLead.website,
-          address: scrapedLead.address,
-          city: scrapedLead.city || location,
-          state: scrapedLead.state,
-          latitude: scrapedLead.latitude,
-          longitude: scrapedLead.longitude,
-          google_place_id: scrapedLead.google_place_id,
-          google_rating: scrapedLead.google_rating,
-          google_reviews_count: scrapedLead.google_reviews_count,
-          business_type: scrapedLead.business_type,
-          potential_sticker_needs: enrichedData.potential_sticker_needs,
-          estimated_order_value: enrichedData.estimated_order_value,
-          suggested_pitch: enrichedData.suggested_pitch,
-          ai_insights: enrichedData.ai_insights,
-          score: scoringData.score,
-          priority: scoringData.priority,
-          confidence_level: scoringData.confidence_level,
-          source: "google_maps",
-          search_query: `${industry} in ${location}`,
-          status: "new",
-        };
-
-        const insertResult = await supabase
-          .from("leads")
-          .insert(finalLead)
-          .select()
-          .single();
-
-        if (insertResult.error) {
-          console.error(`Failed to insert lead ${scrapedLead.company_name}:`, insertResult.error);
-          failedLeads++;
-        } else if (insertResult.data) {
-          successfulLeads++;
-          console.log(`Successfully saved lead: ${scrapedLead.company_name}`);
+        if (totalDistricts > 0 || totalKeywords > 0) {
+          await supabase
+            .from("lead_search_state")
+            .upsert({
+              user_id: userId,
+              city: location,
+              industry,
+              last_district_index: nextDistrictIndex,
+              last_keyword_index: nextKeywordIndex,
+              total_districts: totalDistricts,
+              updated_at: new Date().toISOString(),
+            }, { onConflict: "user_id,city,industry" });
         }
 
-      } catch (error) {
-        console.error(`Error processing lead ${scrapedLead.company_name}:`, error);
-        failedLeads++;
-      }
-    }
+        const durationSeconds = (Date.now() - startTime) / 1000;
+        const successRate = scrapedLeads.length > 0 ? (successfulLeads / scrapedLeads.length) * 100 : 0;
 
-    if (sourceId) {
-      await supabase
-        .from("lead_sources")
-        .update({
-          total_leads_generated: successfulLeads,
-          last_used_date: new Date().toISOString(),
-        })
-        .eq("id", sourceId);
-    }
+        if (logId) {
+          await supabase
+            .from("lead_generation_logs")
+            .update({
+              status: "completed",
+              leads_generated: successfulLeads,
+              search_query: `${industry} in ${districtUsed ? `${districtUsed}, ` : ""}${location}`,
+              district_used: districtUsed,
+              keyword_used: keywordUsed,
+              google_maps_calls: googleMapsCallsTotal,
+              groq_calls: groqCallsTotal,
+              gemini_calls: geminiCallsTotal,
+              duration_seconds: durationSeconds,
+              success_rate: successRate,
+            })
+            .eq("id", logId);
+        }
 
-    if (totalDistricts > 0 || totalKeywords > 0) {
-      await supabase
-        .from("lead_search_state")
-        .upsert({
-          user_id: userId,
-          city: location,
-          industry: industry,
-          last_district_index: nextDistrictIndex,
-          last_keyword_index: nextKeywordIndex,
-          total_districts: totalDistricts,
-          updated_at: new Date().toISOString(),
-        }, { onConflict: "user_id,city,industry" });
-    }
-
-    const durationSeconds = (Date.now() - startTime) / 1000;
-    const successRate = scrapedLeads.length > 0 ? (successfulLeads / scrapedLeads.length) * 100 : 0;
-
-    if (logId) {
-      await supabase
-        .from("lead_generation_logs")
-        .update({
-          status: "completed",
+        await write(sseEvent("done", {
           leads_generated: successfulLeads,
-          search_query: `${industry} in ${districtUsed ? `${districtUsed}, ` : ""}${location}`,
-          district_used: districtUsed,
-          keyword_used: keywordUsed,
-          google_maps_calls: googleMapsCallsTotal,
-          groq_calls: groqCallsTotal,
-          gemini_calls: geminiCallsTotal,
+          skipped_duplicates: skippedDuplicates,
+          failed_leads: failedLeads,
+          total_processed: scrapedLeads.length,
           duration_seconds: durationSeconds,
-          success_rate: successRate,
-        })
-        .eq("id", logId);
-    }
+        }));
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        leads_generated: successfulLeads,
-        skipped_duplicates: skippedDuplicates,
-        failed_leads: failedLeads,
-        total_processed: scrapedLeads.length,
-        industry: industry,
-        location: location,
-        district_used: districtUsed,
-        keyword_used: keywordUsed,
-        rotation: {
-          district_index: nextDistrictIndex,
-          keyword_index: nextKeywordIndex,
-          total_districts: totalDistricts,
-          total_keywords: totalKeywords,
-          districts_coverage_pct: totalDistricts > 0 ? Math.round(((nextDistrictIndex + 1) / totalDistricts) * 100) : 0,
-        },
-        api_usage: {
-          google_maps: googleMapsCallsTotal,
-          groq: groqCallsTotal,
-          gemini: geminiCallsTotal,
-        },
-        duration_seconds: durationSeconds,
-        success_rate: successRate,
-        message: `Successfully generated ${successfulLeads} new leads from ${districtUsed ? `${districtUsed}, ` : ""}${location} using "${keywordUsed}". Skipped ${skippedDuplicates} duplicates.`,
-      }),
-      {
-        status: 200,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      } catch (streamError) {
+        console.error("Stream processing error:", streamError);
+        await write(sseEvent("error", { message: streamError.message }));
+      } finally {
+        await writer.close();
       }
-    );
+    })());
+
+    return new Response(readable, {
+      status: 200,
+      headers: {
+        ...corsHeaders,
+        "Content-Type": "text/event-stream",
+        "Cache-Control": "no-cache",
+        "Connection": "keep-alive",
+      },
+    });
 
   } catch (error) {
     console.error("Scheduled lead generation error:", error);
 
     const durationSeconds = (Date.now() - startTime) / 1000;
-
-    if (logId) {
-      const supabaseUrl = Deno.env.get("SUPABASE_URL")!;
-      const supabaseKey = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-      const supabase = createClient(supabaseUrl, supabaseKey);
-
-      await supabase
-        .from("lead_generation_logs")
-        .update({
-          status: "failed",
-          error_message: error.message,
-          duration_seconds: durationSeconds,
-        })
-        .eq("id", logId);
-    }
 
     return new Response(
       JSON.stringify({

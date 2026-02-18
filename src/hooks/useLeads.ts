@@ -1,3 +1,4 @@
+import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
@@ -142,19 +143,33 @@ export const useLeads = () => {
     return data as LeadSearchState | null;
   };
 
-  const generateLeadsMutation = useMutation({
-    mutationFn: async ({
-      targetIndustry,
-      targetLocation,
-      limit = 20,
-    }: {
-      targetIndustry?: string;
-      targetLocation?: string;
-      limit?: number;
-    }) => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error("Not authenticated");
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [streamProgress, setStreamProgress] = useState<{
+    current: number;
+    total: number;
+    currentCompany: string;
+    streamedLeads: Lead[];
+  } | null>(null);
 
+  const generateLeads = async ({
+    targetIndustry,
+    targetLocation,
+    limit = 20,
+  }: {
+    targetIndustry?: string;
+    targetLocation?: string;
+    limit?: number;
+  }) => {
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) {
+      toast.error("Not authenticated");
+      return;
+    }
+
+    setIsGenerating(true);
+    setStreamProgress({ current: 0, total: 0, currentCompany: "", streamedLeads: [] });
+
+    try {
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/scheduled-lead-generation`,
         {
@@ -163,39 +178,107 @@ export const useLeads = () => {
             Authorization: `Bearer ${session.access_token}`,
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({
-            targetIndustry,
-            targetLocation,
-            limit,
-          }),
+          body: JSON.stringify({ targetIndustry, targetLocation, limit }),
         }
       );
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         throw new Error(errorData.message || "Failed to generate leads");
       }
 
-      return response.json();
-    },
-    onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ["leads"] });
-      queryClient.invalidateQueries({ queryKey: ["lead_generation_logs"] });
-      queryClient.invalidateQueries({ queryKey: ["lead_search_state"] });
-
-      if (data.leads_generated === 0 && data.skipped_duplicates > 0) {
-        toast.warning(`All ${data.skipped_duplicates} businesses found are already in your database. Try a different city or industry to find new leads.`);
-      } else if (data.leads_generated === 0) {
-        toast.warning(`No businesses found for this combination. Try a different city or industry.`);
-      } else {
-        const locationLabel = data.district_used ? `${data.district_used}, ${data.location}` : data.location;
-        toast.success(`Generated ${data.leads_generated} new leads from ${locationLabel}!${data.skipped_duplicates > 0 ? ` (${data.skipped_duplicates} duplicates skipped)` : ""}`);
+      const contentType = response.headers.get("content-type") || "";
+      if (!contentType.includes("text/event-stream")) {
+        const data = await response.json();
+        queryClient.invalidateQueries({ queryKey: ["leads"] });
+        queryClient.invalidateQueries({ queryKey: ["lead_generation_logs"] });
+        toast.success(`Generated ${data.leads_generated ?? 0} new leads!`);
+        return;
       }
-    },
-    onError: (error: Error) => {
+
+      const reader = response.body!.getReader();
+      const decoder = new TextDecoder();
+      let buffer = "";
+      let totalLeads = 0;
+      let savedCount = 0;
+      let skippedCount = 0;
+
+      while (true) {
+        const { done, value } = await reader.read();
+        if (done) break;
+
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split("\n\n");
+        buffer = parts.pop() ?? "";
+
+        for (const part of parts) {
+          const lines = part.trim().split("\n");
+          let eventType = "message";
+          let dataLine = "";
+
+          for (const line of lines) {
+            if (line.startsWith("event: ")) eventType = line.slice(7).trim();
+            if (line.startsWith("data: ")) dataLine = line.slice(6).trim();
+          }
+
+          if (!dataLine) continue;
+
+          try {
+            const payload = JSON.parse(dataLine);
+
+            if (eventType === "start") {
+              totalLeads = payload.total;
+              setStreamProgress({ current: 0, total: payload.total, currentCompany: "Searching...", streamedLeads: [] });
+            } else if (eventType === "lead") {
+              savedCount++;
+              setStreamProgress(prev => {
+                if (!prev) return prev;
+                return {
+                  current: payload.current,
+                  total: payload.total || prev.total,
+                  currentCompany: payload.lead.company_name,
+                  streamedLeads: [payload.lead, ...prev.streamedLeads],
+                };
+              });
+              queryClient.invalidateQueries({ queryKey: ["leads"] });
+            } else if (eventType === "progress") {
+              if (payload.skipped) skippedCount++;
+              setStreamProgress(prev => {
+                if (!prev) return prev;
+                return {
+                  ...prev,
+                  current: payload.current,
+                  total: payload.total || prev.total,
+                  currentCompany: payload.company_name || prev.currentCompany,
+                };
+              });
+            } else if (eventType === "done") {
+              queryClient.invalidateQueries({ queryKey: ["leads"] });
+              queryClient.invalidateQueries({ queryKey: ["lead_generation_logs"] });
+              queryClient.invalidateQueries({ queryKey: ["lead_search_state"] });
+
+              if (payload.leads_generated === 0 && payload.skipped_duplicates > 0) {
+                toast.warning(`All ${payload.skipped_duplicates} businesses already in your database. Try a different city or industry.`);
+              } else if (payload.leads_generated === 0) {
+                toast.warning("No businesses found. Try a different city or industry.");
+              } else {
+                toast.success(`Generated ${payload.leads_generated} new leads!${payload.skipped_duplicates > 0 ? ` (${payload.skipped_duplicates} duplicates skipped)` : ""}`);
+              }
+            } else if (eventType === "error") {
+              toast.error(`Error during generation: ${payload.message}`);
+            }
+          } catch {
+            // ignore parse errors on partial chunks
+          }
+        }
+      }
+    } catch (error: any) {
       toast.error(`Failed to generate leads: ${error.message}`);
-    },
-  });
+    } finally {
+      setIsGenerating(false);
+      setTimeout(() => setStreamProgress(null), 2000);
+    }
+  };
 
   const updateLeadMutation = useMutation({
     mutationFn: async ({ id, updates }: { id: string; updates: Partial<Lead> }) => {
@@ -332,9 +415,9 @@ export const useLeads = () => {
     leadGenerationLogs,
     leadSources,
     getSearchState,
-    generateLeads: generateLeadsMutation.mutate,
-    isGenerating: generateLeadsMutation.isPending,
-    lastGenerationResult: generateLeadsMutation.data,
+    generateLeads,
+    isGenerating,
+    streamProgress,
     updateLead: updateLeadMutation.mutate,
     deleteLead: deleteLeadMutation.mutate,
     convertToClient: convertToClientMutation.mutate,

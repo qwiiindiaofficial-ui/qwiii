@@ -54,8 +54,6 @@ import {
   MoreVertical,
   FileText,
   Table2,
-  Navigation,
-  Tag,
 } from "lucide-react";
 import { format } from "date-fns";
 import { exportToCSV } from "@/lib/exportUtils";
@@ -71,7 +69,7 @@ const Leads = () => {
     leadSources = [],
     generateLeads,
     isGenerating,
-    lastGenerationResult,
+    streamProgress,
     updateLead,
     convertToClient,
     addActivity,
@@ -427,55 +425,46 @@ const Leads = () => {
 
               <div className="flex items-end">
                 <Button onClick={handleGenerateLeads} disabled={isGenerating} className="w-full">
-                  {isGenerating ? "Generating..." : "Generate Now"}
+                  {isGenerating ? (
+                    <>
+                      <RefreshCw className="mr-2 h-4 w-4 animate-spin" />
+                      Generating...
+                    </>
+                  ) : "Generate Now"}
                 </Button>
               </div>
             </div>
 
-            {lastGenerationResult && (
-              <div className="mt-4 rounded-lg border bg-muted/40 p-4 space-y-3">
-                <p className="text-sm font-medium text-muted-foreground">Last generation details</p>
-                <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-                  {lastGenerationResult.district_used && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Navigation className="h-4 w-4 text-blue-500 shrink-0" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">District searched</p>
-                        <p className="font-medium">{lastGenerationResult.district_used}</p>
-                      </div>
-                    </div>
-                  )}
-                  {lastGenerationResult.keyword_used && (
-                    <div className="flex items-center gap-2 text-sm">
-                      <Tag className="h-4 w-4 text-green-500 shrink-0" />
-                      <div>
-                        <p className="text-xs text-muted-foreground">Keyword used</p>
-                        <p className="font-medium capitalize">{lastGenerationResult.keyword_used}</p>
-                      </div>
-                    </div>
-                  )}
-                  {lastGenerationResult.rotation && lastGenerationResult.rotation.total_districts > 0 && (
-                    <div className="flex items-center gap-2 text-sm sm:col-span-2">
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <p className="text-xs text-muted-foreground">District coverage</p>
-                          <p className="text-xs font-medium">
-                            {lastGenerationResult.rotation.district_index + 1} / {lastGenerationResult.rotation.total_districts} districts
-                          </p>
-                        </div>
-                        <div className="h-2 w-full rounded-full bg-muted overflow-hidden">
-                          <div
-                            className="h-full rounded-full bg-blue-500 transition-all"
-                            style={{ width: `${lastGenerationResult.rotation.districts_coverage_pct}%` }}
-                          />
-                        </div>
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {lastGenerationResult.rotation.districts_coverage_pct}% of {lastGenerationResult.location} covered
-                        </p>
-                      </div>
-                    </div>
+            {isGenerating && streamProgress && (
+              <div className="mt-4 space-y-3 rounded-lg border bg-muted/30 p-4">
+                <div className="flex items-center justify-between text-sm">
+                  <span className="font-medium flex items-center gap-2">
+                    <Sparkles className="h-4 w-4 animate-pulse text-yellow-500" />
+                    {streamProgress.total === 0
+                      ? "Searching for businesses..."
+                      : streamProgress.currentCompany
+                        ? `Processing: ${streamProgress.currentCompany}`
+                        : "Starting..."}
+                  </span>
+                  {streamProgress.total > 0 && (
+                    <span className="text-muted-foreground text-xs">
+                      {streamProgress.current} / {streamProgress.total}
+                    </span>
                   )}
                 </div>
+                {streamProgress.total > 0 && (
+                  <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+                    <div
+                      className="h-full rounded-full bg-green-500 transition-all duration-500"
+                      style={{ width: `${Math.round((streamProgress.current / streamProgress.total) * 100)}%` }}
+                    />
+                  </div>
+                )}
+                {streamProgress.streamedLeads.length > 0 && (
+                  <p className="text-xs text-green-600 dark:text-green-400 font-medium">
+                    {streamProgress.streamedLeads.length} lead{streamProgress.streamedLeads.length !== 1 ? "s" : ""} saved so far
+                  </p>
+                )}
               </div>
             )}
           </CardContent>
