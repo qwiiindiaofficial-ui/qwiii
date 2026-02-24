@@ -25,37 +25,50 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [allowedPages, setAllowedPages] = useState<string[]>(['/']);
 
   useEffect(() => {
-    // Set up auth state listener FIRST
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        setLoading(false);
+    let resolved = false;
 
-        // Defer role fetching
-        if (session?.user) {
-          setTimeout(() => {
-            fetchUserRole(session.user.id);
-          }, 0);
-        } else {
-          setIsAdmin(false);
-          setIsMaster(false);
-          setAllowedPages(['/']);
-        }
-      }
-    );
-
-    // THEN check for existing session
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    const safeResolve = (session: Session | null) => {
+      if (resolved) return;
+      resolved = true;
       setSession(session);
       setUser(session?.user ?? null);
       setLoading(false);
       if (session?.user) {
         fetchUserRole(session.user.id);
+      } else {
+        setIsAdmin(false);
+        setIsMaster(false);
+        setAllowedPages(['/']);
       }
+    };
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      (event, session) => {
+        safeResolve(session);
+        if (session?.user) {
+          setTimeout(() => {
+            fetchUserRole(session.user.id);
+          }, 0);
+        }
+      }
+    );
+
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      safeResolve(session);
+    }).catch(() => {
+      safeResolve(null);
     });
 
-    return () => subscription.unsubscribe();
+    const timeout = setTimeout(() => {
+      if (!resolved) {
+        safeResolve(null);
+      }
+    }, 5000);
+
+    return () => {
+      subscription.unsubscribe();
+      clearTimeout(timeout);
+    };
   }, []);
 
   const fetchUserRole = async (userId: string) => {
@@ -88,11 +101,15 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const signIn = async (email: string, password: string) => {
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
-    return { error: error as Error | null };
+    try {
+      const { error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+      return { error: error as Error | null };
+    } catch (err) {
+      return { error: new Error('Unable to connect to the server. Please check your internet connection and try again.') };
+    }
   };
 
   const signOut = async () => {
