@@ -1,4 +1,21 @@
-# Welcome to your Lovable project
+# Sticker Factory Management System
+
+## IMPORTANT: India Users - DNS Fix Required
+
+If you're in India and cannot login, Supabase is blocked by some ISPs. Quick fix:
+
+**Option 1: Change DNS (2 minutes)**
+- Windows/Mac: Settings > Network > DNS
+- Change to: `1.1.1.1` and `1.0.0.1`
+- Restart browser
+
+**Option 2: Use VPN (Instant)**
+- Download Cloudflare WARP: https://1.1.1.1
+- Install and turn ON
+
+**Detailed Instructions**: See `INDIA_DNS_FIX.md` file
+
+---
 
 ## Project info
 
