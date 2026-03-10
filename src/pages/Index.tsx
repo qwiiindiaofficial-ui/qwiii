@@ -51,7 +51,8 @@ const Index = () => {
   const { clients, stats: clientStats } = useClients();
   const { invoices, stats: invoiceStats } = useInvoices();
   const { orders, stats: orderStats } = useClientOrders();
-  const { leads } = useLeads();
+  const { leads: leadsData } = useLeads();
+  const leads = leadsData ?? [];
 
   const totalRevenue = invoiceStats.paidAmount;
   const pendingRevenue = invoiceStats.pendingAmount;
