@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { FileText, Download, Calendar, Settings, BarChart3, PieChart, TrendingUp, RefreshCw, CheckCircle2 } from 'lucide-react';
+import { FileText, Download, Calendar, Settings, ChartBar as BarChart3, ChartPie as PieChart, TrendingUp, RefreshCw, CircleCheck as CheckCircle2 } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import MetricCard from '@/components/charts/MetricCard';
 import { useInvoices } from '@/hooks/useInvoices';

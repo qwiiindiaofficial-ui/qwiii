@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
-import { Gauge, TrendingUp, Target, Zap, RefreshCw, ArrowUpRight, CheckCircle2, AlertTriangle, Clock } from 'lucide-react';
+import { Gauge, TrendingUp, Target, Zap, RefreshCw, ArrowUpRight, CircleCheck as CheckCircle2, TriangleAlert as AlertTriangle, Clock } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import MetricCard from '@/components/charts/MetricCard';
 import ProgressRing from '@/components/charts/ProgressRing';

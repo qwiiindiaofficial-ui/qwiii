@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { PieChart, TrendingUp, BarChart3, Activity, Download, Layers, Target, Zap, RefreshCw, ArrowUpRight, ArrowDownRight, Users, FileText } from 'lucide-react';
+import { ChartPie as PieChart, TrendingUp, ChartBar as BarChart3, Activity, Download, Layers, Target, Zap, RefreshCw, ArrowUpRight, ArrowDownRight, Users, FileText } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import MetricCard from '@/components/charts/MetricCard';
 import AreaChartCard from '@/components/charts/AreaChartCard';

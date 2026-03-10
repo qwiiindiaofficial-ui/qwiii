@@ -1,4 +1,4 @@
-import { Bot, UserCheck, FileText, Mail, CreditCard, TrendingUp, ArrowRight, CheckCircle2, RefreshCw } from 'lucide-react';
+import { Bot, UserCheck, FileText, Mail, CreditCard, TrendingUp, ArrowRight, CircleCheck as CheckCircle2, RefreshCw } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import MetricCard from '@/components/charts/MetricCard';
 import BarChartCard from '@/components/charts/BarChartCard';
