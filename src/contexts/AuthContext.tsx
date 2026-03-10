@@ -25,49 +25,36 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [allowedPages, setAllowedPages] = useState<string[]>(['/']);
 
   useEffect(() => {
-    let resolved = false;
-
-    const safeResolve = (session: Session | null) => {
-      if (resolved) return;
-      resolved = true;
-      setSession(session);
-      setUser(session?.user ?? null);
-      setLoading(false);
-      if (session?.user) {
-        fetchUserRole(session.user.id);
-      } else {
-        setIsAdmin(false);
-        setIsMaster(false);
-        setAllowedPages(['/']);
-      }
-    };
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        safeResolve(session);
+        setSession(session);
+        setUser(session?.user ?? null);
+        setLoading(false);
         if (session?.user) {
           setTimeout(() => {
             fetchUserRole(session.user.id);
           }, 0);
+        } else {
+          setIsAdmin(false);
+          setIsMaster(false);
+          setAllowedPages(['/']);
         }
       }
     );
 
     supabase.auth.getSession().then(({ data: { session } }) => {
-      safeResolve(session);
-    }).catch(() => {
-      safeResolve(null);
-    });
-
-    const timeout = setTimeout(() => {
-      if (!resolved) {
-        safeResolve(null);
+      setSession(session);
+      setUser(session?.user ?? null);
+      setLoading(false);
+      if (session?.user) {
+        fetchUserRole(session.user.id);
       }
-    }, 5000);
+    }).catch(() => {
+      setLoading(false);
+    });
 
     return () => {
       subscription.unsubscribe();
-      clearTimeout(timeout);
     };
   }, []);
 
