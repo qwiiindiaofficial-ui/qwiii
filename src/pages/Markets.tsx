@@ -1,10 +1,12 @@
 import { useState } from 'react';
-import { Globe, TrendingUp, MapPin, DollarSign, Plus, Search, Target, Users, BarChart3, ArrowUpRight, ArrowDownRight, Filter, Eye, Edit2, Zap, Building2 } from 'lucide-react';
+import { Globe, TrendingUp, MapPin, DollarSign, Plus, Target, Users, BarChart3, ArrowUpRight, Eye, Edit2, Zap, Building2, Sparkles } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import MetricCard from '@/components/charts/MetricCard';
 import BarChartCard from '@/components/charts/BarChartCard';
 import DonutChartCard from '@/components/charts/DonutChartCard';
+import OpportunitiesTab from '@/components/markets/OpportunitiesTab';
 import { toast } from '@/hooks/use-toast';
+import type { MarketOpportunity } from '@/hooks/useMarketOpportunities';
 
 const marketData = [
   { name: 'North India', value: 4500 },
@@ -42,7 +44,7 @@ const expansionOpportunities = [
   { city: 'Kochi', state: 'Kerala', population: '2.1M', potential: '₹18L/month', competition: 'Low', priority: 'high' },
 ];
 
-type ViewTab = 'overview' | 'regions' | 'competitors' | 'expansion';
+type ViewTab = 'overview' | 'regions' | 'competitors' | 'expansion' | 'opportunities';
 
 const Markets = () => {
   const [activeTab, setActiveTab] = useState<ViewTab>('overview');
@@ -59,6 +61,18 @@ const Markets = () => {
   const handlePlanExpansion = () => {
     toast({ title: "Expansion Plan Created", description: `Plan for ${expansionForm.city} has been created` });
     setShowExpansionModal(false);
+  };
+
+  const handleOpportunityAction = (opportunity: MarketOpportunity) => {
+    if (opportunity.action_type === 'expand') {
+      setActiveTab('expansion');
+    } else if (opportunity.action_type === 'view_competitors') {
+      setActiveTab('competitors');
+    } else if (opportunity.action_type === 'view_region') {
+      setActiveTab('regions');
+    } else if (opportunity.action_type === 'contact_buyers') {
+      setActiveTab('regions');
+    }
   };
 
   return (
@@ -95,12 +109,13 @@ const Markets = () => {
         </div>
 
         {/* View Tabs */}
-        <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-1 w-fit">
+        <div className="flex items-center gap-1 bg-muted/30 rounded-lg p-1 w-fit flex-wrap">
           {[
             { id: 'overview', label: 'Overview', icon: BarChart3 },
             { id: 'regions', label: 'Regions', icon: MapPin },
             { id: 'competitors', label: 'Competitors', icon: Users },
             { id: 'expansion', label: 'Expansion', icon: Target },
+            { id: 'opportunities', label: 'AI Opportunities', icon: Sparkles },
           ].map((tab) => (
             <button
               key={tab.id}
@@ -109,10 +124,13 @@ const Markets = () => {
                 activeTab === tab.id
                   ? 'bg-card text-foreground shadow-sm'
                   : 'text-muted-foreground hover:text-foreground'
-              }`}
+              } ${tab.id === 'opportunities' && activeTab !== 'opportunities' ? 'relative' : ''}`}
             >
-              <tab.icon size={14} />
+              <tab.icon size={14} className={tab.id === 'opportunities' ? 'text-primary' : ''} />
               {tab.label}
+              {tab.id === 'opportunities' && activeTab !== 'opportunities' && (
+                <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-primary animate-pulse" />
+              )}
             </button>
           ))}
         </div>
@@ -312,6 +330,10 @@ const Markets = () => {
               </div>
             </div>
           </div>
+        )}
+
+        {activeTab === 'opportunities' && (
+          <OpportunitiesTab onActionClick={handleOpportunityAction} />
         )}
 
         {activeTab === 'expansion' && (
