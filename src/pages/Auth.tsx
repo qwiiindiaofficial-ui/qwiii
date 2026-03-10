@@ -66,8 +66,7 @@ const Auth = () => {
       }
     } else {
       toast.success('Welcome back!');
-      await new Promise(resolve => setTimeout(resolve, 100));
-      navigate('/dashboard');
+      navigate('/dashboard', { replace: true });
     }
   };
 
