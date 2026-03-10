@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { Factory, Boxes, Clock, CircleCheck as CheckCircle2, TriangleAlert as AlertTriangle, Play, Pause, Plus, X, Settings } from 'lucide-react';
+import { Factory, Boxes, Clock, CircleCheck as CheckCircle2, TriangleAlert as AlertTriangle, Play, Pause, Plus, X, Settings, ChevronLeft, ChevronRight } from 'lucide-react';
+
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import MetricCard from '@/components/charts/MetricCard';
 import BarChartCard from '@/components/charts/BarChartCard';
@@ -34,6 +35,7 @@ export default function Production() {
   const [selectedBatch, setSelectedBatch] = useState<ProductionBatch | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [currentPage, setCurrentPage] = useState(1);
   const [formData, setFormData] = useState<CreateBatchInput>({
     product_name: '',
     quantity: 0,
@@ -49,6 +51,12 @@ export default function Production() {
     const matchStatus = statusFilter === 'all' || b.status === statusFilter;
     return matchSearch && matchStatus;
   });
+
+  const totalPages = Math.max(1, Math.ceil(filteredBatches.length / 10));
+  const paginatedBatches = filteredBatches.slice((currentPage - 1) * 10, currentPage * 10);
+
+  const handleSearchChange = (val: string) => { setSearchQuery(val); setCurrentPage(1); };
+  const handleStatusFilterChange = (val: string) => { setStatusFilter(val); setCurrentPage(1); };
 
   const efficiencyData = machines.map(m => ({ name: m.name, value: m.efficiency }));
 
@@ -136,12 +144,12 @@ export default function Production() {
                   type="text"
                   placeholder="Search batches..."
                   value={searchQuery}
-                  onChange={e => setSearchQuery(e.target.value)}
+                  onChange={e => handleSearchChange(e.target.value)}
                   className="flex-1 px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-primary/50"
                 />
                 <select
                   value={statusFilter}
-                  onChange={e => setStatusFilter(e.target.value)}
+                  onChange={e => handleStatusFilterChange(e.target.value)}
                   className="px-3 py-2 bg-background border border-border rounded-lg text-sm focus:outline-none"
                 >
                   <option value="all">All Status</option>
@@ -166,6 +174,11 @@ export default function Production() {
                   </button>
                 </div>
               ) : (
+                <>
+                <div className="flex items-center justify-between text-xs text-muted-foreground mb-2">
+                  <span>{filteredBatches.length} batch{filteredBatches.length !== 1 ? 'es' : ''}</span>
+                  <span>Page {currentPage} of {totalPages}</span>
+                </div>
                 <div className="overflow-x-auto">
                   <table className="w-full text-sm">
                     <thead>
@@ -180,7 +193,7 @@ export default function Production() {
                       </tr>
                     </thead>
                     <tbody>
-                      {filteredBatches.map(batch => (
+                      {paginatedBatches.map(batch => (
                         <tr key={batch.id} className="border-b border-border/50 hover:bg-muted/30 cursor-pointer" onClick={() => setSelectedBatch(batch)}>
                           <td className="py-3 px-2 font-mono text-xs">{batch.batch_number}</td>
                           <td className="py-3 px-2 font-medium">{batch.product_name}</td>
@@ -251,6 +264,34 @@ export default function Production() {
                     </tbody>
                   </table>
                 </div>
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-center gap-2 mt-4 pt-4 border-t border-border/50">
+                    <button
+                      onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                      disabled={currentPage === 1}
+                      className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 transition-colors"
+                    >
+                      <ChevronLeft className="w-4 h-4" />
+                    </button>
+                    {Array.from({ length: totalPages }, (_, i) => i + 1).map(p => (
+                      <button
+                        key={p}
+                        onClick={() => setCurrentPage(p)}
+                        className={`w-8 h-8 text-xs rounded-lg border transition-colors ${p === currentPage ? 'bg-primary text-primary-foreground border-primary' : 'border-border hover:bg-muted'}`}
+                      >
+                        {p}
+                      </button>
+                    ))}
+                    <button
+                      onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                      disabled={currentPage === totalPages}
+                      className="p-1.5 rounded-lg border border-border hover:bg-muted disabled:opacity-40 transition-colors"
+                    >
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                )}
+                </>
               )}
             </>
           )}
