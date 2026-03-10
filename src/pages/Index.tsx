@@ -13,6 +13,8 @@ import {
   Server,
   Database,
   Shield,
+  FileText,
+  ShoppingCart,
 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
@@ -24,31 +26,10 @@ import LineChartCard from '@/components/charts/LineChartCard';
 import ProgressRing from '@/components/charts/ProgressRing';
 import StatusCard from '@/components/charts/StatusCard';
 import AnimatedCounter from '@/components/ai/AnimatedCounter';
-
-const revenueData = [
-  { name: 'Jan', value: 4200, value2: 3800 },
-  { name: 'Feb', value: 4800, value2: 4200 },
-  { name: 'Mar', value: 5200, value2: 4600 },
-  { name: 'Apr', value: 4900, value2: 4400 },
-  { name: 'May', value: 5800, value2: 5200 },
-  { name: 'Jun', value: 6200, value2: 5600 },
-  { name: 'Jul', value: 7100, value2: 6400 },
-];
-
-const productionData = [
-  { name: 'Fabric A', value: 4500 },
-  { name: 'Fabric B', value: 3200 },
-  { name: 'Fabric C', value: 2800 },
-  { name: 'Fabric D', value: 2100 },
-  { name: 'Fabric E', value: 1800 },
-];
-
-const categoryData = [
-  { name: 'Sarees', value: 35 },
-  { name: 'Dress Material', value: 28 },
-  { name: 'Lehengas', value: 20 },
-  { name: 'Kurtas', value: 17 },
-];
+import { useClients } from '@/hooks/useClients';
+import { useInvoices } from '@/hooks/useInvoices';
+import { useClientOrders } from '@/hooks/useClientOrders';
+import { useLeads } from '@/hooks/useLeads';
 
 const forecastData = [
   { name: 'W1', actual: 2400, predicted: 2200 },
@@ -67,10 +48,45 @@ const quickLinks = [
 ];
 
 const Index = () => {
+  const { clients, stats: clientStats } = useClients();
+  const { invoices, stats: invoiceStats } = useInvoices();
+  const { orders, stats: orderStats } = useClientOrders();
+  const { leads } = useLeads();
+
+  const totalRevenue = invoiceStats.paidAmount;
+  const pendingRevenue = invoiceStats.pendingAmount;
+
+  const revenueByMonth: Record<string, { actual: number; target: number }> = {};
+  const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+
+  invoices.forEach(inv => {
+    const month = months[new Date(inv.issue_date).getMonth()];
+    if (!revenueByMonth[month]) revenueByMonth[month] = { actual: 0, target: 0 };
+    revenueByMonth[month].actual += inv.total;
+    revenueByMonth[month].target += inv.total * 1.1;
+  });
+
+  const revenueData = months
+    .filter(m => revenueByMonth[m])
+    .map(m => ({ name: m, value: Math.round(revenueByMonth[m].actual / 100000), value2: Math.round(revenueByMonth[m].target / 100000) }))
+    .slice(-7);
+
+  const orderStatusData = [
+    { name: 'Delivered', value: orders.filter(o => o.status === 'delivered').length },
+    { name: 'In Production', value: orders.filter(o => o.status === 'in_production').length },
+    { name: 'Pending', value: orders.filter(o => o.status === 'pending').length },
+    { name: 'Dispatched', value: orders.filter(o => o.status === 'dispatched').length },
+  ].filter(d => d.value > 0);
+
+  const categoryData = orderStatusData.length > 0 ? orderStatusData : [
+    { name: 'No Orders', value: 1 },
+  ];
+
+  const activeLeads = leads.filter(l => l.status === 'new' || l.status === 'contacted' || l.status === 'qualified').length;
+
   return (
     <DashboardLayout>
       <div className="p-6 space-y-6">
-        {/* Header */}
         <div className="flex items-start justify-between">
           <div>
             <h1 className="text-2xl font-display font-bold tracking-wide">
@@ -86,75 +102,95 @@ const Index = () => {
           </div>
         </div>
 
-        {/* KPI Metrics */}
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
           <MetricCard
-            title="Total Revenue"
-            value={<AnimatedCounter value={24500000} prefix="₹" duration={1500} />}
-            change="+23.5%"
-            changeType="positive"
+            title="Revenue (Paid)"
+            value={<AnimatedCounter value={totalRevenue} prefix="₹" duration={1500} />}
             icon={<DollarSign size={16} />}
-            subtitle="vs last month"
+            subtitle={`₹${(pendingRevenue / 100000).toFixed(1)}L pending`}
           />
           <MetricCard
-            title="Active SKUs"
-            value={<AnimatedCounter value={12847} duration={1500} />}
-            change="+156"
-            changeType="positive"
-            icon={<Package size={16} />}
-            subtitle="this week"
-          />
-          <MetricCard
-            title="B2B Buyers"
-            value={<AnimatedCounter value={384} duration={1500} />}
-            change="+12"
+            title="Active Clients"
+            value={<AnimatedCounter value={clientStats.active} duration={1500} />}
+            change={`${clientStats.total} total`}
             changeType="positive"
             icon={<Users size={16} />}
-            subtitle="active"
+            subtitle="registered"
           />
           <MetricCard
-            title="AI Accuracy"
-            value="94.2%"
-            change="+2.1%"
-            changeType="positive"
+            title="Total Orders"
+            value={<AnimatedCounter value={orderStats?.total ?? orders.length} duration={1500} />}
+            icon={<ShoppingCart size={16} />}
+            subtitle="all time"
+          />
+          <MetricCard
+            title="Active Leads"
+            value={<AnimatedCounter value={activeLeads} duration={1500} />}
             icon={<Activity size={16} />}
-            subtitle="forecast"
+            subtitle={`${leads.length} total`}
           />
         </div>
 
-        {/* Main Charts Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          {/* Revenue Chart - spans 2 columns */}
           <div className="lg:col-span-2">
-            <AreaChartCard
-              data={revenueData}
-              title="Revenue Trend"
-              subtitle="Actual vs Target (₹ in Lakhs)"
-              color="hsl(185, 100%, 50%)"
-              color2="hsl(265, 85%, 55%)"
-              height={280}
-            />
+            {revenueData.length > 0 ? (
+              <AreaChartCard
+                data={revenueData}
+                title="Revenue Trend"
+                subtitle="Monthly revenue (₹ in Lakhs)"
+                color="hsl(185, 100%, 50%)"
+                color2="hsl(265, 85%, 55%)"
+                height={280}
+              />
+            ) : (
+              <div className="glass-card h-[280px] flex items-center justify-center">
+                <div className="text-center">
+                  <FileText size={32} className="text-muted-foreground mx-auto mb-2" />
+                  <p className="text-sm text-muted-foreground">No invoice data yet</p>
+                  <Link to="/invoices" className="text-xs text-primary hover:underline mt-1 block">Create invoices</Link>
+                </div>
+              </div>
+            )}
           </div>
 
-          {/* Category Distribution */}
           <DonutChartCard
             data={categoryData}
-            title="Sales by Category"
-            subtitle="Current month distribution"
-            centerValue="₹24.5L"
+            title="Order Status"
+            subtitle="Distribution by status"
+            centerValue={`${orders.length}`}
             centerLabel="Total"
             height={180}
           />
         </div>
 
-        {/* Second Row */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <BarChartCard
-            data={productionData}
-            title="Top Products"
-            subtitle="Units produced this month"
-            height={200}
-          />
+          <div className="glass-card p-4">
+            <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
+              <Users size={14} className="text-primary" />
+              Client Overview
+            </h3>
+            <div className="space-y-3">
+              {[
+                { label: 'Active', value: clientStats.active, color: 'bg-accent' },
+                { label: 'Pending', value: clientStats.pending, color: 'bg-warning' },
+                { label: 'Inactive', value: clientStats.inactive, color: 'bg-muted-foreground' },
+              ].map(item => (
+                <div key={item.label} className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <div className={`w-2 h-2 rounded-full ${item.color}`} />
+                    <span className="text-sm text-muted-foreground">{item.label}</span>
+                  </div>
+                  <span className="text-sm font-medium text-foreground">{item.value}</span>
+                </div>
+              ))}
+              <div className="pt-2 border-t border-border">
+                <div className="flex items-center justify-between">
+                  <span className="text-sm text-muted-foreground">Outstanding</span>
+                  <span className="text-sm font-medium text-warning">₹{(clientStats.totalOutstanding / 100000).toFixed(1)}L</span>
+                </div>
+              </div>
+            </div>
+          </div>
 
           <LineChartCard
             data={forecastData}
@@ -168,33 +204,30 @@ const Index = () => {
             showLegend
           />
 
-          {/* AI Performance */}
           <div className="glass-card p-4">
-            <h3 className="text-sm font-semibold text-foreground mb-4">AI Performance</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Invoice Summary</h3>
             <div className="flex items-center justify-around">
               <ProgressRing
-                value={94}
+                value={invoiceStats.total > 0 ? Math.round((invoiceStats.paid / invoiceStats.total) * 100) : 0}
                 size={100}
                 strokeWidth={8}
                 color="hsl(185, 100%, 50%)"
-                label="94%"
-                sublabel="Accuracy"
+                label={`${invoiceStats.total > 0 ? Math.round((invoiceStats.paid / invoiceStats.total) * 100) : 0}%`}
+                sublabel="Paid"
               />
               <ProgressRing
-                value={87}
+                value={invoiceStats.total > 0 ? Math.round(((invoiceStats.sent + invoiceStats.overdue) / invoiceStats.total) * 100) : 0}
                 size={100}
                 strokeWidth={8}
                 color="hsl(155, 100%, 45%)"
-                label="87%"
-                sublabel="Efficiency"
+                label={`${invoiceStats.total > 0 ? Math.round(((invoiceStats.sent + invoiceStats.overdue) / invoiceStats.total) * 100) : 0}%`}
+                sublabel="Pending"
               />
             </div>
           </div>
         </div>
 
-        {/* System Status & Quick Actions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          {/* System Status */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Server size={14} className="text-primary" />
@@ -215,8 +248,8 @@ const Index = () => {
                 status="online"
                 icon={<Database size={14} />}
                 details={[
-                  { label: 'Records', value: '2.4M' },
-                  { label: 'Size', value: '12GB' },
+                  { label: 'Records', value: `${invoiceStats.total + clientStats.total + orders.length}` },
+                  { label: 'Status', value: 'Healthy' },
                 ]}
               />
               <StatusCard
@@ -240,7 +273,6 @@ const Index = () => {
             </div>
           </div>
 
-          {/* Quick Actions */}
           <div className="space-y-3">
             <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
               <Zap size={14} className="text-primary" />
