@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Globe, TrendingUp, MapPin, DollarSign, Plus, Target, Users, BarChart3, ArrowUpRight, Eye, Edit2, Zap, Building2, Sparkles } from 'lucide-react';
+import { Globe, TrendingUp, MapPin, DollarSign, Plus, Target, Users, ChartBar as BarChart3, ArrowUpRight, Eye, CreditCard as Edit2, Zap, Building2, Sparkles } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import MetricCard from '@/components/charts/MetricCard';
 import BarChartCard from '@/components/charts/BarChartCard';

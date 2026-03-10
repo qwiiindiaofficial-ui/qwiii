@@ -1,4 +1,4 @@
-import { Clock, TrendingUp, CheckCircle2, X, ArrowRight, Calendar, Zap, Globe, Users, Package, BarChart3, AlertTriangle } from "lucide-react";
+import { Clock, TrendingUp, CircleCheck as CheckCircle2, X, ArrowRight, Calendar, Zap, Globe, Users, Package, ChartBar as BarChart3, TriangleAlert as AlertTriangle } from "lucide-react";
 import type { MarketOpportunity } from "@/hooks/useMarketOpportunities";
 
 interface OpportunityCardProps {

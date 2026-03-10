@@ -1,4 +1,4 @@
-import { Sparkles, RefreshCw, CheckCircle2, Lightbulb, TrendingUp, Inbox } from "lucide-react";
+import { Sparkles, RefreshCw, CircleCheck as CheckCircle2, Lightbulb, TrendingUp, Inbox } from "lucide-react";
 import OpportunityCard from "./OpportunityCard";
 import { useMarketOpportunities, type MarketOpportunity } from "@/hooks/useMarketOpportunities";
 
