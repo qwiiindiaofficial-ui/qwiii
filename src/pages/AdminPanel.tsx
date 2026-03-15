@@ -15,29 +15,7 @@ import { toast } from 'sonner';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Badge } from '@/components/ui/badge';
-import {
-  Users,
-  Settings,
-  Shield,
-  Plus,
-  Edit,
-  Trash2,
-  Upload,
-  Image,
-  Save,
-  Key,
-  Mail,
-  User,
-  Activity,
-  RefreshCw,
-  AlertCircle,
-  Crown,
-  Clock,
-  Eye,
-  Globe,
-  FileText,
-  Phone,
-} from 'lucide-react';
+import { Users, Settings, Shield, Plus, CreditCard as Edit, Trash2, Upload, Image, Save, Key, Mail, User, Activity, RefreshCw, CircleAlert as AlertCircle, Crown, Clock, Eye, Globe, FileText, Phone } from 'lucide-react';
 
 interface UserWithRole {
   id: string;
@@ -102,7 +80,9 @@ const AdminPanel = () => {
     app_name: 'QWII',
     tagline: 'OPTIMIZE VISION',
     logo_url: '',
+    google_maps_api_key: '',
   });
+  const [showApiKey, setShowApiKey] = useState(false);
 
   // Landing page content state
   const [landingContent, setLandingContent] = useState({
@@ -196,6 +176,7 @@ const AdminPanel = () => {
         app_name: settings['app_name'] || 'QWII',
         tagline: settings['tagline'] || 'OPTIMIZE VISION',
         logo_url: settings['logo_url'] || '',
+        google_maps_api_key: settings['google_maps_api_key'] || '',
       });
     }
   };
@@ -448,6 +429,10 @@ const AdminPanel = () => {
             <TabsTrigger value="settings" className="gap-2">
               <Settings size={14} />
               Branding
+            </TabsTrigger>
+            <TabsTrigger value="apikeys" className="gap-2">
+              <Key size={14} />
+              API Keys
             </TabsTrigger>
             <TabsTrigger value="landing" className="gap-2">
               <Globe size={14} />
@@ -755,6 +740,48 @@ const AdminPanel = () => {
               <Save size={14} />
               {isLoading ? 'Saving...' : 'Save Branding Settings'}
             </Button>
+          </TabsContent>
+
+          {/* API Keys Tab */}
+          <TabsContent value="apikeys" className="space-y-6">
+            <div className="glass-card p-6 space-y-4">
+              <h3 className="font-semibold flex items-center gap-2">
+                <Key size={16} className="text-primary" />
+                Google Maps API Key
+              </h3>
+              <p className="text-sm text-muted-foreground">
+                Required for lead generation — used to search businesses via Google Places API. Get your key from{' '}
+                <span className="font-medium text-foreground">Google Cloud Console</span> under Maps &gt; Places API.
+              </p>
+              <div className="space-y-2">
+                <Label>API Key</Label>
+                <div className="flex gap-2">
+                  <Input
+                    type={showApiKey ? 'text' : 'password'}
+                    value={appSettings.google_maps_api_key}
+                    onChange={(e) => setAppSettings({ ...appSettings, google_maps_api_key: e.target.value })}
+                    placeholder="AIzaSy..."
+                    className="font-mono text-sm"
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setShowApiKey(!showApiKey)}
+                    title={showApiKey ? 'Hide' : 'Show'}
+                  >
+                    <Eye size={14} />
+                  </Button>
+                </div>
+                <p className="text-xs text-muted-foreground">
+                  Make sure the <span className="font-medium">Places API</span> is enabled for this key in Google Cloud Console.
+                </p>
+              </div>
+              <Button onClick={handleSaveSettings} className="gap-2" disabled={isLoading}>
+                <Save size={14} />
+                {isLoading ? 'Saving...' : 'Save API Key'}
+              </Button>
+            </div>
           </TabsContent>
 
           {/* Landing Page Tab */}
