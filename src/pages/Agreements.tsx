@@ -14,6 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useAgreements, Agreement } from '@/hooks/useAgreements';
 import { useClients } from '@/hooks/useClients';
 import { useCompanyProfile } from '@/hooks/useCompanyProfile';
+import RichTextEditor from '@/components/editor/RichTextEditor';
 import { exportToCSV, formatDate } from '@/lib/exportUtils';
 import { generateAgreementPDF } from '@/lib/pdfUtils';
 import { toast } from '@/hooks/use-toast';
@@ -78,9 +79,9 @@ const Agreements = () => {
   const handleCreateAgreement = async () => {
     if (!newAgreement.client_id || !newAgreement.title || !endDate) return;
     setIsSaving(true);
-    
-    const termsArray = newAgreement.terms.split('\n').filter(t => t.trim());
-    
+
+    const termsArray = newAgreement.terms ? [newAgreement.terms] : undefined;
+
     const result = await createAgreement({
       client_id: newAgreement.client_id,
       title: newAgreement.title,
@@ -88,7 +89,7 @@ const Agreements = () => {
       start_date: startDate ? format(startDate, 'yyyy-MM-dd') : undefined,
       end_date: format(endDate, 'yyyy-MM-dd'),
       value: newAgreement.value,
-      terms: termsArray.length > 0 ? termsArray : undefined,
+      terms: termsArray,
       signatory_client: newAgreement.signatory_client || undefined,
       signatory_company: newAgreement.signatory_company || undefined,
       notes: newAgreement.notes || undefined,
@@ -294,11 +295,11 @@ const Agreements = () => {
 
                   <div className="space-y-2">
                     <Label>Terms & Conditions</Label>
-                    <Textarea 
-                      placeholder="Enter key terms, one per line..."
+                    <RichTextEditor
                       value={newAgreement.terms}
-                      onChange={(e) => setNewAgreement({ ...newAgreement, terms: e.target.value })}
-                      rows={5}
+                      onChange={(v) => setNewAgreement({ ...newAgreement, terms: v })}
+                      placeholder="Enter your agreement terms and conditions..."
+                      minHeight="180px"
                     />
                   </div>
 

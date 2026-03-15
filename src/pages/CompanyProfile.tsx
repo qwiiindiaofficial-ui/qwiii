@@ -5,6 +5,7 @@ import { useCompanyProfile, CompanyProfileInput } from '@/hooks/useCompanyProfil
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
+import SignaturePad from '@/components/signature/SignaturePad';
 
 type Section = 'basic' | 'address' | 'tax' | 'bank' | 'documents' | 'terms';
 
@@ -425,14 +426,10 @@ const CompanyProfile = () => {
                       </div>
                     </div>
 
-                    <ImageUpload
+                    <SignaturePad
                       label="Authorized Signature"
                       value={form.signature_url}
                       onChange={v => set('signature_url', v)}
-                      userId={uid}
-                      filePrefix="signature"
-                      hint="Upload your signature image. Appears on PDFs as authorized signatory."
-                      previewClass="h-14 w-32"
                     />
                   </div>
                 )}

@@ -420,6 +420,21 @@ export const generateAgreementPDF = (data: AgreementPDFData, company?: CompanyIn
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(9);
 
+    const stripHtml = (html: string) => {
+      return html
+        .replace(/<br\s*\/?>/gi, '\n')
+        .replace(/<\/p>/gi, '\n')
+        .replace(/<\/li>/gi, '\n')
+        .replace(/<li>/gi, '• ')
+        .replace(/<[^>]+>/g, '')
+        .replace(/&nbsp;/g, ' ')
+        .replace(/&amp;/g, '&')
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/\n{3,}/g, '\n\n')
+        .trim();
+    };
+
     data.terms.forEach((term, index) => {
       if (yPos > 250) {
         addFooter(doc, 1, company);
@@ -428,14 +443,22 @@ export const generateAgreementPDF = (data: AgreementPDFData, company?: CompanyIn
         yPos = 60;
       }
 
-      doc.setFont('helvetica', 'bold');
-      doc.text(`${index + 1}.`, 20, yPos);
+      const cleanTerm = stripHtml(term);
+      const paragraphs = cleanTerm.split('\n').filter(p => p.trim());
 
-      doc.setFont('helvetica', 'normal');
-      const termLines = doc.splitTextToSize(term, pageWidth - 50);
-      doc.text(termLines, 27, yPos);
+      if (data.terms && data.terms.length > 1) {
+        doc.setFont('helvetica', 'bold');
+        doc.text(`${index + 1}.`, 20, yPos);
+        doc.setFont('helvetica', 'normal');
+      }
 
-      yPos += termLines.length * 5 + 3;
+      paragraphs.forEach(para => {
+        const termLines = doc.splitTextToSize(para, pageWidth - 50);
+        doc.text(termLines, data.terms && data.terms.length > 1 ? 27 : 20, yPos);
+        yPos += termLines.length * 4.5 + 2;
+      });
+
+      yPos += 3;
     });
 
     yPos += 5;
@@ -461,11 +484,20 @@ export const generateAgreementPDF = (data: AgreementPDFData, company?: CompanyIn
   doc.setFont('helvetica', 'normal');
   doc.text(data.signatory_client || '_____________________', 20, yPos);
   doc.text(data.signatory_company || '_____________________', 115, yPos);
-  yPos += 10;
-
-  doc.text('Signature: _____________________', 20, yPos);
-  doc.text('Signature: _____________________', 115, yPos);
   yPos += 8;
+
+  if (company?.signature_url) {
+    try {
+      doc.addImage(company.signature_url, 'PNG', 115, yPos, 50, 15);
+    } catch {
+      doc.text('_____________________', 115, yPos + 5);
+    }
+    yPos += 16;
+  } else {
+    doc.text('Signature: _____________________', 20, yPos);
+    doc.text('Signature: _____________________', 115, yPos);
+    yPos += 8;
+  }
 
   doc.text('Date: _____________________', 20, yPos);
   doc.text('Date: _____________________', 115, yPos);
