@@ -1,7 +1,9 @@
-import { useState, useEffect } from 'react';
-import { Building2, Upload, Save, RefreshCw, MapPin, Phone, Mail, Globe, CreditCard, FileText, Hash, Landmark, Settings } from 'lucide-react';
+import { useState, useEffect, useRef } from 'react';
+import { Building2, Upload, Save, RefreshCw, MapPin, Phone, Mail, Globe, FileText, Hash, Landmark, Settings, X, Image } from 'lucide-react';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import { useCompanyProfile, CompanyProfileInput } from '@/hooks/useCompanyProfile';
+import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from '@/hooks/use-toast';
 
 type Section = 'basic' | 'address' | 'tax' | 'bank' | 'documents' | 'terms';
@@ -23,10 +25,125 @@ const INDIAN_STATES = [
   'Uttarakhand', 'West Bengal', 'Delhi', 'Jammu & Kashmir', 'Ladakh',
 ];
 
+const inputClass = "w-full px-3 py-2 bg-muted/30 border border-border rounded-lg text-sm focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/60";
+
+interface FieldProps {
+  label: string;
+  value: string;
+  onChange: (v: string) => void;
+  type?: string;
+  placeholder?: string;
+}
+
+const Field = ({ label, value, onChange, type = 'text', placeholder = '' }: FieldProps) => (
+  <div>
+    <label className="block text-xs text-muted-foreground mb-1">{label}</label>
+    <input
+      type={type}
+      value={value}
+      onChange={e => onChange(e.target.value)}
+      placeholder={placeholder}
+      className={inputClass}
+    />
+  </div>
+);
+
+interface ImageUploadProps {
+  label: string;
+  value: string;
+  onChange: (url: string) => void;
+  userId: string;
+  filePrefix: string;
+  hint?: string;
+  previewClass?: string;
+}
+
+const ImageUpload = ({ label, value, onChange, userId, filePrefix, hint, previewClass = 'h-12' }: ImageUploadProps) => {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const handleFile = async (file: File) => {
+    if (!file) return;
+    setUploading(true);
+    try {
+      const ext = file.name.split('.').pop();
+      const path = `${userId}/${filePrefix}-${Date.now()}.${ext}`;
+      const { error: uploadError } = await supabase.storage
+        .from('company-assets')
+        .upload(path, file, { upsert: true });
+
+      if (uploadError) throw uploadError;
+
+      const { data } = supabase.storage.from('company-assets').getPublicUrl(path);
+      onChange(data.publicUrl);
+      toast({ title: 'Image uploaded successfully' });
+    } catch (err: any) {
+      toast({ title: 'Upload failed', description: err.message, variant: 'destructive' });
+    } finally {
+      setUploading(false);
+    }
+  };
+
+  return (
+    <div>
+      <label className="block text-xs text-muted-foreground mb-1">{label}</label>
+      <div className="flex items-center gap-3">
+        {value ? (
+          <div className="relative group">
+            <img
+              src={value}
+              alt={label}
+              className={`${previewClass} object-contain rounded border border-border bg-muted/20`}
+              onError={e => (e.currentTarget.style.display = 'none')}
+            />
+            <button
+              onClick={() => onChange('')}
+              className="absolute -top-1.5 -right-1.5 bg-destructive text-destructive-foreground rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+            >
+              <X size={10} />
+            </button>
+          </div>
+        ) : (
+          <div className="h-12 w-20 rounded border-2 border-dashed border-border flex items-center justify-center bg-muted/20">
+            <Image size={16} className="text-muted-foreground" />
+          </div>
+        )}
+        <div className="flex-1 space-y-1">
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={uploading}
+            className="flex items-center gap-2 px-3 py-1.5 border border-border rounded-lg text-xs hover:bg-muted/50 transition-colors disabled:opacity-50"
+          >
+            {uploading ? <RefreshCw size={12} className="animate-spin" /> : <Upload size={12} />}
+            {uploading ? 'Uploading...' : value ? 'Replace Image' : 'Upload Image'}
+          </button>
+          {hint && <p className="text-xs text-muted-foreground">{hint}</p>}
+        </div>
+      </div>
+      <input
+        ref={fileRef}
+        type="file"
+        accept="image/*"
+        className="hidden"
+        onChange={e => { const f = e.target.files?.[0]; if (f) handleFile(f); e.target.value = ''; }}
+      />
+    </div>
+  );
+};
+
 const CompanyProfile = () => {
-  const { profile, loading, saving, saveProfile, defaultProfile } = useCompanyProfile();
+  const { user } = useAuth();
+  const { profile, loading, saving, saveProfile } = useCompanyProfile();
   const [activeSection, setActiveSection] = useState<Section>('basic');
-  const [form, setForm] = useState<CompanyProfileInput>(defaultProfile);
+  const [form, setForm] = useState<CompanyProfileInput>({
+    company_name: '', display_name: '', logo_url: '', tagline: '', email: '', phone: '',
+    website: '', address_line1: '', address_line2: '', city: '', state: '', pincode: '',
+    country: 'India', gst_number: '', pan_number: '', cin_number: '', bank_name: '',
+    bank_account: '', bank_ifsc: '', bank_branch: '', invoice_prefix: 'INV',
+    quotation_prefix: 'QT', agreement_prefix: 'AGR', currency: 'INR', signature_url: '',
+    terms_and_conditions: '',
+  });
   const [isDirty, setIsDirty] = useState(false);
 
   useEffect(() => {
@@ -63,7 +180,7 @@ const CompanyProfile = () => {
     }
   }, [profile]);
 
-  const update = (field: keyof CompanyProfileInput, value: string) => {
+  const set = (field: keyof CompanyProfileInput, value: string) => {
     setForm(f => ({ ...f, [field]: value }));
     setIsDirty(true);
   };
@@ -77,23 +194,7 @@ const CompanyProfile = () => {
     setIsDirty(false);
   };
 
-  const Field = ({ label, field, type = 'text', placeholder = '' }: {
-    label: string;
-    field: keyof CompanyProfileInput;
-    type?: string;
-    placeholder?: string;
-  }) => (
-    <div>
-      <label className="block text-xs text-muted-foreground mb-1">{label}</label>
-      <input
-        type={type}
-        value={String(form[field] || '')}
-        onChange={e => update(field, e.target.value)}
-        placeholder={placeholder}
-        className="w-full px-3 py-2 bg-muted/30 border border-border rounded-lg text-sm focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/60"
-      />
-    </div>
-  );
+  const uid = user?.id || '';
 
   return (
     <DashboardLayout>
@@ -172,41 +273,40 @@ const CompanyProfile = () => {
 
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div className="md:col-span-2">
-                        <Field label="Company Name *" field="company_name" placeholder="e.g., Acme Textiles Pvt Ltd" />
+                        <Field label="Company Name *" value={form.company_name} onChange={v => set('company_name', v)} placeholder="e.g., Acme Textiles Pvt Ltd" />
                       </div>
-                      <Field label="Display Name on Documents" field="display_name" placeholder="e.g., Acme Textiles" />
-                      <Field label="Tagline / Slogan" field="tagline" placeholder="e.g., Quality you can trust" />
+                      <Field label="Display Name on Documents" value={form.display_name} onChange={v => set('display_name', v)} placeholder="e.g., Acme Textiles" />
+                      <Field label="Tagline / Slogan" value={form.tagline} onChange={v => set('tagline', v)} placeholder="e.g., Quality you can trust" />
                     </div>
 
-                    <div>
-                      <label className="block text-xs text-muted-foreground mb-1">Logo URL</label>
-                      <div className="flex gap-2">
-                        <input
-                          type="url"
-                          value={form.logo_url}
-                          onChange={e => update('logo_url', e.target.value)}
-                          placeholder="https://example.com/logo.png"
-                          className="flex-1 px-3 py-2 bg-muted/30 border border-border rounded-lg text-sm focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/60"
-                        />
-                        {form.logo_url && (
-                          <img src={form.logo_url} alt="Logo Preview" className="h-9 w-9 object-contain rounded border border-border" onError={e => (e.currentTarget.style.display = 'none')} />
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">Enter a URL to your company logo (PNG, JPG, SVG recommended)</p>
-                    </div>
+                    <ImageUpload
+                      label="Company Logo"
+                      value={form.logo_url}
+                      onChange={v => set('logo_url', v)}
+                      userId={uid}
+                      filePrefix="logo"
+                      hint="PNG, JPG, SVG recommended. Max 5MB."
+                      previewClass="h-12"
+                    />
 
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                      <div className="flex items-center gap-2">
-                        <Mail size={14} className="text-muted-foreground shrink-0" />
-                        <Field label="Business Email" field="email" type="email" placeholder="info@company.com" />
+                      <div className="flex items-end gap-2">
+                        <div className="flex-1">
+                          <Field label="Business Email" value={form.email} onChange={v => set('email', v)} type="email" placeholder="info@company.com" />
+                        </div>
+                        <Mail size={14} className="text-muted-foreground mb-2.5 shrink-0" />
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Phone size={14} className="text-muted-foreground shrink-0" />
-                        <Field label="Phone Number" field="phone" placeholder="+91 98765 43210" />
+                      <div className="flex items-end gap-2">
+                        <div className="flex-1">
+                          <Field label="Phone Number" value={form.phone} onChange={v => set('phone', v)} placeholder="+91 98765 43210" />
+                        </div>
+                        <Phone size={14} className="text-muted-foreground mb-2.5 shrink-0" />
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Globe size={14} className="text-muted-foreground shrink-0" />
-                        <Field label="Website" field="website" placeholder="https://yourcompany.com" />
+                      <div className="flex items-end gap-2">
+                        <div className="flex-1">
+                          <Field label="Website" value={form.website} onChange={v => set('website', v)} placeholder="https://yourcompany.com" />
+                        </div>
+                        <Globe size={14} className="text-muted-foreground mb-2.5 shrink-0" />
                       </div>
                     </div>
                   </div>
@@ -219,23 +319,23 @@ const CompanyProfile = () => {
                       Business Address
                     </h2>
                     <div className="space-y-4">
-                      <Field label="Address Line 1" field="address_line1" placeholder="Building name, street address" />
-                      <Field label="Address Line 2" field="address_line2" placeholder="Area, landmark (optional)" />
+                      <Field label="Address Line 1" value={form.address_line1} onChange={v => set('address_line1', v)} placeholder="Building name, street address" />
+                      <Field label="Address Line 2" value={form.address_line2} onChange={v => set('address_line2', v)} placeholder="Area, landmark (optional)" />
                       <div className="grid grid-cols-2 gap-4">
-                        <Field label="City" field="city" placeholder="Mumbai" />
+                        <Field label="City" value={form.city} onChange={v => set('city', v)} placeholder="Mumbai" />
                         <div>
                           <label className="block text-xs text-muted-foreground mb-1">State</label>
                           <select
                             value={form.state}
-                            onChange={e => update('state', e.target.value)}
-                            className="w-full px-3 py-2 bg-muted/30 border border-border rounded-lg text-sm focus:outline-none focus:border-primary text-foreground"
+                            onChange={e => set('state', e.target.value)}
+                            className={inputClass}
                           >
                             <option value="">Select state</option>
                             {INDIAN_STATES.map(s => <option key={s} value={s}>{s}</option>)}
                           </select>
                         </div>
-                        <Field label="Pincode" field="pincode" placeholder="400001" />
-                        <Field label="Country" field="country" placeholder="India" />
+                        <Field label="Pincode" value={form.pincode} onChange={v => set('pincode', v)} placeholder="400001" />
+                        <Field label="Country" value={form.country} onChange={v => set('country', v)} placeholder="India" />
                       </div>
                     </div>
                   </div>
@@ -249,23 +349,23 @@ const CompanyProfile = () => {
                     </h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                       <div>
-                        <Field label="GST Number" field="gst_number" placeholder="22AAAAA0000A1Z5" />
+                        <Field label="GST Number" value={form.gst_number} onChange={v => set('gst_number', v)} placeholder="22AAAAA0000A1Z5" />
                         <p className="text-xs text-muted-foreground mt-1">15-digit GSTIN</p>
                       </div>
                       <div>
-                        <Field label="PAN Number" field="pan_number" placeholder="AAAAA0000A" />
+                        <Field label="PAN Number" value={form.pan_number} onChange={v => set('pan_number', v)} placeholder="AAAAA0000A" />
                         <p className="text-xs text-muted-foreground mt-1">10-character PAN</p>
                       </div>
                       <div>
-                        <Field label="CIN Number" field="cin_number" placeholder="U12345AB2000PTC000000" />
+                        <Field label="CIN Number" value={form.cin_number} onChange={v => set('cin_number', v)} placeholder="U12345AB2000PTC000000" />
                         <p className="text-xs text-muted-foreground mt-1">Corporate Identity Number (optional)</p>
                       </div>
                       <div>
                         <label className="block text-xs text-muted-foreground mb-1">Currency</label>
                         <select
                           value={form.currency}
-                          onChange={e => update('currency', e.target.value)}
-                          className="w-full px-3 py-2 bg-muted/30 border border-border rounded-lg text-sm focus:outline-none focus:border-primary text-foreground"
+                          onChange={e => set('currency', e.target.value)}
+                          className={inputClass}
                         >
                           <option value="INR">INR - Indian Rupee (₹)</option>
                           <option value="USD">USD - US Dollar ($)</option>
@@ -286,10 +386,10 @@ const CompanyProfile = () => {
                     </h2>
                     <p className="text-xs text-muted-foreground">These details appear on invoices for payment reference</p>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      <Field label="Bank Name" field="bank_name" placeholder="HDFC Bank" />
-                      <Field label="Account Number" field="bank_account" placeholder="12345678901234" />
-                      <Field label="IFSC Code" field="bank_ifsc" placeholder="HDFC0001234" />
-                      <Field label="Branch Name" field="bank_branch" placeholder="Andheri West, Mumbai" />
+                      <Field label="Bank Name" value={form.bank_name} onChange={v => set('bank_name', v)} placeholder="HDFC Bank" />
+                      <Field label="Account Number" value={form.bank_account} onChange={v => set('bank_account', v)} placeholder="12345678901234" />
+                      <Field label="IFSC Code" value={form.bank_ifsc} onChange={v => set('bank_ifsc', v)} placeholder="HDFC0001234" />
+                      <Field label="Branch Name" value={form.bank_branch} onChange={v => set('bank_branch', v)} placeholder="Andheri West, Mumbai" />
                     </div>
                     {form.bank_name && form.bank_account && (
                       <div className="p-4 rounded-lg bg-muted/30 border border-border/50">
@@ -312,34 +412,28 @@ const CompanyProfile = () => {
                     <p className="text-xs text-muted-foreground">Prefixes used when auto-generating document numbers</p>
                     <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                       <div>
-                        <Field label="Invoice Prefix" field="invoice_prefix" placeholder="INV" />
+                        <Field label="Invoice Prefix" value={form.invoice_prefix} onChange={v => set('invoice_prefix', v)} placeholder="INV" />
                         <p className="text-xs text-muted-foreground mt-1">e.g., INV-001, INV-002...</p>
                       </div>
                       <div>
-                        <Field label="Quotation Prefix" field="quotation_prefix" placeholder="QT" />
+                        <Field label="Quotation Prefix" value={form.quotation_prefix} onChange={v => set('quotation_prefix', v)} placeholder="QT" />
                         <p className="text-xs text-muted-foreground mt-1">e.g., QT-001, QT-002...</p>
                       </div>
                       <div>
-                        <Field label="Agreement Prefix" field="agreement_prefix" placeholder="AGR" />
+                        <Field label="Agreement Prefix" value={form.agreement_prefix} onChange={v => set('agreement_prefix', v)} placeholder="AGR" />
                         <p className="text-xs text-muted-foreground mt-1">e.g., AGR-001, AGR-002...</p>
                       </div>
                     </div>
-                    <div>
-                      <label className="block text-xs text-muted-foreground mb-1">Signature Image URL</label>
-                      <div className="flex gap-2">
-                        <input
-                          type="url"
-                          value={form.signature_url}
-                          onChange={e => update('signature_url', e.target.value)}
-                          placeholder="https://example.com/signature.png"
-                          className="flex-1 px-3 py-2 bg-muted/30 border border-border rounded-lg text-sm focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/60"
-                        />
-                        {form.signature_url && (
-                          <img src={form.signature_url} alt="Signature" className="h-9 object-contain rounded border border-border" onError={e => (e.currentTarget.style.display = 'none')} />
-                        )}
-                      </div>
-                      <p className="text-xs text-muted-foreground mt-1">Appears on PDFs as authorized signatory signature</p>
-                    </div>
+
+                    <ImageUpload
+                      label="Authorized Signature"
+                      value={form.signature_url}
+                      onChange={v => set('signature_url', v)}
+                      userId={uid}
+                      filePrefix="signature"
+                      hint="Upload your signature image. Appears on PDFs as authorized signatory."
+                      previewClass="h-14 w-32"
+                    />
                   </div>
                 )}
 
@@ -354,7 +448,7 @@ const CompanyProfile = () => {
                     </p>
                     <textarea
                       value={form.terms_and_conditions}
-                      onChange={e => update('terms_and_conditions', e.target.value)}
+                      onChange={e => set('terms_and_conditions', e.target.value)}
                       placeholder={`Enter your standard terms and conditions...\n\nExample:\n1. Payment due within 30 days of invoice date.\n2. Late payment subject to 18% per annum interest.\n3. Goods remain property of seller until full payment.\n4. All disputes subject to jurisdiction of [your city] courts.`}
                       rows={12}
                       className="w-full px-3 py-2 bg-muted/30 border border-border rounded-lg text-sm focus:outline-none focus:border-primary text-foreground placeholder:text-muted-foreground/60 resize-none"

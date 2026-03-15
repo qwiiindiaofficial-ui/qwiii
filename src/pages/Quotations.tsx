@@ -14,6 +14,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useQuotations, Quotation, CreateQuotationItemInput } from '@/hooks/useQuotations';
 import { useClients } from '@/hooks/useClients';
 import { useInventory } from '@/hooks/useInventory';
+import { useCompanyProfile } from '@/hooks/useCompanyProfile';
 import InventoryProductPicker from '@/components/inventory/InventoryProductPicker';
 import { exportToCSV, formatDate, GST_RATES, GSTRate, calculateGST } from '@/lib/exportUtils';
 import { generateQuotationPDF } from '@/lib/pdfUtils';
@@ -34,6 +35,7 @@ const Quotations = () => {
   const { quotations, loading, stats, createQuotation, updateQuotationStatus, deleteQuotation, fetchQuotations } = useQuotations();
   const { clients } = useClients();
   const { items: inventoryItems } = useInventory();
+  const { profile: companyProfile } = useCompanyProfile();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedQuote, setSelectedQuote] = useState<Quotation | null>(null);
@@ -640,7 +642,7 @@ const Quotations = () => {
                           total: selectedQuote.total,
                           terms: selectedQuote.terms || undefined,
                           notes: selectedQuote.notes || undefined,
-                        });
+                        }, companyProfile || undefined);
                         toast({ title: 'PDF Downloaded', description: 'Quotation PDF has been generated successfully' });
                       }
                     }}

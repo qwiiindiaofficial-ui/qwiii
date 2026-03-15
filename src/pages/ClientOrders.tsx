@@ -12,36 +12,16 @@ import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { useClientOrders, ClientOrder, CreateOrderItemInput } from '@/hooks/useClientOrders';
 import { useClients } from '@/hooks/useClients';
+import { useInventory } from '@/hooks/useInventory';
+import InventoryProductPicker from '@/components/inventory/InventoryProductPicker';
 import { exportToCSV, formatDate, GST_RATES, GSTRate, calculateGST } from '@/lib/exportUtils';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import {
-  ShoppingCart,
-  Plus,
-  Search,
-  Filter,
-  Eye,
-  Trash2,
-  Package,
-  Truck,
-  CheckCircle,
-  Clock,
-  XCircle,
-  Download,
-  RefreshCw,
-  IndianRupee,
-  Loader2,
-  AlertCircle,
-  Factory,
-  PackageCheck,
-  FileSpreadsheet,
-  Receipt,
-  Calendar as CalendarIcon,
-} from 'lucide-react';
+import { ShoppingCart, Plus, Search, Filter, Eye, Trash2, Package, Truck, CircleCheck as CheckCircle, Clock, Circle as XCircle, Download, RefreshCw, IndianRupee, Loader as Loader2, CircleAlert as AlertCircle, Factory, PackageCheck, FileSpreadsheet, Receipt, Calendar as CalendarIcon } from 'lucide-react';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 
-import { LucideIcon } from 'lucide-react';
+import { Video as LucideIcon } from 'lucide-react';
 
 const statusConfig: Record<ClientOrder['status'], { icon: LucideIcon; color: string; label: string }> = {
   pending: { icon: Clock, color: 'text-warning bg-warning/20', label: 'Pending' },
@@ -62,6 +42,7 @@ const paymentStatusConfig: Record<ClientOrder['payment_status'], { color: string
 const ClientOrders = () => {
   const { orders, loading, stats, createOrder, updateOrderStatus, updatePaymentStatus, deleteOrder, fetchOrders } = useClientOrders();
   const { clients } = useClients();
+  const { items: inventoryItems } = useInventory();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedOrder, setSelectedOrder] = useState<ClientOrder | null>(null);
@@ -275,16 +256,29 @@ const ClientOrders = () => {
                   </div>
                   
                   <div className="border rounded-lg p-4 space-y-3">
-                    <h4 className="font-medium">Order Items</h4>
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium">Order Items</h4>
+                      <InventoryProductPicker
+                        items={inventoryItems}
+                        onSelect={(inv) => setCurrentItem({
+                          product_name: inv.name,
+                          sku: inv.sku,
+                          quantity: 1,
+                          unit: 'pcs',
+                          unit_price: inv.price,
+                        })}
+                        placeholder="Pick from inventory"
+                      />
+                    </div>
                     <div className="grid grid-cols-6 gap-2">
-                      <Input 
-                        placeholder="Product Name" 
+                      <Input
+                        placeholder="Product Name"
                         value={currentItem.product_name}
                         onChange={(e) => setCurrentItem({ ...currentItem, product_name: e.target.value })}
                         className="col-span-2"
                       />
-                      <Input 
-                        placeholder="SKU" 
+                      <Input
+                        placeholder="SKU"
                         value={currentItem.sku}
                         onChange={(e) => setCurrentItem({ ...currentItem, sku: e.target.value })}
                       />

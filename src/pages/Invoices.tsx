@@ -15,6 +15,7 @@ import { useInvoices, Invoice, CreateInvoiceItemInput } from '@/hooks/useInvoice
 import { useClients } from '@/hooks/useClients';
 import { useClientOrders } from '@/hooks/useClientOrders';
 import { useInventory } from '@/hooks/useInventory';
+import { useCompanyProfile } from '@/hooks/useCompanyProfile';
 import InventoryProductPicker from '@/components/inventory/InventoryProductPicker';
 import { exportToCSV, formatDate, GST_RATES, GSTRate, calculateGST } from '@/lib/exportUtils';
 import { generateInvoicePDF } from '@/lib/pdfUtils';
@@ -36,6 +37,7 @@ const Invoices = () => {
   const { clients } = useClients();
   const { orders } = useClientOrders();
   const { items: inventoryItems } = useInventory();
+  const { profile: companyProfile } = useCompanyProfile();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
@@ -684,7 +686,7 @@ const Invoices = () => {
                           total: selectedInvoice.total,
                           notes: selectedInvoice.notes || undefined,
                           payment_date: selectedInvoice.payment_date || undefined,
-                        });
+                        }, companyProfile || undefined);
                         toast({ title: 'PDF Downloaded', description: 'Invoice PDF has been generated successfully' });
                       }
                     }}

@@ -13,6 +13,7 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useAgreements, Agreement } from '@/hooks/useAgreements';
 import { useClients } from '@/hooks/useClients';
+import { useCompanyProfile } from '@/hooks/useCompanyProfile';
 import { exportToCSV, formatDate } from '@/lib/exportUtils';
 import { generateAgreementPDF } from '@/lib/pdfUtils';
 import { toast } from '@/hooks/use-toast';
@@ -41,6 +42,7 @@ const statusConfig = {
 const Agreements = () => {
   const { agreements, loading, stats, createAgreement, updateAgreementStatus, deleteAgreement, fetchAgreements } = useAgreements();
   const { clients } = useClients();
+  const { profile: companyProfile } = useCompanyProfile();
   const [searchTerm, setSearchTerm] = useState('');
   const [typeFilter, setTypeFilter] = useState<string>('all');
   const [statusFilter, setStatusFilter] = useState<string>('all');
@@ -677,7 +679,7 @@ const Agreements = () => {
                           signatory_company: selectedAgreement.signatory_company || undefined,
                           signed_date: selectedAgreement.signed_date || undefined,
                           notes: selectedAgreement.notes || undefined,
-                        });
+                        }, companyProfile || undefined);
                         toast({ title: 'PDF Downloaded', description: 'Agreement PDF has been generated successfully' });
                       }
                     }}

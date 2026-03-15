@@ -2,6 +2,27 @@ import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
 import { formatDate } from './exportUtils';
 
+export interface CompanyInfo {
+  company_name?: string;
+  display_name?: string;
+  logo_url?: string;
+  email?: string;
+  phone?: string;
+  website?: string;
+  address_line1?: string;
+  address_line2?: string;
+  city?: string;
+  state?: string;
+  pincode?: string;
+  gst_number?: string;
+  pan_number?: string;
+  bank_name?: string;
+  bank_account?: string;
+  bank_ifsc?: string;
+  bank_branch?: string;
+  signature_url?: string;
+}
+
 interface InvoicePDFData {
   invoice_number: string;
   issue_date: string;
@@ -84,22 +105,30 @@ const formatCurrency = (amount: number): string => {
   return amount.toFixed(2);
 };
 
-const addHeader = (doc: jsPDF, title: string, docNumber: string) => {
+const addHeader = (doc: jsPDF, title: string, docNumber: string, company?: CompanyInfo) => {
   const pageWidth = doc.internal.pageSize.width;
 
   doc.setLineWidth(0.5);
   doc.setDrawColor(0, 0, 0);
   doc.line(20, 15, pageWidth - 20, 15);
 
-  doc.setFontSize(22);
+  const companyName = company?.display_name || company?.company_name || 'Your Company';
+  doc.setFontSize(16);
   doc.setFont('helvetica', 'bold');
-  doc.text('QWII', 20, 25);
+  doc.text(companyName, 20, 25);
 
-  doc.setFontSize(9);
+  doc.setFontSize(8);
   doc.setFont('helvetica', 'normal');
-  doc.text('Optimize Vision', 20, 31);
-  doc.text('Email: contact@qwii.com', 20, 36);
-  doc.text('Phone: +91 XXXXXXXXXX', 20, 41);
+  let leftY = 31;
+  const companyAddress = [company?.address_line1, company?.address_line2, company?.city, company?.state, company?.pincode].filter(Boolean).join(', ');
+  if (companyAddress) {
+    const addrLines = doc.splitTextToSize(companyAddress, 80);
+    doc.text(addrLines, 20, leftY);
+    leftY += addrLines.length * 4;
+  }
+  if (company?.email) { doc.text(`Email: ${company.email}`, 20, leftY); leftY += 4; }
+  if (company?.phone) { doc.text(`Phone: ${company.phone}`, 20, leftY); leftY += 4; }
+  if (company?.gst_number) { doc.text(`GSTIN: ${company.gst_number}`, 20, leftY); leftY += 4; }
 
   doc.setFontSize(18);
   doc.setFont('helvetica', 'bold');
@@ -110,10 +139,10 @@ const addHeader = (doc: jsPDF, title: string, docNumber: string) => {
   doc.text(docNumber, pageWidth - 20, 32, { align: 'right' });
 
   doc.setLineWidth(0.5);
-  doc.line(20, 47, pageWidth - 20, 47);
+  doc.line(20, 50, pageWidth - 20, 50);
 };
 
-const addFooter = (doc: jsPDF, pageNumber: number) => {
+const addFooter = (doc: jsPDF, pageNumber: number, company?: CompanyInfo) => {
   const pageHeight = doc.internal.pageSize.height;
   const pageWidth = doc.internal.pageSize.width;
 
@@ -125,17 +154,32 @@ const addFooter = (doc: jsPDF, pageNumber: number) => {
   doc.setFont('helvetica', 'normal');
   doc.text('Thank you for your business', 20, pageHeight - 13);
   doc.text(`Page ${pageNumber}`, pageWidth - 20, pageHeight - 13, { align: 'right' });
-  doc.text('QWII - Optimize Vision | Textile Industry Solutions', pageWidth / 2, pageHeight - 8, { align: 'center' });
+  const footerName = company?.display_name || company?.company_name || '';
+  doc.text(footerName, pageWidth / 2, pageHeight - 8, { align: 'center' });
 };
 
-export const generateInvoicePDF = (data: InvoicePDFData) => {
+const addBankDetails = (doc: jsPDF, yPos: number, company?: CompanyInfo): number => {
+  if (!company?.bank_name && !company?.bank_account) return yPos;
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.text('PAYMENT DETAILS:', 20, yPos);
+  yPos += 5;
+  doc.setFont('helvetica', 'normal');
+  if (company.bank_name) { doc.text(`Bank: ${company.bank_name}`, 20, yPos); yPos += 4; }
+  if (company.bank_account) { doc.text(`A/c No: ${company.bank_account}`, 20, yPos); yPos += 4; }
+  if (company.bank_ifsc) { doc.text(`IFSC: ${company.bank_ifsc}`, 20, yPos); yPos += 4; }
+  if (company.bank_branch) { doc.text(`Branch: ${company.bank_branch}`, 20, yPos); yPos += 4; }
+  return yPos + 4;
+};
+
+export const generateInvoicePDF = (data: InvoicePDFData, company?: CompanyInfo) => {
   try {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
 
-    addHeader(doc, 'TAX INVOICE', `#${data.invoice_number}`);
+    addHeader(doc, 'TAX INVOICE', `#${data.invoice_number}`, company);
 
-    let yPos = 57;
+    let yPos = 60;
 
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
@@ -178,7 +222,7 @@ export const generateInvoicePDF = (data: InvoicePDFData) => {
       doc.text(addressLines, 20, yPos);
     }
 
-    let detailsY = 63;
+    let detailsY = 66;
     doc.text(`Invoice Number: ${data.invoice_number}`, 115, detailsY);
     detailsY += 5;
     doc.text(`Issue Date: ${formatDate(data.issue_date)}`, 115, detailsY);
@@ -286,13 +330,15 @@ export const generateInvoicePDF = (data: InvoicePDFData) => {
       doc.setFontSize(9);
       doc.text('Notes:', 20, yPos);
       yPos += 5;
-
       doc.setFont('helvetica', 'normal');
       const notesLines = doc.splitTextToSize(data.notes, pageWidth - 40);
       doc.text(notesLines, 20, yPos);
+      yPos += notesLines.length * 4 + 6;
     }
 
-    addFooter(doc, 1);
+    yPos = addBankDetails(doc, yPos, company);
+
+    addFooter(doc, 1, company);
 
     doc.save(`Invoice-${data.invoice_number}.pdf`);
   } catch (err) {
@@ -301,13 +347,13 @@ export const generateInvoicePDF = (data: InvoicePDFData) => {
   }
 };
 
-export const generateAgreementPDF = (data: AgreementPDFData) => {
+export const generateAgreementPDF = (data: AgreementPDFData, company?: CompanyInfo) => {
   const doc = new jsPDF();
   const pageWidth = doc.internal.pageSize.width;
 
-  addHeader(doc, 'AGREEMENT', `#${data.agreement_number}`);
+  addHeader(doc, 'AGREEMENT', `#${data.agreement_number}`, company);
 
-  let yPos = 57;
+  let yPos = 60;
 
   doc.setFont('helvetica', 'bold');
   doc.setFontSize(12);
@@ -376,10 +422,10 @@ export const generateAgreementPDF = (data: AgreementPDFData) => {
 
     data.terms.forEach((term, index) => {
       if (yPos > 250) {
-        addFooter(doc, 1);
+        addFooter(doc, 1, company);
         doc.addPage();
-        addHeader(doc, 'AGREEMENT', `#${data.agreement_number}`);
-        yPos = 57;
+        addHeader(doc, 'AGREEMENT', `#${data.agreement_number}`, company);
+        yPos = 60;
       }
 
       doc.setFont('helvetica', 'bold');
@@ -396,10 +442,10 @@ export const generateAgreementPDF = (data: AgreementPDFData) => {
   }
 
   if (yPos > 220) {
-    addFooter(doc, 1);
+    addFooter(doc, 1, company);
     doc.addPage();
-    addHeader(doc, 'AGREEMENT', `#${data.agreement_number}`);
-    yPos = 57;
+    addHeader(doc, 'AGREEMENT', `#${data.agreement_number}`, company);
+    yPos = 60;
   }
 
   doc.setFont('helvetica', 'bold');
@@ -434,19 +480,19 @@ export const generateAgreementPDF = (data: AgreementPDFData) => {
     doc.text(notesLines, 20, yPos);
   }
 
-  addFooter(doc, 1);
+  addFooter(doc, 1, company);
 
   doc.save(`Agreement-${data.agreement_number}.pdf`);
 };
 
-export const generateQuotationPDF = (data: QuotationPDFData) => {
+export const generateQuotationPDF = (data: QuotationPDFData, company?: CompanyInfo) => {
   try {
     const doc = new jsPDF();
     const pageWidth = doc.internal.pageSize.width;
 
-    addHeader(doc, 'QUOTATION', `#${data.quote_number}`);
+    addHeader(doc, 'QUOTATION', `#${data.quote_number}`, company);
 
-    let yPos = 57;
+    let yPos = 60;
 
     doc.setFontSize(10);
     doc.setFont('helvetica', 'bold');
@@ -477,7 +523,7 @@ export const generateQuotationPDF = (data: QuotationPDFData) => {
       doc.text(addressLines, 20, yPos);
     }
 
-    let detailsY = 63;
+    let detailsY = 66;
     doc.text(`Quote Number: ${data.quote_number}`, 115, detailsY);
     detailsY += 5;
     doc.text(`Created On: ${formatDate(data.created_at)}`, 115, detailsY);
@@ -592,7 +638,7 @@ export const generateQuotationPDF = (data: QuotationPDFData) => {
       doc.text(notesLines, 20, yPos);
     }
 
-    addFooter(doc, 1);
+    addFooter(doc, 1, company);
 
     doc.save(`Quotation-${data.quote_number}.pdf`);
   } catch (err) {

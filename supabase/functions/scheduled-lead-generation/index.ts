@@ -93,12 +93,7 @@ Deno.serve(async (req: Request) => {
 
     let userId: string;
     try {
-      const supabaseAnonKey = Deno.env.get("SUPABASE_ANON_KEY")!;
-      const userClient = createClient(supabaseUrl, supabaseAnonKey, {
-        auth: { autoRefreshToken: false, persistSession: false },
-      });
-
-      const { data: { user }, error: authError } = await userClient.auth.getUser(token);
+      const { data: { user }, error: authError } = await supabase.auth.getUser(token);
 
       if (authError || !user) {
         console.error("Auth error:", authError);
