@@ -158,6 +158,50 @@ const addFooter = (doc: jsPDF, pageNumber: number, company?: CompanyInfo) => {
   doc.text(footerName, pageWidth / 2, pageHeight - 8, { align: 'center' });
 };
 
+const addSignatureSection = (doc: jsPDF, yPos: number, company?: CompanyInfo): number => {
+  const pageHeight = doc.internal.pageSize.height;
+  if (yPos > pageHeight - 55) return yPos;
+
+  yPos += 6;
+  doc.setLineWidth(0.2);
+  doc.setDrawColor(180, 180, 180);
+  doc.line(20, yPos, 190, yPos);
+  yPos += 6;
+
+  doc.setFont('helvetica', 'bold');
+  doc.setFontSize(9);
+  doc.setTextColor(0, 0, 0);
+  doc.text('AUTHORIZED SIGNATORY', 115, yPos);
+  doc.text('CLIENT ACKNOWLEDGEMENT', 20, yPos);
+  yPos += 4;
+
+  doc.setFont('helvetica', 'normal');
+  doc.setFontSize(8);
+  doc.text(company?.display_name || company?.company_name || '', 115, yPos);
+  yPos += 10;
+
+  if (company?.signature_url) {
+    try {
+      doc.addImage(company.signature_url, 'PNG', 115, yPos - 4, 50, 14);
+    } catch {
+      doc.text('_________________________', 115, yPos + 6);
+    }
+  } else {
+    doc.text('_________________________', 115, yPos + 6);
+  }
+
+  doc.text('_________________________', 20, yPos + 6);
+  yPos += 10;
+
+  doc.setFontSize(7);
+  doc.setTextColor(100, 100, 100);
+  doc.text('Signature & Date', 20, yPos);
+  doc.text('Signature & Date', 115, yPos);
+  doc.setTextColor(0, 0, 0);
+
+  return yPos + 6;
+};
+
 const addBankDetails = (doc: jsPDF, yPos: number, company?: CompanyInfo): number => {
   if (!company?.bank_name && !company?.bank_account) return yPos;
   doc.setFont('helvetica', 'bold');
@@ -337,6 +381,7 @@ export const generateInvoicePDF = (data: InvoicePDFData, company?: CompanyInfo) 
     }
 
     yPos = addBankDetails(doc, yPos, company);
+    addSignatureSection(doc, yPos, company);
 
     addFooter(doc, 1, company);
 
@@ -668,7 +713,10 @@ export const generateQuotationPDF = (data: QuotationPDFData, company?: CompanyIn
       doc.setFont('helvetica', 'normal');
       const notesLines = doc.splitTextToSize(data.notes, pageWidth - 40);
       doc.text(notesLines, 20, yPos);
+      yPos += notesLines.length * 4 + 5;
     }
+
+    addSignatureSection(doc, yPos, company);
 
     addFooter(doc, 1, company);
 
