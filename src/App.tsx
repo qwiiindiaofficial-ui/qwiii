@@ -49,6 +49,7 @@ import SharedInvoice from "./pages/SharedInvoice";
 import SharedAgreement from "./pages/SharedAgreement";
 import SharedQuotation from "./pages/SharedQuotation";
 import PlanRegistrations from "./pages/PlanRegistrations";
+import CompanyProfile from "./pages/CompanyProfile";
 
 const queryClient = new QueryClient();
 
@@ -116,7 +117,8 @@ const App = () => (
               <Route path="/notifications" element={<ProtectedRoute><Notifications /></ProtectedRoute>} />
               <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
               <Route path="/plan-registrations" element={<ProtectedRoute><PlanRegistrations /></ProtectedRoute>} />
-              
+              <Route path="/company-profile" element={<ProtectedRoute><CompanyProfile /></ProtectedRoute>} />
+
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

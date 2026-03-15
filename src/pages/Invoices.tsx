@@ -14,30 +14,14 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { useInvoices, Invoice, CreateInvoiceItemInput } from '@/hooks/useInvoices';
 import { useClients } from '@/hooks/useClients';
 import { useClientOrders } from '@/hooks/useClientOrders';
+import { useInventory } from '@/hooks/useInventory';
+import InventoryProductPicker from '@/components/inventory/InventoryProductPicker';
 import { exportToCSV, formatDate, GST_RATES, GSTRate, calculateGST } from '@/lib/exportUtils';
 import { generateInvoicePDF } from '@/lib/pdfUtils';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import {
-  FileText,
-  Plus,
-  Search,
-  Filter,
-  Eye,
-  Download,
-  Send,
-  Trash2,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-  IndianRupee,
-  Calendar as CalendarIcon,
-  RefreshCw,
-  Loader2,
-  FileSpreadsheet,
-  Share2,
-} from 'lucide-react';
+import { FileText, Plus, Search, Filter, Eye, Download, Send, Trash2, CircleCheck as CheckCircle, Clock, CircleAlert as AlertCircle, IndianRupee, Calendar as CalendarIcon, RefreshCw, Loader as Loader2, FileSpreadsheet, Share2 } from 'lucide-react';
 
 const statusConfig = {
   draft: { color: 'bg-muted text-muted-foreground', icon: FileText, label: 'Draft' },
@@ -51,6 +35,7 @@ const Invoices = () => {
   const { invoices, loading, stats, createInvoice, updateInvoiceStatus, deleteInvoice, fetchInvoices } = useInvoices();
   const { clients } = useClients();
   const { orders } = useClientOrders();
+  const { items: inventoryItems } = useInventory();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedInvoice, setSelectedInvoice] = useState<Invoice | null>(null);
@@ -320,10 +305,21 @@ const Invoices = () => {
                   </div>
 
                   <div className="border rounded-lg p-4 space-y-3">
-                    <h4 className="font-medium">Invoice Items</h4>
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium">Invoice Items</h4>
+                      <InventoryProductPicker
+                        items={inventoryItems}
+                        onSelect={(inv) => setCurrentItem({
+                          description: inv.name,
+                          quantity: 1,
+                          rate: inv.price,
+                        })}
+                        placeholder="Pick from inventory"
+                      />
+                    </div>
                     <div className="grid grid-cols-5 gap-2">
-                      <Input 
-                        placeholder="Description" 
+                      <Input
+                        placeholder="Description"
                         value={currentItem.description}
                         onChange={(e) => setCurrentItem({ ...currentItem, description: e.target.value })}
                         className="col-span-2"

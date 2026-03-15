@@ -13,31 +13,14 @@ import { Skeleton } from '@/components/ui/skeleton';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { useQuotations, Quotation, CreateQuotationItemInput } from '@/hooks/useQuotations';
 import { useClients } from '@/hooks/useClients';
+import { useInventory } from '@/hooks/useInventory';
+import InventoryProductPicker from '@/components/inventory/InventoryProductPicker';
 import { exportToCSV, formatDate, GST_RATES, GSTRate, calculateGST } from '@/lib/exportUtils';
 import { generateQuotationPDF } from '@/lib/pdfUtils';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import {
-  FileText,
-  Plus,
-  Search,
-  Filter,
-  Eye,
-  Download,
-  Send,
-  Copy,
-  Trash2,
-  CheckCircle,
-  Clock,
-  XCircle,
-  IndianRupee,
-  Calendar as CalendarIcon,
-  RefreshCw,
-  Loader2,
-  FileSpreadsheet,
-  Share2,
-} from 'lucide-react';
+import { FileText, Plus, Search, Filter, Eye, Download, Send, Copy, Trash2, CircleCheck as CheckCircle, Clock, Circle as XCircle, IndianRupee, Calendar as CalendarIcon, RefreshCw, Loader as Loader2, FileSpreadsheet, Share2 } from 'lucide-react';
 
 const statusConfig = {
   draft: { color: 'bg-muted text-muted-foreground', icon: FileText, label: 'Draft' },
@@ -50,6 +33,7 @@ const statusConfig = {
 const Quotations = () => {
   const { quotations, loading, stats, createQuotation, updateQuotationStatus, deleteQuotation, fetchQuotations } = useQuotations();
   const { clients } = useClients();
+  const { items: inventoryItems } = useInventory();
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedQuote, setSelectedQuote] = useState<Quotation | null>(null);
@@ -264,10 +248,23 @@ const Quotations = () => {
                   </div>
 
                   <div className="border rounded-lg p-4 space-y-3">
-                    <h4 className="font-medium">Quote Items</h4>
+                    <div className="flex items-center justify-between">
+                      <h4 className="font-medium">Quote Items</h4>
+                      <InventoryProductPicker
+                        items={inventoryItems}
+                        onSelect={(inv) => setCurrentItem({
+                          product: inv.name,
+                          description: `${inv.sku} · ${inv.category}`,
+                          quantity: 1,
+                          unit_price: inv.price,
+                          discount: 0,
+                        })}
+                        placeholder="Pick from inventory"
+                      />
+                    </div>
                     <div className="grid grid-cols-6 gap-2">
-                      <Input 
-                        placeholder="Product" 
+                      <Input
+                        placeholder="Product"
                         value={currentItem.product}
                         onChange={(e) => setCurrentItem({ ...currentItem, product: e.target.value })}
                         className="col-span-2"

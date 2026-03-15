@@ -2,7 +2,6 @@ import {
   TrendingUp,
   Target,
   MessageSquareText,
-  Package,
   Users,
   DollarSign,
   Activity,
@@ -10,21 +9,16 @@ import {
   Zap,
   Brain,
   Cpu,
-  Server,
-  Database,
-  Shield,
   FileText,
   ShoppingCart,
 } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import DashboardLayout from '@/components/layout/DashboardLayout';
 import MetricCard from '@/components/charts/MetricCard';
 import AreaChartCard from '@/components/charts/AreaChartCard';
-import BarChartCard from '@/components/charts/BarChartCard';
 import DonutChartCard from '@/components/charts/DonutChartCard';
 import LineChartCard from '@/components/charts/LineChartCard';
 import ProgressRing from '@/components/charts/ProgressRing';
-import StatusCard from '@/components/charts/StatusCard';
 import AnimatedCounter from '@/components/ai/AnimatedCounter';
 import { useClients } from '@/hooks/useClients';
 import { useInvoices } from '@/hooks/useInvoices';
@@ -48,6 +42,7 @@ const quickLinks = [
 ];
 
 const Index = () => {
+  const navigate = useNavigate();
   const { clients, stats: clientStats } = useClients();
   const { invoices, stats: invoiceStats } = useInvoices();
   const { orders, stats: orderStats } = useClientOrders();
@@ -104,32 +99,44 @@ const Index = () => {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-          <MetricCard
-            title="Revenue (Paid)"
-            value={<AnimatedCounter value={totalRevenue} prefix="₹" duration={1500} />}
-            icon={<DollarSign size={16} />}
-            subtitle={`₹${(pendingRevenue / 100000).toFixed(1)}L pending`}
-          />
-          <MetricCard
-            title="Active Clients"
-            value={<AnimatedCounter value={clientStats.active} duration={1500} />}
-            change={`${clientStats.total} total`}
-            changeType="positive"
-            icon={<Users size={16} />}
-            subtitle="registered"
-          />
-          <MetricCard
-            title="Total Orders"
-            value={<AnimatedCounter value={orderStats?.total ?? orders.length} duration={1500} />}
-            icon={<ShoppingCart size={16} />}
-            subtitle="all time"
-          />
-          <MetricCard
-            title="Active Leads"
-            value={<AnimatedCounter value={activeLeads} duration={1500} />}
-            icon={<Activity size={16} />}
-            subtitle={`${leads.length} total`}
-          />
+          <button onClick={() => navigate('/invoices')} className="text-left">
+            <MetricCard
+              title="Revenue (Paid)"
+              value={<AnimatedCounter value={totalRevenue} prefix="₹" duration={1500} />}
+              icon={<DollarSign size={16} />}
+              subtitle={`₹${(pendingRevenue / 100000).toFixed(1)}L pending`}
+              className="cursor-pointer hover:border-primary/50 transition-colors"
+            />
+          </button>
+          <button onClick={() => navigate('/clients')} className="text-left">
+            <MetricCard
+              title="Active Clients"
+              value={<AnimatedCounter value={clientStats.active} duration={1500} />}
+              change={`${clientStats.total} total`}
+              changeType="positive"
+              icon={<Users size={16} />}
+              subtitle="registered"
+              className="cursor-pointer hover:border-primary/50 transition-colors"
+            />
+          </button>
+          <button onClick={() => navigate('/client-orders')} className="text-left">
+            <MetricCard
+              title="Total Orders"
+              value={<AnimatedCounter value={orderStats?.total ?? orders.length} duration={1500} />}
+              icon={<ShoppingCart size={16} />}
+              subtitle="all time"
+              className="cursor-pointer hover:border-primary/50 transition-colors"
+            />
+          </button>
+          <button onClick={() => navigate('/leads')} className="text-left">
+            <MetricCard
+              title="Active Leads"
+              value={<AnimatedCounter value={activeLeads} duration={1500} />}
+              icon={<Activity size={16} />}
+              subtitle={`${leads.length} total`}
+              className="cursor-pointer hover:border-primary/50 transition-colors"
+            />
+          </button>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -228,74 +235,27 @@ const Index = () => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Server size={14} className="text-primary" />
-              System Status
-            </h3>
-            <div className="grid grid-cols-2 gap-3">
-              <StatusCard
-                title="AI Engine"
-                status="online"
-                icon={<Brain size={14} />}
-                details={[
-                  { label: 'Uptime', value: '99.9%' },
-                  { label: 'Latency', value: '45ms' },
-                ]}
-              />
-              <StatusCard
-                title="Database"
-                status="online"
-                icon={<Database size={14} />}
-                details={[
-                  { label: 'Records', value: `${invoiceStats.total + clientStats.total + orders.length}` },
-                  { label: 'Status', value: 'Healthy' },
-                ]}
-              />
-              <StatusCard
-                title="API Gateway"
-                status="online"
-                icon={<Zap size={14} />}
-                details={[
-                  { label: 'Requests', value: '12K/hr' },
-                  { label: 'Errors', value: '0.01%' },
-                ]}
-              />
-              <StatusCard
-                title="Security"
-                status="online"
-                icon={<Shield size={14} />}
-                details={[
-                  { label: 'Threats', value: '0' },
-                  { label: 'Scans', value: '24/7' },
-                ]}
-              />
-            </div>
-          </div>
-
-          <div className="space-y-3">
-            <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Zap size={14} className="text-primary" />
-              AI Modules
-            </h3>
-            <div className="grid grid-cols-2 gap-3">
-              {quickLinks.map((link) => (
-                <Link
-                  key={link.title}
-                  to={link.href}
-                  className="glass-card p-4 group hover:border-primary/40 transition-all duration-300"
-                >
-                  <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${link.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
-                    <link.icon size={20} className="text-primary-foreground" />
-                  </div>
-                  <div className="flex items-center justify-between">
-                    <span className="text-sm font-medium text-foreground">{link.title}</span>
-                    <ArrowUpRight size={14} className="text-muted-foreground group-hover:text-primary transition-colors" />
-                  </div>
-                </Link>
-              ))}
-            </div>
+        <div className="space-y-3">
+          <h3 className="text-sm font-semibold text-foreground flex items-center gap-2">
+            <Zap size={14} className="text-primary" />
+            AI Modules
+          </h3>
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+            {quickLinks.map((link) => (
+              <Link
+                key={link.title}
+                to={link.href}
+                className="glass-card p-4 group hover:border-primary/40 transition-all duration-300"
+              >
+                <div className={`w-10 h-10 rounded-lg bg-gradient-to-br ${link.color} flex items-center justify-center mb-3 group-hover:scale-110 transition-transform`}>
+                  <link.icon size={20} className="text-primary-foreground" />
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-medium text-foreground">{link.title}</span>
+                  <ArrowUpRight size={14} className="text-muted-foreground group-hover:text-primary transition-colors" />
+                </div>
+              </Link>
+            ))}
           </div>
         </div>
       </div>

@@ -18,27 +18,9 @@ import { generateAgreementPDF } from '@/lib/pdfUtils';
 import { toast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { cn } from '@/lib/utils';
-import {
-  FileText,
-  Plus,
-  Search,
-  Filter,
-  Eye,
-  Download,
-  Send,
-  Trash2,
-  CheckCircle,
-  Clock,
-  AlertCircle,
-  Edit,
-  PenTool,
-  Calendar as CalendarIcon,
-  Shield,
-  RefreshCw,
-  Loader2,
-  FileSpreadsheet,
-  Share2,
-} from 'lucide-react';
+import { Tabs, TabsList, TabsTrigger, TabsContent } from '@/components/ui/tabs';
+import { AGREEMENT_TEMPLATES, AgreementTemplate } from '@/components/agreements/AgreementTemplates';
+import { FileText, Plus, Search, Filter, Eye, Download, Send, Trash2, CircleCheck as CheckCircle, Clock, CircleAlert as AlertCircle, CreditCard as Edit, PenTool, Calendar as CalendarIcon, Shield, RefreshCw, Loader as Loader2, FileSpreadsheet, Share2, LayoutTemplate } from 'lucide-react';
 
 const typeConfig = {
   nda: { label: 'NDA', color: 'bg-purple-500/20 text-purple-400' },
@@ -132,6 +114,16 @@ const Agreements = () => {
     setEndDate(new Date(Date.now() + 365 * 24 * 60 * 60 * 1000));
   };
 
+  const applyTemplate = (template: AgreementTemplate) => {
+    setNewAgreement(prev => ({
+      ...prev,
+      title: template.title,
+      type: template.type,
+      terms: template.terms.join('\n'),
+    }));
+    setIsCreateDialogOpen(true);
+  };
+
   const handleExport = (type: 'all' | 'active' | 'pending') => {
     let dataToExport = filteredAgreements;
     let filename = 'agreements';
@@ -187,6 +179,7 @@ const Agreements = () => {
             </p>
           </div>
           <div className="flex gap-2">
+
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="outline" size="icon">
@@ -396,6 +389,63 @@ const Agreements = () => {
             </div>
           </div>
         </div>
+
+        <Tabs defaultValue="agreements">
+          <TabsList className="mb-4">
+            <TabsTrigger value="agreements" className="gap-2">
+              <FileText size={14} />
+              My Agreements
+            </TabsTrigger>
+            <TabsTrigger value="templates" className="gap-2">
+              <LayoutTemplate size={14} />
+              Templates ({AGREEMENT_TEMPLATES.length})
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="templates">
+            <div className="space-y-4">
+              <p className="text-sm text-muted-foreground">
+                Choose a pre-built template to get started quickly. Click "Use Template" to open the create form with it pre-filled.
+              </p>
+              <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4">
+                {AGREEMENT_TEMPLATES.map((template) => (
+                  <div key={template.id} className="glass-card p-4 flex flex-col gap-3">
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-sm leading-tight">{template.title}</p>
+                        <p className="text-xs text-muted-foreground mt-1">{template.description}</p>
+                      </div>
+                      <span className={`shrink-0 text-[10px] font-bold px-2 py-0.5 rounded ${typeConfig[template.type]?.color}`}>
+                        {typeConfig[template.type]?.label}
+                      </span>
+                    </div>
+                    <ul className="space-y-1">
+                      {template.terms.slice(0, 3).map((term, i) => (
+                        <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                          <span className="text-primary mt-0.5 shrink-0">•</span>
+                          <span className="line-clamp-1">{term}</span>
+                        </li>
+                      ))}
+                      {template.terms.length > 3 && (
+                        <li className="text-xs text-muted-foreground pl-3">+{template.terms.length - 3} more terms</li>
+                      )}
+                    </ul>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="w-full gap-2 mt-auto"
+                      onClick={() => applyTemplate(template)}
+                    >
+                      <Plus size={12} />
+                      Use Template
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="agreements">
 
         {/* Filters */}
         <div className="flex flex-col sm:flex-row gap-4">
@@ -649,6 +699,9 @@ const Agreements = () => {
             )}
           </DialogContent>
         </Dialog>
+
+          </TabsContent>
+        </Tabs>
       </div>
     </DashboardLayout>
   );
