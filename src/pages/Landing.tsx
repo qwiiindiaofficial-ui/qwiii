@@ -1,42 +1,9 @@
 import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { Button } from '@/components/ui/button';
-import { Switch } from '@/components/ui/switch';
-import { Badge } from '@/components/ui/badge';
 import { useAppSettings } from '@/hooks/useAppSettings';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import PlanRegistrationForm from '@/components/PlanRegistrationForm';
-import {
-  Brain,
-  BarChart3,
-  TrendingUp,
-  MessageSquare,
-  Palette,
-  Users,
-  Factory,
-  Package,
-  Shield,
-  Zap,
-  CheckCircle,
-  ArrowRight,
-  Star,
-  Phone,
-  Mail,
-  MapPin,
-  ChevronRight,
-  Sparkles,
-  Target,
-  LineChart,
-  Bot,
-  Layers,
-  Clock,
-  Award,
-  Globe,
-  HeartHandshake,
-  Rocket,
-  Briefcase,
-  Code
-} from 'lucide-react';
+import { Target, Users, TrendingUp, Phone, Mail, MapPin, CircleCheck as CheckCircle, ArrowRight, Star, ChevronRight, Zap, ChartBar as BarChart3, Building2, MessageSquare, Shield, Clock, IndianRupee, Briefcase, Award, MapPinned, Search, Filter, Download, Repeat, Layers } from 'lucide-react';
 
 const Landing = () => {
   const { settings } = useAppSettings();
@@ -53,9 +20,9 @@ const Landing = () => {
     const handleScroll = () => {
       const sections = ['home', 'features', 'pricing', 'about'];
       for (const section of sections) {
-        const element = document.getElementById(section);
-        if (element) {
-          const rect = element.getBoundingClientRect();
+        const el = document.getElementById(section);
+        if (el) {
+          const rect = el.getBoundingClientRect();
           if (rect.top <= 100 && rect.bottom >= 100) {
             setActiveSection(section);
             break;
@@ -63,85 +30,56 @@ const Landing = () => {
         }
       }
     };
-
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
   const whatsappNumber = '917303408500';
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=Hi! I'm interested in QWII platform.`;
+  const whatsappLink = `https://wa.me/${whatsappNumber}?text=Namaste! QWII ke baare mein jaanna chahta hoon.`;
   const qwiiLogoUrl = 'https://exkmbvfehmzehnsnfzww.supabase.co/storage/v1/object/public/logos/logo-1767650736764.png';
 
   const handlePlanSelection = (planName: string, price: number) => {
-    setSelectedPlan({
-      name: planName,
-      price: price,
-      billingCycle: isAnnual ? 'annual' : 'monthly',
-    });
+    setSelectedPlan({ name: planName, price, billingCycle: isAnnual ? 'annual' : 'monthly' });
     setRegistrationDialogOpen(true);
   };
 
+  const scrollToSection = (id: string) => {
+    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  };
+
+  const formatPrice = (price: number) =>
+    new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(price);
+
+  const leadSteps = [
+    { icon: Search, title: 'Automatic Business Discovery', desc: 'Our AI searches Google Maps to find verified businesses in your target city, industry, and area — automatically, 24x7.' },
+    { icon: Filter, title: 'Smart Lead Filtering', desc: 'Filter leads by city, district, keyword, and business type. Get only the leads that match your exact customer profile.' },
+    { icon: Users, title: 'Complete Contact Details', desc: 'Each lead comes with business name, phone number, address, and rating — everything you need to start selling immediately.' },
+    { icon: Download, title: 'Export & Act Instantly', desc: 'Download leads as Excel or CSV. Share directly with your sales team. Start calling the same day.' },
+    { icon: Repeat, title: 'Fresh Leads Every Day', desc: 'Set up automated daily lead generation. Never run out of prospects. Your pipeline stays full without manual effort.' },
+  ];
+
+  const whyQwii = [
+    { icon: Target, title: '1,000+ Leads Per Day', desc: 'Generate up to 1,000 fresh, verified business leads every single day from across India.' },
+    { icon: MapPinned, title: 'Pan-India Coverage', desc: 'From metro cities to Tier-2 and Tier-3 towns — we cover every district and every industry.' },
+    { icon: Clock, title: 'Saves 8 Hours Daily', desc: 'No more manual searching, calling directories, or buying outdated lead lists. Save your team\'s precious time.' },
+    { icon: IndianRupee, title: 'Lowest Cost Per Lead', desc: 'At just ₹0.05–₹0.50 per lead, QWII gives you the best ROI in the market. Far cheaper than any agency.' },
+    { icon: Shield, title: 'Verified & Fresh Data', desc: 'All leads sourced directly from Google Maps — not recycled databases. You get real, active businesses.' },
+    { icon: Zap, title: 'Ready in 5 Minutes', desc: 'No lengthy setup. Login, set your city and keyword, and your first batch of leads is ready in minutes.' },
+  ];
+
   const features = [
-    {
-      icon: Brain,
-      title: 'AI-Powered Analytics',
-      description: 'Advanced machine learning algorithms analyze your business data in real-time, providing actionable insights that drive growth.'
-    },
-    {
-      icon: TrendingUp,
-      title: 'Sales Forecasting',
-      description: 'Predict future sales with up to 95% accuracy using our proprietary AI models trained on millions of data points.'
-    },
-    {
-      icon: BarChart3,
-      title: 'Demand Prediction',
-      description: 'Anticipate market demand before it happens. Optimize inventory and reduce waste with intelligent predictions.'
-    },
-    {
-      icon: MessageSquare,
-      title: 'AI Business Chatbot',
-      description: 'Your 24/7 intelligent assistant that understands your business context and provides instant answers.'
-    },
-    {
-      icon: Palette,
-      title: 'Design Generator',
-      description: 'Create stunning marketing materials, product designs, and branding assets with AI-powered generation.'
-    },
-    {
-      icon: Users,
-      title: 'B2B Agent',
-      description: 'Automate B2B communications, lead generation, and relationship management with our intelligent agent.'
-    },
-    {
-      icon: Factory,
-      title: 'Production Management',
-      description: 'Monitor and optimize your production lines in real-time. Reduce downtime and maximize efficiency.'
-    },
-    {
-      icon: Package,
-      title: 'Inventory Intelligence',
-      description: 'Smart inventory management that learns from your patterns and automatically suggests optimal stock levels.'
-    },
-    {
-      icon: Shield,
-      title: 'Quality Control AI',
-      description: 'Detect defects and quality issues before they become problems with computer vision and AI analysis.'
-    },
-    {
-      icon: LineChart,
-      title: 'Real-time Analytics',
-      description: 'Live dashboards and metrics that give you instant visibility into every aspect of your business.'
-    },
-    {
-      icon: Bot,
-      title: 'Process Automation',
-      description: 'Automate repetitive tasks and workflows, freeing your team to focus on what matters most.'
-    },
-    {
-      icon: Target,
-      title: 'Smart Recommendations',
-      description: 'Get personalized recommendations for pricing, marketing, and operations based on your unique data.'
-    }
+    { icon: BarChart3, title: 'Sales Analytics & Forecasting', desc: 'Track your sales performance, forecast future revenue, and spot growth opportunities before your competition.' },
+    { icon: MessageSquare, title: 'AI Business Assistant', desc: 'Ask any business question and get instant, intelligent answers powered by AI trained on your data.' },
+    { icon: Building2, title: 'Client & Order Management', desc: 'Manage all your clients, orders, and invoices in one clean dashboard. No more juggling spreadsheets.' },
+    { icon: Layers, title: 'Inventory & Production', desc: 'Track your stock, manage production cycles, and get alerts before you run out of critical inventory.' },
+    { icon: TrendingUp, title: 'Market Intelligence', desc: 'Understand market trends, track competitors, and identify new geographic and product opportunities.' },
+    { icon: Briefcase, title: 'Digital Agreements & Invoices', desc: 'Create, send, and get signed agreements and invoices — all digital, all professional, all trackable.' },
+  ];
+
+  const testimonials = [
+    { name: 'Rajesh Agarwal', city: 'Jaipur', business: 'Hardware Trading', text: 'Pehle lead ke liye 3-4 ghante lagti thi. Ab QWII se subah uthke seedha calling start kar deta hoon. Business 40% badh gaya.', rating: 5 },
+    { name: 'Sunita Gupta', city: 'Kanpur', business: 'Textile Wholesale', text: 'Mere sales team ko ab pata hai kahan jaana hai. QWII ne hamara pura lead generation process badal diya. Bahut achha software hai.', rating: 5 },
+    { name: 'Mahesh Bansal', city: 'Ahmedabad', business: 'Chemicals Distribution', text: 'Sirf ek mahine mein 200 naye clients add kiye. Yeh possible nahi hota bina QWII ke. Sach mein game changer hai.', rating: 5 },
   ];
 
   const pricingPlans = [
@@ -150,503 +88,719 @@ const Landing = () => {
       subtitle: 'Business Insights',
       monthlyPrice: 2999,
       annualPrice: 29999,
-      bestFor: 'Small businesses, shops, service providers',
+      bestFor: 'Chhote Dukaan, Service Providers',
       features: [
         'Monthly business performance summary',
-        'Key metrics tracking (sales, expenses, growth)',
+        'Key metrics tracking',
         'Simple insights & recommendations',
         'Email/WhatsApp report',
-        'Support via email'
+        'Email support',
       ],
       cta: 'Start with Basic',
-      popular: false
+      popular: false,
     },
     {
       name: 'GROWTH',
-      subtitle: 'Business Intelligence',
+      subtitle: 'Lead Generation + Analytics',
       monthlyPrice: 6999,
       annualPrice: 69999,
-      bestFor: 'Growing MSMEs & startups',
+      bestFor: 'Growing MSMEs & Traders',
       features: [
         'Everything in Basic',
+        'Lead Generation (up to 500/day)',
+        'Pan-India city & keyword targeting',
         'Sales & revenue trend analysis',
         'Customer behavior insights',
-        'Forecasting (basic–medium level)',
         'Custom dashboard access',
-        'Monthly strategy call'
+        'Monthly strategy call',
       ],
-      cta: 'Grow with Data',
-      popular: true
+      cta: 'Get More Customers',
+      popular: true,
     },
     {
       name: 'PRO',
-      subtitle: 'AI Decision Intelligence',
+      subtitle: 'Full AI Business Suite',
       monthlyPrice: 14999,
       annualPrice: 149999,
-      bestFor: 'Data-driven companies',
+      bestFor: 'Established Businesses & Distributors',
       features: [
         'Everything in Growth',
-        'Advanced forecasting models',
-        'AI-driven decision support',
-        'Business automation insights',
-        'Priority support',
+        'Lead Generation (up to 1,000/day)',
+        'Advanced AI decision support',
+        'Priority support & dedicated analyst',
+        'Weekly strategy reports',
+        'Custom AI model training',
+        'Multi-user access',
         'Industry-specific intelligence',
-        'Extra dashboard',
-        'Weekly reports',
-        'Dedicated analyst',
-        'Custom AI model'
       ],
-      cta: 'Scale with AI',
-      popular: false
-    }
+      cta: 'Scale Your Business',
+      popular: false,
+    },
   ];
 
-  const formatPrice = (price: number) => {
-    return new Intl.NumberFormat('en-IN', {
-      style: 'currency',
-      currency: 'INR',
-      maximumFractionDigits: 0
-    }).format(price);
-  };
-
-  const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: 'smooth' });
-    }
-  };
+  const navItems = ['home', 'features', 'pricing', 'about'];
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
+    <div style={{ fontFamily: "'Inter', sans-serif", background: '#fff', color: '#1a1a1a' }}>
+
       {/* Navigation */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex items-center justify-between h-16">
-            <div className="flex items-center gap-3">
-              <img src={qwiiLogoUrl} alt="QWII Logo" className="h-10 w-auto" />
-              <div>
-                <span className="text-xl font-display font-bold gradient-text">{settings.app_name}</span>
-                <span className="hidden sm:block text-xs text-muted-foreground">{settings.tagline}</span>
-              </div>
+      <nav style={{
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
+        background: 'rgba(255,255,255,0.97)', backdropFilter: 'blur(12px)',
+        borderBottom: '1px solid #f0e0e0', boxShadow: '0 2px 12px rgba(220,38,38,0.06)'
+      }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <img src={qwiiLogoUrl} alt="QWII" style={{ height: 40, width: 'auto' }} />
+            <div>
+              <div style={{ fontSize: 20, fontWeight: 800, color: '#dc2626', letterSpacing: '-0.5px' }}>{settings.app_name}</div>
+              <div style={{ fontSize: 11, color: '#888', letterSpacing: 1 }}>{settings.tagline}</div>
             </div>
+          </div>
 
-            <div className="hidden md:flex items-center gap-8">
-              {['home', 'features', 'pricing', 'about'].map((section) => (
-                <button
-                  key={section}
-                  onClick={() => scrollToSection(section)}
-                  className={`text-sm font-medium transition-colors ${
-                    activeSection === section ? 'text-primary' : 'text-muted-foreground hover:text-foreground'
-                  }`}
-                >
-                  {section.charAt(0).toUpperCase() + section.slice(1)}
-                </button>
-              ))}
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 32 }} className="hidden-mobile">
+            {navItems.map(s => (
+              <button key={s} onClick={() => scrollToSection(s)} style={{
+                background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 500,
+                color: activeSection === s ? '#dc2626' : '#555',
+                borderBottom: activeSection === s ? '2px solid #dc2626' : '2px solid transparent',
+                paddingBottom: 2, transition: 'all 0.2s'
+              }}>
+                {s === 'home' ? 'Home' : s === 'features' ? 'Features' : s === 'pricing' ? 'Pricing' : 'About Us'}
+              </button>
+            ))}
+          </div>
 
-            <div className="flex items-center gap-3">
-              <Link to="/auth">
-                <Button variant="ghost" size="sm">Login</Button>
-              </Link>
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                <Button size="sm" className="gap-2">
-                  <Phone size={14} />
-                  Contact Sales
-                </Button>
-              </a>
-            </div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+            <Link to="/auth" style={{
+              padding: '8px 20px', borderRadius: 8, border: '1.5px solid #dc2626',
+              color: '#dc2626', fontSize: 14, fontWeight: 600, textDecoration: 'none', transition: 'all 0.2s'
+            }}>
+              Login
+            </Link>
+            <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{
+              padding: '8px 20px', borderRadius: 8, background: '#dc2626',
+              color: '#fff', fontSize: 14, fontWeight: 600, textDecoration: 'none',
+              display: 'flex', alignItems: 'center', gap: 6, transition: 'all 0.2s'
+            }}>
+              <Phone size={14} />
+              Contact Sales
+            </a>
           </div>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section id="home" className="relative min-h-screen flex items-center justify-center pt-16 overflow-hidden">
-        {/* Background Effects */}
-        <div className="absolute inset-0 bg-grid-pattern opacity-5" />
-        <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-primary/20 rounded-full blur-3xl animate-pulse" />
-        <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-accent/20 rounded-full blur-3xl animate-pulse delay-1000" />
-        
-        <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
-          <div className="text-center space-y-8">
-            <Badge className="px-4 py-2 bg-primary/10 text-primary border-primary/20">
-              <Sparkles className="w-4 h-4 mr-2" />
-              AI-Powered Business Intelligence Platform
-            </Badge>
+      <section id="home" style={{ paddingTop: 100, paddingBottom: 80, background: 'linear-gradient(135deg, #fff 0%, #fff5f5 40%, #fef2f2 100%)', minHeight: '92vh', display: 'flex', alignItems: 'center' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', width: '100%' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 60, alignItems: 'center' }} className="hero-grid">
 
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl font-display font-bold tracking-tight">
-              <span className="gradient-text">Transform Your Business</span>
-              <br />
-              <span className="text-foreground">with Intelligent AI</span>
-            </h1>
+            <div>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fef2f2',
+                border: '1px solid #fca5a5', borderRadius: 100, padding: '6px 16px', marginBottom: 24
+              }}>
+                <Target size={14} style={{ color: '#dc2626' }} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#dc2626' }}>India's #1 Lead Generation Platform</span>
+              </div>
 
-            <p className="max-w-3xl mx-auto text-lg sm:text-xl text-muted-foreground leading-relaxed">
-              {settings.app_name} is the ultimate AI-powered platform designed for modern businesses. 
-              From sales forecasting to production management, we bring the power of artificial intelligence 
-              to every aspect of your operations.
-            </p>
+              <h1 style={{ fontSize: 'clamp(32px, 4vw, 52px)', fontWeight: 900, lineHeight: 1.15, marginBottom: 20, letterSpacing: '-1px' }}>
+                <span style={{ color: '#1a1a1a' }}>Roz Naye </span>
+                <span style={{ color: '#dc2626' }}>Customers</span>
+                <br />
+                <span style={{ color: '#1a1a1a' }}>Aapke Business</span>
+                <br />
+                <span style={{ color: '#dc2626' }}>Ke Liye</span>
+              </h1>
 
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4 pt-4">
-              <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                <Button size="lg" className="gap-2 px-8 py-6 text-lg">
-                  <Phone size={20} />
-                  Contact for Sales
-                </Button>
-              </a>
-              <a href="https://preview.qwii.in" target="_blank" rel="noopener noreferrer">
-                <Button size="lg" variant="outline" className="gap-2 px-8 py-6 text-lg">
-                  <Rocket size={20} />
-                  Try Preview
-                </Button>
-              </a>
-              <Link to="/auth">
-                <Button size="lg" variant="secondary" className="gap-2 px-8 py-6 text-lg">
-                  Login
-                  <ArrowRight size={20} />
-                </Button>
-              </Link>
+              <p style={{ fontSize: 18, color: '#555', lineHeight: 1.7, marginBottom: 32, maxWidth: 480 }}>
+                QWII automatically finds <strong style={{ color: '#1a1a1a' }}>verified business leads</strong> from across India using Google Maps AI — so your sales team never runs out of prospects.
+              </p>
+
+              <div style={{ display: 'flex', gap: 12, flexWrap: 'wrap', marginBottom: 48 }}>
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{
+                  display: 'flex', alignItems: 'center', gap: 8, background: '#dc2626',
+                  color: '#fff', padding: '14px 28px', borderRadius: 10, fontSize: 16,
+                  fontWeight: 700, textDecoration: 'none', boxShadow: '0 4px 20px rgba(220,38,38,0.35)',
+                  transition: 'all 0.2s'
+                }}>
+                  <Phone size={18} />
+                  Free Demo Lein
+                </a>
+                <Link to="/auth" style={{
+                  display: 'flex', alignItems: 'center', gap: 8, background: '#fff',
+                  color: '#dc2626', padding: '14px 28px', borderRadius: 10, fontSize: 16,
+                  fontWeight: 700, textDecoration: 'none', border: '2px solid #dc2626', transition: 'all 0.2s'
+                }}>
+                  Platform Dekhein
+                  <ArrowRight size={18} />
+                </Link>
+              </div>
+
+              <div style={{ display: 'flex', gap: 32, flexWrap: 'wrap' }}>
+                {[
+                  { value: '1,000+', label: 'Leads Per Day' },
+                  { value: '500+', label: 'Businesses Using QWII' },
+                  { value: '₹0.50', label: 'Cost Per Lead' },
+                ].map((s, i) => (
+                  <div key={i}>
+                    <div style={{ fontSize: 28, fontWeight: 800, color: '#dc2626' }}>{s.value}</div>
+                    <div style={{ fontSize: 13, color: '#888', fontWeight: 500 }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            <div className="pt-12 grid grid-cols-2 md:grid-cols-4 gap-8 max-w-4xl mx-auto">
-              {[
-                { value: '500+', label: 'Businesses Trust Us' },
-                { value: '95%', label: 'Prediction Accuracy' },
-                { value: '24/7', label: 'AI Support' },
-                { value: '10x', label: 'Faster Decisions' }
-              ].map((stat, i) => (
-                <div key={i} className="text-center">
-                  <div className="text-3xl sm:text-4xl font-bold gradient-text">{stat.value}</div>
-                  <div className="text-sm text-muted-foreground">{stat.label}</div>
+            {/* Hero Visual */}
+            <div style={{ position: 'relative' }}>
+              <div style={{
+                background: '#fff', borderRadius: 16, padding: 24, boxShadow: '0 8px 40px rgba(220,38,38,0.12)',
+                border: '1px solid #fee2e2'
+              }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
+                  <div style={{ width: 10, height: 10, borderRadius: '50%', background: '#22c55e' }} />
+                  <span style={{ fontSize: 13, fontWeight: 600, color: '#555' }}>Live Lead Generation — Running</span>
                 </div>
-              ))}
+
+                {[
+                  { name: 'Sharma Trading Co.', city: 'Jaipur', phone: '+91 98765 43210', type: 'Hardware' },
+                  { name: 'Gupta Textiles Pvt.', city: 'Surat', phone: '+91 87654 32109', type: 'Textiles' },
+                  { name: 'Mehta Steel Works', city: 'Rajkot', phone: '+91 76543 21098', type: 'Steel' },
+                  { name: 'Agarwal Chemicals', city: 'Kanpur', phone: '+91 65432 10987', type: 'Chemicals' },
+                ].map((lead, i) => (
+                  <div key={i} style={{
+                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                    padding: '12px 14px', background: i === 0 ? '#fef2f2' : '#fafafa',
+                    borderRadius: 10, marginBottom: 8, border: `1px solid ${i === 0 ? '#fca5a5' : '#f0f0f0'}`,
+                    transition: 'all 0.3s'
+                  }}>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 700, color: '#1a1a1a' }}>{lead.name}</div>
+                      <div style={{ fontSize: 12, color: '#888', marginTop: 2 }}>
+                        <MapPin size={10} style={{ display: 'inline', marginRight: 3 }} />
+                        {lead.city} &middot; {lead.type}
+                      </div>
+                    </div>
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: 12, fontWeight: 600, color: '#dc2626' }}>{lead.phone}</div>
+                      <div style={{
+                        display: 'inline-block', marginTop: 4, fontSize: 10, fontWeight: 700,
+                        background: '#dcfce7', color: '#16a34a', padding: '2px 8px', borderRadius: 100
+                      }}>Verified</div>
+                    </div>
+                  </div>
+                ))}
+
+                <div style={{ marginTop: 16, padding: '12px 14px', background: '#dc2626', borderRadius: 10, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+                  <span style={{ fontSize: 13, fontWeight: 700, color: '#fff' }}>Today's Leads Generated</span>
+                  <span style={{ fontSize: 20, fontWeight: 900, color: '#fff' }}>847</span>
+                </div>
+              </div>
+
+              {/* floating badge */}
+              <div style={{
+                position: 'absolute', top: -16, right: -16, background: '#16a34a',
+                color: '#fff', borderRadius: 100, padding: '8px 16px', fontSize: 12,
+                fontWeight: 700, boxShadow: '0 4px 16px rgba(22,163,74,0.4)'
+              }}>
+                Auto-Pilot Mode ON
+              </div>
             </div>
+
           </div>
         </div>
+      </section>
 
-        {/* Scroll indicator */}
-        <div className="absolute bottom-8 left-1/2 -translate-x-1/2 animate-bounce">
-          <div className="w-6 h-10 rounded-full border-2 border-muted-foreground/30 flex items-start justify-center pt-2">
-            <div className="w-1 h-2 bg-muted-foreground/30 rounded-full" />
+      {/* Trust Bar */}
+      <div style={{ background: '#dc2626', padding: '20px 24px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 48, flexWrap: 'wrap' }}>
+          {[
+            'Hardware & Steel Traders',
+            'Textile Wholesalers',
+            'Chemical Distributors',
+            'FMCG Companies',
+            'Real Estate Firms',
+            'Manufacturing Units',
+          ].map((industry, i) => (
+            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+              <CheckCircle size={14} style={{ color: '#fca5a5' }} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{industry}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      {/* How Lead Generation Works */}
+      <section style={{ padding: '96px 24px', background: '#fff' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 64 }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fef2f2',
+              border: '1px solid #fca5a5', borderRadius: 100, padding: '6px 16px', marginBottom: 16
+            }}>
+              <Zap size={14} style={{ color: '#dc2626' }} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#dc2626' }}>How It Works</span>
+            </div>
+            <h2 style={{ fontSize: 'clamp(28px, 3.5vw, 42px)', fontWeight: 900, color: '#1a1a1a', marginBottom: 16, letterSpacing: '-0.5px' }}>
+              5 Steps Mein Apna Business Badhao
+            </h2>
+            <p style={{ fontSize: 17, color: '#666', maxWidth: 560, margin: '0 auto' }}>
+              QWII ka AI aapke liye raat-din fresh leads dhundhta rehta hai — bina kisi manual effort ke.
+            </p>
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: 20 }}>
+            {leadSteps.map((step, i) => (
+              <div key={i} style={{
+                display: 'flex', alignItems: 'flex-start', gap: 24, padding: '28px 32px',
+                background: i % 2 === 0 ? '#fff' : '#fff5f5',
+                border: '1.5px solid', borderColor: i % 2 === 0 ? '#f0f0f0' : '#fca5a5',
+                borderRadius: 16, transition: 'all 0.2s'
+              }}>
+                <div style={{
+                  width: 56, height: 56, borderRadius: 14, background: '#dc2626',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                }}>
+                  <step.icon size={24} style={{ color: '#fff' }} />
+                </div>
+                <div style={{ flex: 1 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 8 }}>
+                    <span style={{
+                      width: 28, height: 28, borderRadius: '50%', background: '#1a1a1a',
+                      color: '#fff', fontSize: 13, fontWeight: 800, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                    }}>
+                      {i + 1}
+                    </span>
+                    <h3 style={{ fontSize: 18, fontWeight: 800, color: '#1a1a1a' }}>{step.title}</h3>
+                  </div>
+                  <p style={{ fontSize: 15, color: '#666', lineHeight: 1.65 }}>{step.desc}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why QWII */}
+      <section style={{ padding: '96px 24px', background: '#fafafa' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 64 }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fef2f2',
+              border: '1px solid #fca5a5', borderRadius: 100, padding: '6px 16px', marginBottom: 16
+            }}>
+              <Award size={14} style={{ color: '#dc2626' }} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#dc2626' }}>Why QWII</span>
+            </div>
+            <h2 style={{ fontSize: 'clamp(28px, 3.5vw, 42px)', fontWeight: 900, color: '#1a1a1a', marginBottom: 16, letterSpacing: '-0.5px' }}>
+              Kyon Chunein QWII Ko?
+            </h2>
+            <p style={{ fontSize: 17, color: '#666', maxWidth: 560, margin: '0 auto' }}>
+              Har din, har shahar, har industry mein fresh leads. Aapka business barhta rahe — yahi hamaara kaam hai.
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+            {whyQwii.map((item, i) => (
+              <div key={i} style={{
+                background: '#fff', border: '1.5px solid #f0e0e0', borderRadius: 16,
+                padding: '28px 24px', transition: 'all 0.2s', cursor: 'default'
+              }}
+                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#dc2626'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 8px 32px rgba(220,38,38,0.12)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#f0e0e0'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}
+              >
+                <div style={{
+                  width: 52, height: 52, borderRadius: 14, background: '#fef2f2',
+                  border: '1.5px solid #fca5a5', display: 'flex', alignItems: 'center',
+                  justifyContent: 'center', marginBottom: 16
+                }}>
+                  <item.icon size={22} style={{ color: '#dc2626' }} />
+                </div>
+                <h3 style={{ fontSize: 17, fontWeight: 800, color: '#1a1a1a', marginBottom: 8 }}>{item.title}</h3>
+                <p style={{ fontSize: 14, color: '#666', lineHeight: 1.65 }}>{item.desc}</p>
+              </div>
+            ))}
           </div>
         </div>
       </section>
 
       {/* Features Section */}
-      <section id="features" className="py-24 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <Badge className="mb-4 bg-accent/10 text-accent border-accent/20">Features</Badge>
-            <h2 className="text-3xl sm:text-4xl font-display font-bold mb-4">
-              Everything You Need to <span className="gradient-text">Dominate Your Market</span>
+      <section id="features" style={{ padding: '96px 24px', background: '#fff' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 64 }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fef2f2',
+              border: '1px solid #fca5a5', borderRadius: 100, padding: '6px 16px', marginBottom: 16
+            }}>
+              <Layers size={14} style={{ color: '#dc2626' }} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#dc2626' }}>Complete Business Suite</span>
+            </div>
+            <h2 style={{ fontSize: 'clamp(28px, 3.5vw, 42px)', fontWeight: 900, color: '#1a1a1a', marginBottom: 16, letterSpacing: '-0.5px' }}>
+              Sirf Leads Nahi — Poora Business Manage Karein
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-              Our comprehensive suite of AI-powered tools covers every aspect of your business operations
+            <p style={{ fontSize: 17, color: '#666', maxWidth: 600, margin: '0 auto' }}>
+              Lead generation ke saath-saath, QWII aapke pore business ko manage karne ke liye bhi taiyaar hai.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {features.map((feature, index) => (
-              <div 
-                key={index}
-                className="group glass-card p-6 hover:border-primary/50 transition-all duration-300 hover:shadow-lg hover:shadow-primary/5"
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))', gap: 24 }}>
+            {features.map((f, i) => (
+              <div key={i} style={{
+                background: '#fff', border: '1.5px solid #f0e0e0', borderRadius: 16, padding: '28px 24px',
+                display: 'flex', alignItems: 'flex-start', gap: 16, transition: 'all 0.2s', cursor: 'default'
+              }}
+                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#dc2626'; (e.currentTarget as HTMLDivElement).style.background = '#fff5f5'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#f0e0e0'; (e.currentTarget as HTMLDivElement).style.background = '#fff'; }}
               >
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                  <feature.icon className="w-6 h-6 text-primary" />
+                <div style={{
+                  width: 48, height: 48, borderRadius: 12, background: '#fef2f2',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0
+                }}>
+                  <f.icon size={20} style={{ color: '#dc2626' }} />
                 </div>
-                <h3 className="text-lg font-semibold mb-2">{feature.title}</h3>
-                <p className="text-sm text-muted-foreground leading-relaxed">{feature.description}</p>
+                <div>
+                  <h3 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', marginBottom: 6 }}>{f.title}</h3>
+                  <p style={{ fontSize: 14, color: '#666', lineHeight: 1.6 }}>{f.desc}</p>
+                </div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-24">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <Badge className="mb-4 bg-warning/10 text-warning border-warning/20">Pricing</Badge>
-            <h2 className="text-3xl sm:text-4xl font-display font-bold mb-4">
-              Choose Your <span className="gradient-text">Growth Plan</span>
+      {/* Testimonials */}
+      <section style={{ padding: '96px 24px', background: '#dc2626' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 64 }}>
+            <h2 style={{ fontSize: 'clamp(28px, 3.5vw, 42px)', fontWeight: 900, color: '#fff', marginBottom: 12, letterSpacing: '-0.5px' }}>
+              Hamare Customers Ki Baat
             </h2>
-            <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-8">
-              Flexible pricing designed for businesses of all sizes. Start small, scale as you grow.
+            <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.8)', maxWidth: 500, margin: '0 auto' }}>
+              Real business owners jo QWII se apna business badha rahe hain
+            </p>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24 }}>
+            {testimonials.map((t, i) => (
+              <div key={i} style={{
+                background: 'rgba(255,255,255,0.12)', border: '1px solid rgba(255,255,255,0.25)',
+                borderRadius: 16, padding: '28px 24px', backdropFilter: 'blur(8px)'
+              }}>
+                <div style={{ display: 'flex', gap: 4, marginBottom: 16 }}>
+                  {[...Array(t.rating)].map((_, j) => (
+                    <Star key={j} size={16} style={{ color: '#fbbf24', fill: '#fbbf24' }} />
+                  ))}
+                </div>
+                <p style={{ fontSize: 15, color: '#fff', lineHeight: 1.7, marginBottom: 20, fontStyle: 'italic' }}>
+                  "{t.text}"
+                </p>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                  <div style={{
+                    width: 44, height: 44, borderRadius: '50%', background: 'rgba(255,255,255,0.2)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 16, fontWeight: 800, color: '#fff'
+                  }}>
+                    {t.name.charAt(0)}
+                  </div>
+                  <div>
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>{t.name}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.7)' }}>{t.business}, {t.city}</div>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Pricing */}
+      <section id="pricing" style={{ padding: '96px 24px', background: '#fafafa' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ textAlign: 'center', marginBottom: 64 }}>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fef2f2',
+              border: '1px solid #fca5a5', borderRadius: 100, padding: '6px 16px', marginBottom: 16
+            }}>
+              <IndianRupee size={14} style={{ color: '#dc2626' }} />
+              <span style={{ fontSize: 13, fontWeight: 600, color: '#dc2626' }}>Pricing</span>
+            </div>
+            <h2 style={{ fontSize: 'clamp(28px, 3.5vw, 42px)', fontWeight: 900, color: '#1a1a1a', marginBottom: 16, letterSpacing: '-0.5px' }}>
+              Apne Budget Mein Sahi Plan Chunein
+            </h2>
+            <p style={{ fontSize: 17, color: '#666', maxWidth: 500, margin: '0 auto 32px' }}>
+              Chhote business se lekar bade distributors tak — sabke liye plan available hai.
             </p>
 
-            {/* Billing Toggle */}
-            <div className="flex items-center justify-center gap-4">
-              <span className={`text-sm font-medium ${!isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
+            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 12, background: '#fff', border: '1.5px solid #e5e7eb', borderRadius: 100, padding: '8px 20px' }}>
+              <button
+                onClick={() => setIsAnnual(false)}
+                style={{ background: !isAnnual ? '#dc2626' : 'none', color: !isAnnual ? '#fff' : '#666', border: 'none', borderRadius: 100, padding: '6px 18px', cursor: 'pointer', fontSize: 14, fontWeight: 600, transition: 'all 0.2s' }}
+              >
                 Monthly
-              </span>
-              <Switch checked={isAnnual} onCheckedChange={setIsAnnual} />
-              <span className={`text-sm font-medium ${isAnnual ? 'text-foreground' : 'text-muted-foreground'}`}>
+              </button>
+              <button
+                onClick={() => setIsAnnual(true)}
+                style={{ background: isAnnual ? '#dc2626' : 'none', color: isAnnual ? '#fff' : '#666', border: 'none', borderRadius: 100, padding: '6px 18px', cursor: 'pointer', fontSize: 14, fontWeight: 600, transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 6 }}
+              >
                 Annual
-              </span>
-              {isAnnual && (
-                <Badge variant="outline" className="ml-2 text-accent border-accent">
-                  Save ~2 months
-                </Badge>
-              )}
+                <span style={{ background: '#fef2f2', color: '#dc2626', fontSize: 11, fontWeight: 700, padding: '2px 8px', borderRadius: 100, border: '1px solid #fca5a5' }}>
+                  2 Months Free
+                </span>
+              </button>
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {pricingPlans.map((plan, index) => (
-              <div 
-                key={index}
-                className={`relative glass-card p-8 ${
-                  plan.popular 
-                    ? 'border-primary ring-2 ring-primary/20 scale-105' 
-                    : ''
-                }`}
-              >
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: 24, alignItems: 'start' }}>
+            {pricingPlans.map((plan, i) => (
+              <div key={i} style={{
+                background: '#fff',
+                border: `2px solid ${plan.popular ? '#dc2626' : '#f0e0e0'}`,
+                borderRadius: 20, padding: '36px 28px', position: 'relative',
+                transform: plan.popular ? 'scale(1.03)' : 'none',
+                boxShadow: plan.popular ? '0 12px 48px rgba(220,38,38,0.18)' : 'none',
+              }}>
                 {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 -translate-x-1/2">
-                    <Badge className="bg-primary text-primary-foreground px-4 py-1">
-                      <Star className="w-3 h-3 mr-1" /> Most Popular
-                    </Badge>
+                  <div style={{
+                    position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
+                    background: '#dc2626', color: '#fff', borderRadius: 100,
+                    padding: '6px 20px', fontSize: 12, fontWeight: 800,
+                    display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap'
+                  }}>
+                    <Star size={12} style={{ fill: '#fff' }} />
+                    Sabse Popular
                   </div>
                 )}
 
-                <div className="text-center mb-6">
-                  <h3 className="text-xl font-bold text-primary">{plan.name}</h3>
-                  <p className="text-sm text-muted-foreground">{plan.subtitle}</p>
+                <div style={{ marginBottom: 8 }}>
+                  <div style={{ fontSize: 13, fontWeight: 700, color: '#dc2626', letterSpacing: 1, textTransform: 'uppercase' }}>{plan.name}</div>
+                  <div style={{ fontSize: 18, fontWeight: 800, color: '#1a1a1a', marginTop: 4 }}>{plan.subtitle}</div>
                 </div>
 
-                <div className="text-center mb-6">
-                  <div className="text-4xl font-bold">
-                    {formatPrice(isAnnual ? plan.annualPrice : plan.monthlyPrice)}
+                <div style={{ margin: '24px 0' }}>
+                  <div style={{ display: 'flex', alignItems: 'baseline', gap: 4 }}>
+                    <span style={{ fontSize: 40, fontWeight: 900, color: '#1a1a1a' }}>
+                      {formatPrice(isAnnual ? plan.annualPrice : plan.monthlyPrice)}
+                    </span>
+                    <span style={{ fontSize: 14, color: '#888' }}>{isAnnual ? '/year' : '/month'}</span>
                   </div>
-                  <div className="text-sm text-muted-foreground">
-                    {isAnnual ? '/year' : '/month'}
-                  </div>
                 </div>
 
-                <div className="mb-6 p-3 bg-muted/50 rounded-lg">
-                  <p className="text-xs text-muted-foreground text-center">
-                    <strong>Best for:</strong> {plan.bestFor}
-                  </p>
+                <div style={{ background: '#fafafa', borderRadius: 10, padding: '10px 14px', marginBottom: 20, border: '1px solid #f0e0e0' }}>
+                  <span style={{ fontSize: 12, color: '#888' }}>Best for: </span>
+                  <span style={{ fontSize: 12, fontWeight: 700, color: '#1a1a1a' }}>{plan.bestFor}</span>
                 </div>
 
-                <ul className="space-y-3 mb-8">
-                  {plan.features.map((feature, i) => (
-                    <li key={i} className="flex items-start gap-2 text-sm">
-                      <CheckCircle className="w-4 h-4 text-accent mt-0.5 flex-shrink-0" />
-                      <span>{feature}</span>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 12 }}>
+                  {plan.features.map((f, j) => (
+                    <li key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: '#444' }}>
+                      <CheckCircle size={16} style={{ color: '#16a34a', flexShrink: 0, marginTop: 1 }} />
+                      {f}
                     </li>
                   ))}
                 </ul>
 
-                <Button
-                  className="w-full gap-2"
-                  variant={plan.popular ? 'default' : 'outline'}
+                <button
                   onClick={() => handlePlanSelection(plan.name, isAnnual ? plan.annualPrice : plan.monthlyPrice)}
+                  style={{
+                    width: '100%', padding: '14px', borderRadius: 10, fontSize: 15, fontWeight: 700,
+                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
+                    background: plan.popular ? '#dc2626' : '#fff',
+                    color: plan.popular ? '#fff' : '#dc2626',
+                    border: `2px solid #dc2626`,
+                    transition: 'all 0.2s',
+                    boxShadow: plan.popular ? '0 4px 16px rgba(220,38,38,0.3)' : 'none'
+                  }}
                 >
                   {plan.cta}
                   <ChevronRight size={16} />
-                </Button>
+                </button>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* About Section */}
-      <section id="about" className="py-24 bg-muted/30">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <Badge className="mb-4 bg-primary/10 text-primary border-primary/20">About Us</Badge>
-            <h2 className="text-3xl sm:text-4xl font-display font-bold mb-4">
-              Meet the <span className="gradient-text">Visionaries</span>
-            </h2>
-          </div>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-6">
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                {settings.app_name} was born from a simple observation: businesses are drowning in data but starving for insights. 
-                Founded by two passionate technologists, we set out to democratize artificial intelligence for businesses of all sizes.
+      {/* About */}
+      <section id="about" style={{ padding: '96px 24px', background: '#fff' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }} className="hero-grid">
+            <div>
+              <div style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fef2f2',
+                border: '1px solid #fca5a5', borderRadius: 100, padding: '6px 16px', marginBottom: 24
+              }}>
+                <Briefcase size={14} style={{ color: '#dc2626' }} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: '#dc2626' }}>Our Story</span>
+              </div>
+              <h2 style={{ fontSize: 'clamp(28px, 3.5vw, 38px)', fontWeight: 900, color: '#1a1a1a', marginBottom: 20, lineHeight: 1.2 }}>
+                Bane Hain Indian Business Owners Ke Liye
+              </h2>
+              <p style={{ fontSize: 16, color: '#555', lineHeight: 1.75, marginBottom: 16 }}>
+                QWII ka janm ek simple observation se hua — Indian business owners ke paas mehnat ki kami nahi, lekin <strong>sahi customers dhundhne ka time nahi hai.</strong>
               </p>
-              <p className="text-lg text-muted-foreground leading-relaxed">
-                Our mission is to empower every business owner with the same powerful AI tools that were once only available to 
-                Fortune 500 companies. We believe that with the right insights, any business can achieve extraordinary growth.
+              <p style={{ fontSize: 16, color: '#555', lineHeight: 1.75, marginBottom: 32 }}>
+                Hamara mission hai har chhote-bade vyapari ko vahi tools dena jo bade corporations use karte hain — simple Hindi mein, affordable price par, bina kisi technical knowledge ke.
               </p>
-              <div className="grid grid-cols-2 gap-6">
-                <div className="glass-card p-6 text-center">
-                  <Award className="w-8 h-8 text-primary mx-auto mb-3" />
-                  <h4 className="font-semibold">Innovation First</h4>
-                  <p className="text-sm text-muted-foreground">Cutting-edge AI technology</p>
-                </div>
-                <div className="glass-card p-6 text-center">
-                  <HeartHandshake className="w-8 h-8 text-accent mx-auto mb-3" />
-                  <h4 className="font-semibold">Customer Success</h4>
-                  <p className="text-sm text-muted-foreground">Your growth is our priority</p>
-                </div>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                {[
+                  { icon: Award, title: 'India First', desc: 'Indian markets, Indian languages, Indian businesses' },
+                  { icon: Shield, title: 'Data Privacy', desc: 'Aapka data sirf aapka — koi sharing nahi' },
+                ].map((item, i) => (
+                  <div key={i} style={{ background: '#fafafa', border: '1.5px solid #f0e0e0', borderRadius: 12, padding: '20px 16px' }}>
+                    <item.icon size={22} style={{ color: '#dc2626', marginBottom: 10 }} />
+                    <div style={{ fontSize: 15, fontWeight: 700, color: '#1a1a1a', marginBottom: 4 }}>{item.title}</div>
+                    <div style={{ fontSize: 13, color: '#888' }}>{item.desc}</div>
+                  </div>
+                ))}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-              <div className="glass-card p-8 hover:shadow-xl transition-shadow">
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <div className="relative">
-                    <div className="w-32 h-32 rounded-full bg-gradient-to-br from-primary via-accent to-primary mx-auto flex items-center justify-center shadow-lg">
-                      <span className="text-4xl font-bold text-primary-foreground">MB</span>
-                    </div>
-                    <div className="absolute -bottom-2 -right-2 w-12 h-12 rounded-full bg-primary flex items-center justify-center shadow-md">
-                      <Briefcase className="w-6 h-6 text-primary-foreground" />
-                    </div>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
+              {[
+                { initials: 'MB', name: 'Mayank Bajaj', role: 'Co-Founder', icon: Briefcase },
+                { initials: 'HK', name: 'Himanshu Kumar', role: 'Co-Founder', icon: Zap },
+              ].map((person, i) => (
+                <div key={i} style={{
+                  background: '#fff', border: '1.5px solid #f0e0e0', borderRadius: 16,
+                  padding: '28px 20px', textAlign: 'center', transition: 'all 0.2s'
+                }}
+                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#dc2626'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 8px 32px rgba(220,38,38,0.12)'; }}
+                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#f0e0e0'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}
+                >
+                  <div style={{
+                    width: 80, height: 80, borderRadius: '50%', background: 'linear-gradient(135deg, #dc2626, #b91c1c)',
+                    display: 'flex', alignItems: 'center', justifyContent: 'center',
+                    fontSize: 28, fontWeight: 900, color: '#fff', margin: '0 auto 16px',
+                    boxShadow: '0 4px 20px rgba(220,38,38,0.3)'
+                  }}>
+                    {person.initials}
                   </div>
-                  <div>
-                    <h3 className="text-2xl font-bold mb-1">Mayank Bajaj</h3>
-                    <p className="text-primary font-semibold mb-2">Founder</p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      Visionary entrepreneur with a passion for leveraging AI to transform business operations and drive innovation.
-                    </p>
-                  </div>
+                  <div style={{ fontSize: 17, fontWeight: 800, color: '#1a1a1a', marginBottom: 4 }}>{person.name}</div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#dc2626' }}>{person.role}</div>
                 </div>
-              </div>
-              <div className="glass-card p-8 hover:shadow-xl transition-shadow">
-                <div className="flex flex-col items-center text-center space-y-4">
-                  <div className="relative">
-                    <div className="w-32 h-32 rounded-full bg-gradient-to-br from-accent via-primary to-accent mx-auto flex items-center justify-center shadow-lg">
-                      <span className="text-4xl font-bold text-primary-foreground">HK</span>
-                    </div>
-                    <div className="absolute -bottom-2 -right-2 w-12 h-12 rounded-full bg-accent flex items-center justify-center shadow-md">
-                      <Code className="w-6 h-6 text-primary-foreground" />
-                    </div>
-                  </div>
-                  <div>
-                    <h3 className="text-2xl font-bold mb-1">Himanshu Kumar</h3>
-                    <p className="text-accent font-semibold mb-2">Founder</p>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      Tech innovator dedicated to building intelligent systems that empower businesses to make data-driven decisions.
-                    </p>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-24">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <div className="glass-card p-12 relative overflow-hidden">
-            <div className="absolute inset-0 bg-gradient-to-r from-primary/10 to-accent/10" />
-            <div className="relative z-10">
-              <Zap className="w-16 h-16 text-primary mx-auto mb-6" />
-              <h2 className="text-3xl sm:text-4xl font-display font-bold mb-4">
-                Ready to Transform Your Business?
-              </h2>
-              <p className="text-lg text-muted-foreground mb-8 max-w-2xl mx-auto">
-                Join hundreds of businesses already using {settings.app_name} to make smarter decisions, 
-                automate operations, and accelerate growth.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer">
-                  <Button size="lg" className="gap-2 px-8">
-                    <Phone size={20} />
-                    Talk to Sales
-                  </Button>
-                </a>
-                <a href="https://preview.qwii.in" target="_blank" rel="noopener noreferrer">
-                  <Button size="lg" variant="outline" className="gap-2 px-8">
-                    <Rocket size={20} />
-                    Try Demo
-                  </Button>
-                </a>
-              </div>
-            </div>
+      {/* Final CTA */}
+      <section style={{ padding: '80px 24px', background: 'linear-gradient(135deg, #1a1a1a 0%, #2d1010 50%, #1a1a1a 100%)' }}>
+        <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: 'clamp(28px, 4vw, 44px)', fontWeight: 900, color: '#fff', marginBottom: 16, lineHeight: 1.2 }}>
+            Aaj Hi Shuru Karein — <span style={{ color: '#f87171' }}>Pehle Mahine Free Demo</span>
+          </h2>
+          <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.75)', marginBottom: 40, lineHeight: 1.65 }}>
+            Abhi WhatsApp karein aur hamare team se ek free 30-minute demo book karein. Aap dekkhenge kaise QWII aapke business mein 2x growth la sakta hai.
+          </p>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
+            <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{
+              display: 'flex', alignItems: 'center', gap: 8, background: '#dc2626',
+              color: '#fff', padding: '16px 36px', borderRadius: 12, fontSize: 17,
+              fontWeight: 800, textDecoration: 'none', boxShadow: '0 6px 24px rgba(220,38,38,0.5)', transition: 'all 0.2s'
+            }}>
+              <Phone size={20} />
+              Free Demo Book Karein
+            </a>
+            <button
+              onClick={() => scrollToSection('pricing')}
+              style={{
+                display: 'flex', alignItems: 'center', gap: 8, background: 'transparent',
+                color: '#fff', padding: '16px 36px', borderRadius: 12, fontSize: 17,
+                fontWeight: 700, cursor: 'pointer', border: '2px solid rgba(255,255,255,0.4)', transition: 'all 0.2s'
+              }}
+            >
+              Plans Dekhein
+              <ArrowRight size={18} />
+            </button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer className="bg-muted/50 border-t border-border">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-12">
-            {/* Brand */}
-            <div className="md:col-span-1">
-              <div className="flex items-center gap-3 mb-4">
-                <img src={qwiiLogoUrl} alt="QWII Logo" className="h-10 w-auto" />
-                <span className="text-xl font-display font-bold gradient-text">{settings.app_name}</span>
+      <footer style={{ background: '#111', padding: '64px 24px 32px' }}>
+        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: 48, marginBottom: 48 }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                <img src={qwiiLogoUrl} alt="QWII" style={{ height: 36, width: 'auto' }} />
+                <span style={{ fontSize: 20, fontWeight: 800, color: '#f87171' }}>{settings.app_name}</span>
               </div>
-              <p className="text-sm text-muted-foreground mb-4">
-                {settings.tagline}
+              <p style={{ fontSize: 13, color: '#888', lineHeight: 1.65, marginBottom: 20 }}>
+                {settings.tagline}<br />
+                India's leading AI-powered lead generation platform for businesses.
               </p>
-              <div className="flex items-center gap-4">
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" className="text-muted-foreground hover:text-primary transition-colors">
-                  <Phone size={20} />
+              <div style={{ display: 'flex', gap: 12 }}>
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{ color: '#888', transition: 'color 0.2s' }}>
+                  <Phone size={18} />
                 </a>
-                <a href="mailto:contact@qwii.in" className="text-muted-foreground hover:text-primary transition-colors">
-                  <Mail size={20} />
-                </a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors">
-                  <Globe size={20} />
+                <a href="mailto:contact@qwii.in" style={{ color: '#888', transition: 'color 0.2s' }}>
+                  <Mail size={18} />
                 </a>
               </div>
             </div>
 
-            {/* Quick Links */}
             <div>
-              <h4 className="font-semibold mb-4">Quick Links</h4>
-              <ul className="space-y-2 text-sm">
-                <li><button onClick={() => scrollToSection('features')} className="text-muted-foreground hover:text-foreground">Features</button></li>
-                <li><button onClick={() => scrollToSection('pricing')} className="text-muted-foreground hover:text-foreground">Pricing</button></li>
-                <li><button onClick={() => scrollToSection('about')} className="text-muted-foreground hover:text-foreground">About Us</button></li>
-                <li><Link to="/auth" className="text-muted-foreground hover:text-foreground">Login</Link></li>
+              <h4 style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 16, letterSpacing: 0.5 }}>Quick Links</h4>
+              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[
+                  { label: 'Features', action: () => scrollToSection('features') },
+                  { label: 'Pricing', action: () => scrollToSection('pricing') },
+                  { label: 'About Us', action: () => scrollToSection('about') },
+                ].map((item, i) => (
+                  <li key={i}>
+                    <button onClick={item.action} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: '#888', padding: 0 }}>
+                      {item.label}
+                    </button>
+                  </li>
+                ))}
+                <li><Link to="/auth" style={{ fontSize: 14, color: '#888', textDecoration: 'none' }}>Login</Link></li>
               </ul>
             </div>
 
-            {/* Legal */}
             <div>
-              <h4 className="font-semibold mb-4">Legal</h4>
-              <ul className="space-y-2 text-sm">
-                <li><Link to="/terms" className="text-muted-foreground hover:text-foreground">Terms & Conditions</Link></li>
-                <li><Link to="/privacy" className="text-muted-foreground hover:text-foreground">Privacy Policy</Link></li>
-                <li><Link to="/refund" className="text-muted-foreground hover:text-foreground">Refund Policy</Link></li>
+              <h4 style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 16, letterSpacing: 0.5 }}>Legal</h4>
+              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 10 }}>
+                {[
+                  { label: 'Terms & Conditions', to: '/terms' },
+                  { label: 'Privacy Policy', to: '/privacy' },
+                  { label: 'Refund Policy', to: '/refund' },
+                ].map((item, i) => (
+                  <li key={i}>
+                    <Link to={item.to} style={{ fontSize: 14, color: '#888', textDecoration: 'none' }}>{item.label}</Link>
+                  </li>
+                ))}
               </ul>
             </div>
 
-            {/* Contact */}
             <div>
-              <h4 className="font-semibold mb-4">Contact</h4>
-              <ul className="space-y-3 text-sm">
-                <li className="flex items-center gap-2 text-muted-foreground">
-                  <Phone size={14} />
-                  <a href="tel:+917303408500" className="hover:text-foreground">
-                    +91 73034 08500
-                  </a>
+              <h4 style={{ fontSize: 14, fontWeight: 700, color: '#fff', marginBottom: 16, letterSpacing: 0.5 }}>Contact</h4>
+              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Phone size={14} style={{ color: '#dc2626' }} />
+                  <a href="tel:+917303408500" style={{ fontSize: 14, color: '#888', textDecoration: 'none' }}>+91 73034 08500</a>
                 </li>
-                <li className="flex items-center gap-2 text-muted-foreground">
-                  <Phone size={14} />
-                  <a href="tel:+918383954181" className="hover:text-foreground">
-                    +91 83839 54181
-                  </a>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Phone size={14} style={{ color: '#dc2626' }} />
+                  <a href="tel:+918383954181" style={{ fontSize: 14, color: '#888', textDecoration: 'none' }}>+91 83839 54181</a>
                 </li>
-                <li className="flex items-center gap-2 text-muted-foreground">
-                  <Mail size={14} />
-                  <a href="mailto:contact@qwii.in" className="hover:text-foreground">
-                    contact@qwii.in
-                  </a>
+                <li style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                  <Mail size={14} style={{ color: '#dc2626' }} />
+                  <a href="mailto:contact@qwii.in" style={{ fontSize: 14, color: '#888', textDecoration: 'none' }}>contact@qwii.in</a>
                 </li>
-                <li className="flex items-start gap-2 text-muted-foreground">
-                  <MapPin size={14} className="mt-0.5" />
-                  <span>India</span>
+                <li style={{ display: 'flex', alignItems: 'flex-start', gap: 8 }}>
+                  <MapPin size={14} style={{ color: '#dc2626', marginTop: 2 }} />
+                  <span style={{ fontSize: 14, color: '#888' }}>India</span>
                 </li>
               </ul>
             </div>
           </div>
 
-          <div className="mt-12 pt-8 border-t border-border">
-            <div className="flex flex-col md:flex-row items-center justify-between gap-4">
-              <p className="text-sm text-muted-foreground">
-                © {new Date().getFullYear()} {settings.app_name}. All rights reserved.
-              </p>
-              <p className="text-sm text-muted-foreground">
-                Made with ❤️ in India
-              </p>
-            </div>
+          <div style={{ borderTop: '1px solid #222', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+            <p style={{ fontSize: 13, color: '#555' }}>
+              &copy; {new Date().getFullYear()} {settings.app_name}. All rights reserved.
+            </p>
+            <p style={{ fontSize: 13, color: '#555' }}>Made with love in India</p>
           </div>
         </div>
       </footer>
@@ -662,6 +816,13 @@ const Landing = () => {
           billingCycle={selectedPlan.billingCycle}
         />
       )}
+
+      <style>{`
+        @media (max-width: 768px) {
+          .hero-grid { grid-template-columns: 1fr !important; }
+          .hidden-mobile { display: none !important; }
+        }
+      `}</style>
     </div>
   );
 };
