@@ -11,6 +11,11 @@ import {
   Menu, X, ArrowUpRight, TrendingUp,
 } from 'lucide-react';
 
+const R = '#b91c1c';
+const RD = '#991b1b';
+const RDD = '#7f1d1d';
+const FOOT = '#1a0404';
+
 const Landing = () => {
   const { settings } = useAppSettings();
   const [isAnnual, setIsAnnual] = useState(false);
@@ -130,12 +135,12 @@ const Landing = () => {
   ];
 
   return (
-    <div style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", background: '#fafafa', color: '#0a0a0a', overflowX: 'hidden' }}>
+    <div style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", background: '#fafafa', color: '#1a1a1a', overflowX: 'hidden' }}>
 
       {/* NAV */}
       <nav style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
-        background: scrolled ? 'rgba(250,250,250,0.88)' : 'transparent',
+        background: scrolled ? 'rgba(255,255,255,0.92)' : 'transparent',
         backdropFilter: scrolled ? 'blur(24px) saturate(180%)' : 'none',
         borderBottom: scrolled ? '1px solid rgba(0,0,0,0.06)' : '1px solid transparent',
         transition: 'all 0.3s ease',
@@ -143,14 +148,14 @@ const Landing = () => {
         <div style={{ maxWidth: 1160, margin: '0 auto', padding: '0 28px', height: 60, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
           <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
             <img src={qwiiLogoUrl} alt="QWII" style={{ height: 28 }} />
-            <span style={{ fontSize: 17, fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.4px' }}>{settings.app_name}</span>
+            <span style={{ fontSize: 17, fontWeight: 800, color: '#1a1a1a', letterSpacing: '-0.4px' }}>{settings.app_name}</span>
           </div>
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 36 }} className="nav-desktop">
             {navItems.map(item => (
               <button key={item.id} onClick={() => scrollToSection(item.id)} style={{
                 background: 'none', border: 'none', cursor: 'pointer', fontSize: 13.5, fontWeight: 500,
-                color: activeSection === item.id ? '#0a0a0a' : 'rgba(0,0,0,0.4)',
+                color: activeSection === item.id ? R : 'rgba(0,0,0,0.4)',
                 transition: 'color 0.2s', padding: 0, letterSpacing: '-0.1px',
               }}>
                 {item.label}
@@ -163,13 +168,13 @@ const Landing = () => {
               padding: '7px 18px', borderRadius: 8,
               border: '1px solid rgba(0,0,0,0.12)',
               color: 'rgba(0,0,0,0.6)', fontSize: 13, fontWeight: 500, textDecoration: 'none',
-              background: 'transparent', transition: 'all 0.15s',
+              background: 'transparent',
             }}>
               Sign in
             </Link>
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{
               padding: '7px 18px', borderRadius: 8,
-              background: '#0a0a0a', color: '#fff',
+              background: R, color: '#fff',
               fontSize: 13, fontWeight: 600, textDecoration: 'none',
             }}>
               Book Demo
@@ -177,7 +182,7 @@ const Landing = () => {
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
               className="nav-mobile-btn"
-              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#0a0a0a', padding: 4, display: 'none' }}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#1a1a1a', padding: 4, display: 'none' }}
             >
               {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
             </button>
@@ -185,11 +190,11 @@ const Landing = () => {
         </div>
 
         {mobileMenuOpen && (
-          <div style={{ background: '#fafafa', borderTop: '1px solid rgba(0,0,0,0.06)', padding: '12px 28px 20px', display: 'flex', flexDirection: 'column', gap: 2 }}>
+          <div style={{ background: '#fff', borderTop: '1px solid rgba(0,0,0,0.06)', padding: '12px 28px 20px', display: 'flex', flexDirection: 'column', gap: 2 }}>
             {navItems.map(item => (
               <button key={item.id} onClick={() => scrollToSection(item.id)} style={{
                 background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, fontWeight: 500,
-                color: '#0a0a0a', padding: '10px 0', textAlign: 'left',
+                color: '#1a1a1a', padding: '10px 0', textAlign: 'left',
               }}>
                 {item.label}
               </button>
@@ -204,21 +209,20 @@ const Landing = () => {
         paddingTop: 60, position: 'relative', overflow: 'hidden',
         background: '#fff',
       }}>
-        {/* Background detail */}
         <div style={{
           position: 'absolute', top: 0, right: 0, width: '55%', height: '100%',
-          background: 'linear-gradient(135deg, #f5f5f5 0%, #efefef 100%)',
+          background: 'linear-gradient(135deg, #fff1f1 0%, #ffe4e4 100%)',
           clipPath: 'polygon(12% 0, 100% 0, 100% 100%, 0% 100%)',
         }} />
         <div style={{
           position: 'absolute', top: '15%', right: '4%', width: 480,
           background: '#fff', borderRadius: 20,
-          border: '1px solid rgba(0,0,0,0.07)',
-          boxShadow: '0 24px 80px rgba(0,0,0,0.08)',
+          border: '1px solid rgba(185,28,28,0.1)',
+          boxShadow: '0 24px 80px rgba(185,28,28,0.08)',
           overflow: 'hidden',
         }} className="hero-card">
           <div style={{ padding: '20px 22px', borderBottom: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-            <span style={{ fontSize: 12.5, fontWeight: 600, color: '#0a0a0a' }}>Today's Pipeline</span>
+            <span style={{ fontSize: 12.5, fontWeight: 600, color: '#1a1a1a' }}>Today's Pipeline</span>
             <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 600, color: '#16a34a', background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 100, padding: '3px 10px' }}>
               <span style={{ width: 5, height: 5, borderRadius: '50%', background: '#22c55e', display: 'inline-block' }} />
               Live
@@ -235,39 +239,39 @@ const Landing = () => {
               <div key={i} style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '10px 12px', borderRadius: 10,
-                background: lead.fresh ? '#fafafa' : 'transparent',
-                border: `1px solid ${lead.fresh ? 'rgba(0,0,0,0.07)' : 'transparent'}`,
+                background: lead.fresh ? '#fff8f8' : 'transparent',
+                border: `1px solid ${lead.fresh ? 'rgba(185,28,28,0.1)' : 'transparent'}`,
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{
                     width: 32, height: 32, borderRadius: 8, flexShrink: 0,
-                    background: lead.fresh ? '#0a0a0a' : '#f0f0f0',
+                    background: lead.fresh ? R : '#f0f0f0',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 12, fontWeight: 700, color: lead.fresh ? '#fff' : '#666',
                   }}>{lead.name[0]}</div>
                   <div>
-                    <div style={{ fontSize: 12.5, fontWeight: 600, color: '#0a0a0a' }}>{lead.name}</div>
+                    <div style={{ fontSize: 12.5, fontWeight: 600, color: '#1a1a1a' }}>{lead.name}</div>
                     <div style={{ fontSize: 11, color: '#999', marginTop: 1 }}>{lead.city}</div>
                   </div>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-                  {lead.fresh && <span style={{ fontSize: 9.5, fontWeight: 700, background: '#0a0a0a', color: '#fff', borderRadius: 4, padding: '2px 6px', letterSpacing: 0.4 }}>NEW</span>}
-                  <span style={{ fontSize: 13, fontWeight: 700, color: lead.fresh ? '#0a0a0a' : '#bbb' }}>{lead.score}</span>
+                  {lead.fresh && <span style={{ fontSize: 9.5, fontWeight: 700, background: R, color: '#fff', borderRadius: 4, padding: '2px 6px', letterSpacing: 0.4 }}>NEW</span>}
+                  <span style={{ fontSize: 13, fontWeight: 700, color: lead.fresh ? R : '#bbb' }}>{lead.score}</span>
                 </div>
               </div>
             ))}
           </div>
           <div style={{
             margin: '0 16px 16px', padding: '14px 16px',
-            background: '#0a0a0a', borderRadius: 12,
+            background: `linear-gradient(135deg, ${R} 0%, ${RDD} 100%)`, borderRadius: 12,
             display: 'flex', justifyContent: 'space-between', alignItems: 'center',
           }}>
             <div>
-              <div style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.4)', marginBottom: 3, textTransform: 'uppercase', letterSpacing: 0.6 }}>Generated today</div>
+              <div style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.5)', marginBottom: 3, textTransform: 'uppercase', letterSpacing: 0.6 }}>Generated today</div>
               <div style={{ fontSize: 22, fontWeight: 800, color: '#fff', letterSpacing: '-1px' }}>847 leads</div>
             </div>
             <div style={{ textAlign: 'right' }}>
-              <div style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.4)', marginBottom: 3, textTransform: 'uppercase', letterSpacing: 0.6 }}>Total cost</div>
+              <div style={{ fontSize: 10.5, color: 'rgba(255,255,255,0.5)', marginBottom: 3, textTransform: 'uppercase', letterSpacing: 0.6 }}>Total cost</div>
               <div style={{ fontSize: 18, fontWeight: 700, color: '#fff' }}>₹423</div>
             </div>
           </div>
@@ -277,22 +281,23 @@ const Landing = () => {
           <div style={{ maxWidth: 540 }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 7,
-              background: '#f0f0f0', borderRadius: 100, padding: '5px 14px', marginBottom: 32,
+              background: '#fff1f1', border: '1px solid rgba(185,28,28,0.15)',
+              borderRadius: 100, padding: '5px 14px', marginBottom: 32,
             }}>
-              <TrendingUp size={12} color="#0a0a0a" />
-              <span style={{ fontSize: 12, fontWeight: 600, color: '#0a0a0a', letterSpacing: 0.1 }}>B2B Lead Intelligence · India</span>
+              <TrendingUp size={12} color={R} />
+              <span style={{ fontSize: 12, fontWeight: 600, color: R, letterSpacing: 0.1 }}>B2B Lead Intelligence · India</span>
             </div>
 
             <h1 style={{
               fontSize: 'clamp(42px, 5.5vw, 72px)', fontWeight: 900, lineHeight: 1.03,
-              letterSpacing: '-3.5px', color: '#0a0a0a', marginBottom: 24,
+              letterSpacing: '-3.5px', color: '#1a1a1a', marginBottom: 24,
             }}>
               Your sales team deserves a
               <br />
               <span style={{ position: 'relative', display: 'inline-block' }}>
                 better pipeline.
                 <svg style={{ position: 'absolute', bottom: -6, left: 0, width: '100%' }} viewBox="0 0 300 12" fill="none">
-                  <path d="M2 8 Q75 2 150 8 Q225 14 298 6" stroke="#0a0a0a" strokeWidth="3" strokeLinecap="round" fill="none" />
+                  <path d="M2 8 Q75 2 150 8 Q225 14 298 6" stroke={R} strokeWidth="3" strokeLinecap="round" fill="none" />
                 </svg>
               </span>
             </h1>
@@ -304,7 +309,7 @@ const Landing = () => {
             <div style={{ display: 'flex', gap: 10, flexWrap: 'wrap', marginBottom: 64 }}>
               <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
-                background: '#0a0a0a', color: '#fff',
+                background: R, color: '#fff',
                 padding: '13px 26px', borderRadius: 10, fontSize: 14.5, fontWeight: 700,
                 textDecoration: 'none',
               }}>
@@ -329,7 +334,7 @@ const Landing = () => {
                 { val: '₹0.50', label: 'Per lead' },
               ].map((s, i) => (
                 <div key={i}>
-                  <div style={{ fontSize: 22, fontWeight: 800, color: '#0a0a0a', letterSpacing: '-0.8px' }}>{s.val}</div>
+                  <div style={{ fontSize: 22, fontWeight: 800, color: R, letterSpacing: '-0.8px' }}>{s.val}</div>
                   <div style={{ fontSize: 11.5, color: 'rgba(0,0,0,0.35)', marginTop: 3, textTransform: 'uppercase', letterSpacing: 0.6, fontWeight: 600 }}>{s.label}</div>
                 </div>
               ))}
@@ -340,13 +345,14 @@ const Landing = () => {
 
       {/* MARQUEE STRIP */}
       <div style={{
-        background: '#0a0a0a', padding: '18px 0', overflow: 'hidden',
+        background: `linear-gradient(90deg, ${RDD} 0%, ${R} 50%, ${RDD} 100%)`,
+        padding: '18px 0', overflow: 'hidden',
         display: 'flex', alignItems: 'center',
       }}>
         <div style={{
           display: 'flex', gap: 56, alignItems: 'center', whiteSpace: 'nowrap',
           animation: 'marquee 28s linear infinite',
-          fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.35)',
+          fontSize: 12, fontWeight: 600, color: 'rgba(255,255,255,0.55)',
           letterSpacing: 1.2, textTransform: 'uppercase',
         }}>
           {['Lead Generation', 'Sales Intelligence', 'B2B Prospecting', 'Market Expansion', 'Revenue Growth', 'Demand Prediction', 'Client Management', 'Digital Agreements', 'Inventory Control', 'AI-Powered Insights',
@@ -354,7 +360,7 @@ const Landing = () => {
           ].map((t, i) => (
             <span key={i} style={{ display: 'inline-flex', alignItems: 'center', gap: 56 }}>
               {t}
-              <span style={{ display: 'inline-block', width: 4, height: 4, borderRadius: '50%', background: 'rgba(255,255,255,0.2)' }} />
+              <span style={{ display: 'inline-block', width: 4, height: 4, borderRadius: '50%', background: 'rgba(255,255,255,0.35)' }} />
             </span>
           ))}
         </div>
@@ -365,15 +371,14 @@ const Landing = () => {
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 100, alignItems: 'center' }} className="split-grid">
 
-            {/* Left panel — big type */}
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(0,0,0,0.3)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 24 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: R, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 24 }}>
                 Lead Generation
               </div>
-              <h2 style={{ fontSize: 'clamp(30px, 3.5vw, 50px)', fontWeight: 800, color: '#0a0a0a', lineHeight: 1.1, letterSpacing: '-2px', marginBottom: 28 }}>
+              <h2 style={{ fontSize: 'clamp(30px, 3.5vw, 50px)', fontWeight: 800, color: '#1a1a1a', lineHeight: 1.1, letterSpacing: '-2px', marginBottom: 28 }}>
                 Stop sourcing leads.
                 <br />
-                <em style={{ fontStyle: 'italic', color: 'rgba(0,0,0,0.3)' }}>Start closing them.</em>
+                <em style={{ fontStyle: 'italic', color: 'rgba(0,0,0,0.25)' }}>Start closing them.</em>
               </h2>
               <p style={{ fontSize: 16, color: 'rgba(0,0,0,0.45)', lineHeight: 1.8, marginBottom: 44, maxWidth: 420 }}>
                 Most teams burn half their day just finding who to call. QWII eliminates that entirely — a fresh, targeted list arrives every morning before work starts.
@@ -390,9 +395,9 @@ const Landing = () => {
                     padding: '20px 0',
                     borderBottom: i < 2 ? '1px solid rgba(0,0,0,0.06)' : 'none',
                   }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(0,0,0,0.2)', paddingTop: 2 }}>{item.n}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(185,28,28,0.3)', paddingTop: 2 }}>{item.n}</span>
                     <div>
-                      <div style={{ fontSize: 14.5, fontWeight: 700, color: '#0a0a0a', marginBottom: 5 }}>{item.title}</div>
+                      <div style={{ fontSize: 14.5, fontWeight: 700, color: '#1a1a1a', marginBottom: 5 }}>{item.title}</div>
                       <div style={{ fontSize: 13, color: 'rgba(0,0,0,0.4)', lineHeight: 1.65 }}>{item.desc}</div>
                     </div>
                   </div>
@@ -401,7 +406,7 @@ const Landing = () => {
 
               <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
-                background: '#0a0a0a', color: '#fff',
+                background: R, color: '#fff',
                 padding: '12px 24px', borderRadius: 9, fontSize: 13.5, fontWeight: 600,
                 textDecoration: 'none',
               }}>
@@ -410,21 +415,20 @@ const Landing = () => {
               </a>
             </div>
 
-            {/* Right — large stat blocks */}
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
               {[
-                { val: '1,000+', label: 'Fresh leads generated daily, automatically', accent: '#0a0a0a', bg: '#0a0a0a', textColor: '#fff' },
-                { val: '₹0.50', label: 'Average cost per qualified lead', accent: '#f0f0f0', bg: '#f0f0f0', textColor: '#0a0a0a' },
-                { val: '3×', label: 'Average increase in sales team output', accent: '#f0f0f0', bg: '#f0f0f0', textColor: '#0a0a0a' },
-                { val: '95%', label: 'Data accuracy across all deliveries', accent: '#0a0a0a', bg: '#0a0a0a', textColor: '#fff' },
+                { val: '1,000+', label: 'Fresh leads generated daily, automatically', dark: true },
+                { val: '₹0.50', label: 'Average cost per qualified lead', dark: false },
+                { val: '3×', label: 'Average increase in sales team output', dark: false },
+                { val: '95%', label: 'Data accuracy across all deliveries', dark: true },
               ].map((s, i) => (
                 <div key={i} style={{
-                  background: s.bg, borderRadius: 18,
+                  background: s.dark ? `linear-gradient(135deg, ${R} 0%, ${RDD} 100%)` : '#f9f0f0',
+                  borderRadius: 18,
                   padding: '32px 28px',
-                  border: '1px solid transparent',
                 }}>
-                  <div style={{ fontSize: 'clamp(36px, 4vw, 52px)', fontWeight: 900, color: s.textColor, letterSpacing: '-2px', lineHeight: 1, marginBottom: 12 }}>{s.val}</div>
-                  <div style={{ fontSize: 13, color: s.textColor === '#fff' ? 'rgba(255,255,255,0.45)' : 'rgba(0,0,0,0.45)', lineHeight: 1.55 }}>{s.label}</div>
+                  <div style={{ fontSize: 'clamp(36px, 4vw, 52px)', fontWeight: 900, color: s.dark ? '#fff' : R, letterSpacing: '-2px', lineHeight: 1, marginBottom: 12 }}>{s.val}</div>
+                  <div style={{ fontSize: 13, color: s.dark ? 'rgba(255,255,255,0.55)' : 'rgba(185,28,28,0.55)', lineHeight: 1.55 }}>{s.label}</div>
                 </div>
               ))}
             </div>
@@ -434,13 +438,13 @@ const Landing = () => {
       </section>
 
       {/* FEATURES */}
-      <section id="features" style={{ background: '#f5f5f5', padding: '120px 28px' }}>
+      <section id="features" style={{ background: '#fafafa', padding: '120px 28px' }}>
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
 
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 72, flexWrap: 'wrap', gap: 24 }}>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(0,0,0,0.3)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20 }}>Platform</div>
-              <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 46px)', fontWeight: 800, color: '#0a0a0a', lineHeight: 1.1, letterSpacing: '-2px', margin: 0 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: R, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20 }}>Platform</div>
+              <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 46px)', fontWeight: 800, color: '#1a1a1a', lineHeight: 1.1, letterSpacing: '-2px', margin: 0 }}>
                 One platform.<br />Every growth lever.
               </h2>
             </div>
@@ -459,8 +463,8 @@ const Landing = () => {
               }}
                 onMouseEnter={e => {
                   const el = e.currentTarget as HTMLDivElement;
-                  el.style.boxShadow = '0 8px 40px rgba(0,0,0,0.08)';
-                  el.style.borderColor = 'rgba(0,0,0,0.08)';
+                  el.style.boxShadow = '0 8px 40px rgba(185,28,28,0.08)';
+                  el.style.borderColor = 'rgba(185,28,28,0.12)';
                 }}
                 onMouseLeave={e => {
                   const el = e.currentTarget as HTMLDivElement;
@@ -470,12 +474,12 @@ const Landing = () => {
               >
                 <div style={{
                   width: 38, height: 38, borderRadius: 9,
-                  background: '#f0f0f0',
+                  background: '#fff1f1',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18,
                 }}>
-                  <f.icon size={17} color="#0a0a0a" />
+                  <f.icon size={17} color={R} />
                 </div>
-                <h3 style={{ fontSize: 14.5, fontWeight: 700, color: '#0a0a0a', marginBottom: 9, letterSpacing: '-0.3px' }}>{f.title}</h3>
+                <h3 style={{ fontSize: 14.5, fontWeight: 700, color: '#1a1a1a', marginBottom: 9, letterSpacing: '-0.3px' }}>{f.title}</h3>
                 <p style={{ fontSize: 13, color: 'rgba(0,0,0,0.4)', lineHeight: 1.7, margin: 0 }}>{f.desc}</p>
               </div>
             ))}
@@ -488,8 +492,8 @@ const Landing = () => {
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-end', marginBottom: 72, flexWrap: 'wrap', gap: 24 }}>
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(0,0,0,0.3)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20 }}>Stories</div>
-              <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 46px)', fontWeight: 800, color: '#0a0a0a', lineHeight: 1.1, letterSpacing: '-2px', margin: 0 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: R, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20 }}>Stories</div>
+              <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 46px)', fontWeight: 800, color: '#1a1a1a', lineHeight: 1.1, letterSpacing: '-2px', margin: 0 }}>
                 Real results,<br />real businesses.
               </h2>
             </div>
@@ -504,32 +508,32 @@ const Landing = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }} className="three-col">
             {testimonials.map((t, i) => (
               <div key={i} style={{
-                background: i === 1 ? '#0a0a0a' : '#f5f5f5',
+                background: i === 1 ? `linear-gradient(135deg, ${R} 0%, ${RDD} 100%)` : '#fafafa',
                 borderRadius: 20, padding: '36px 32px',
                 display: 'flex', flexDirection: 'column', justifyContent: 'space-between', gap: 32,
               }}>
                 <div>
                   <div style={{ display: 'flex', gap: 2, marginBottom: 20 }}>
                     {[...Array(t.rating)].map((_, j) => (
-                      <Star key={j} size={13} style={{ color: i === 1 ? '#f59e0b' : '#f59e0b', fill: '#f59e0b' }} />
+                      <Star key={j} size={13} style={{ fill: '#f59e0b', color: '#f59e0b' }} />
                     ))}
                   </div>
-                  <p style={{ fontSize: 15.5, color: i === 1 ? 'rgba(255,255,255,0.8)' : 'rgba(0,0,0,0.7)', lineHeight: 1.75, margin: 0 }}>
+                  <p style={{ fontSize: 15.5, color: i === 1 ? 'rgba(255,255,255,0.88)' : 'rgba(0,0,0,0.7)', lineHeight: 1.75, margin: 0 }}>
                     "{t.quote}"
                   </p>
                 </div>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{
                     width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
-                    background: i === 1 ? 'rgba(255,255,255,0.1)' : '#e0e0e0',
+                    background: i === 1 ? 'rgba(255,255,255,0.15)' : '#ffe4e4',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 14, fontWeight: 700, color: i === 1 ? '#fff' : '#0a0a0a',
+                    fontSize: 14, fontWeight: 700, color: i === 1 ? '#fff' : R,
                   }}>
                     {t.name[0]}
                   </div>
                   <div>
-                    <div style={{ fontSize: 13.5, fontWeight: 700, color: i === 1 ? '#fff' : '#0a0a0a' }}>{t.name}</div>
-                    <div style={{ fontSize: 12, color: i === 1 ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)', marginTop: 2 }}>{t.role}</div>
+                    <div style={{ fontSize: 13.5, fontWeight: 700, color: i === 1 ? '#fff' : '#1a1a1a' }}>{t.name}</div>
+                    <div style={{ fontSize: 12, color: i === 1 ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)', marginTop: 2 }}>{t.role}</div>
                   </div>
                 </div>
               </div>
@@ -539,16 +543,16 @@ const Landing = () => {
       </section>
 
       {/* PRICING */}
-      <section id="pricing" style={{ background: '#f5f5f5', padding: '120px 28px' }}>
+      <section id="pricing" style={{ background: '#fafafa', padding: '120px 28px' }}>
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
           <div style={{ textAlign: 'center', marginBottom: 64 }}>
-            <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(0,0,0,0.3)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20 }}>Pricing</div>
-            <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 50px)', fontWeight: 800, color: '#0a0a0a', letterSpacing: '-2px', marginBottom: 14 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: R, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20 }}>Pricing</div>
+            <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 50px)', fontWeight: 800, color: '#1a1a1a', letterSpacing: '-2px', marginBottom: 14 }}>
               Simple, honest pricing.
             </h2>
             <p style={{ fontSize: 16, color: 'rgba(0,0,0,0.4)', marginBottom: 40 }}>No surprises. Cancel anytime.</p>
 
-            <div style={{ display: 'inline-flex', background: '#e8e8e8', borderRadius: 10, padding: 3 }}>
+            <div style={{ display: 'inline-flex', background: '#ece8e8', borderRadius: 10, padding: 3 }}>
               {[
                 { label: 'Monthly', val: false },
                 { label: 'Annual', val: true },
@@ -557,13 +561,13 @@ const Landing = () => {
                   background: isAnnual === opt.val ? '#fff' : 'transparent',
                   border: 'none', borderRadius: 8, padding: '8px 22px',
                   cursor: 'pointer', fontSize: 13, fontWeight: 600,
-                  color: isAnnual === opt.val ? '#0a0a0a' : 'rgba(0,0,0,0.4)',
+                  color: isAnnual === opt.val ? '#1a1a1a' : 'rgba(0,0,0,0.4)',
                   boxShadow: isAnnual === opt.val ? '0 1px 6px rgba(0,0,0,0.1)' : 'none',
                   transition: 'all 0.2s', display: 'flex', alignItems: 'center', gap: 7,
                 }}>
                   {opt.label}
                   {opt.val && (
-                    <span style={{ fontSize: 10, fontWeight: 700, background: '#0a0a0a', color: '#fff', padding: '2px 7px', borderRadius: 4 }}>
+                    <span style={{ fontSize: 10, fontWeight: 700, background: R, color: '#fff', padding: '2px 7px', borderRadius: 4 }}>
                       2 free
                     </span>
                   )}
@@ -575,42 +579,42 @@ const Landing = () => {
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 12, alignItems: 'start' }} className="three-col">
             {plans.map((plan, i) => (
               <div key={i} style={{
-                background: plan.highlight ? '#0a0a0a' : '#fff',
+                background: plan.highlight ? `linear-gradient(145deg, ${R} 0%, ${RDD} 100%)` : '#fff',
                 borderRadius: 20, padding: '36px 30px',
                 position: 'relative',
-                boxShadow: plan.highlight ? '0 24px 60px rgba(0,0,0,0.18)' : 'none',
+                boxShadow: plan.highlight ? `0 24px 60px rgba(185,28,28,0.3)` : 'none',
                 transform: plan.highlight ? 'scale(1.025)' : 'scale(1)',
               }}>
                 {plan.highlight && (
                   <div style={{
                     position: 'absolute', top: -13, left: '50%', transform: 'translateX(-50%)',
-                    background: '#fff', color: '#0a0a0a',
+                    background: '#fff', color: R,
                     borderRadius: 100, padding: '4px 16px',
                     fontSize: 10.5, fontWeight: 800, letterSpacing: 0.5, textTransform: 'uppercase',
-                    whiteSpace: 'nowrap', boxShadow: '0 2px 12px rgba(0,0,0,0.12)',
+                    whiteSpace: 'nowrap', boxShadow: '0 2px 12px rgba(185,28,28,0.2)',
                   }}>
                     Most Popular
                   </div>
                 )}
 
                 <div style={{ marginBottom: 28 }}>
-                  <div style={{ fontSize: 16, fontWeight: 800, color: plan.highlight ? '#fff' : '#0a0a0a', letterSpacing: '-0.3px', marginBottom: 6 }}>{plan.name}</div>
-                  <div style={{ fontSize: 13, color: plan.highlight ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.4)', lineHeight: 1.5 }}>{plan.desc}</div>
+                  <div style={{ fontSize: 16, fontWeight: 800, color: plan.highlight ? '#fff' : '#1a1a1a', letterSpacing: '-0.3px', marginBottom: 6 }}>{plan.name}</div>
+                  <div style={{ fontSize: 13, color: plan.highlight ? 'rgba(255,255,255,0.5)' : 'rgba(0,0,0,0.4)', lineHeight: 1.5 }}>{plan.desc}</div>
                 </div>
 
                 <div style={{ marginBottom: 32 }}>
-                  <span style={{ fontSize: 46, fontWeight: 900, color: plan.highlight ? '#fff' : '#0a0a0a', letterSpacing: '-2.5px' }}>
+                  <span style={{ fontSize: 46, fontWeight: 900, color: plan.highlight ? '#fff' : R, letterSpacing: '-2.5px' }}>
                     {fmt(isAnnual ? plan.annual : plan.monthly)}
                   </span>
-                  <span style={{ fontSize: 13, color: plan.highlight ? 'rgba(255,255,255,0.3)' : 'rgba(0,0,0,0.3)', marginLeft: 6 }}>
+                  <span style={{ fontSize: 13, color: plan.highlight ? 'rgba(255,255,255,0.4)' : 'rgba(0,0,0,0.3)', marginLeft: 6 }}>
                     /{isAnnual ? 'yr' : 'mo'}
                   </span>
                 </div>
 
                 <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 36px', display: 'flex', flexDirection: 'column', gap: 11 }}>
                   {plan.features.map((f, j) => (
-                    <li key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 13, color: plan.highlight ? 'rgba(255,255,255,0.65)' : 'rgba(0,0,0,0.55)', lineHeight: 1.5 }}>
-                      <CheckCircle size={14} style={{ color: plan.highlight ? 'rgba(255,255,255,0.5)' : '#0a0a0a', flexShrink: 0, marginTop: 1 }} />
+                    <li key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 13, color: plan.highlight ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.55)', lineHeight: 1.5 }}>
+                      <CheckCircle size={14} style={{ color: plan.highlight ? 'rgba(255,255,255,0.6)' : R, flexShrink: 0, marginTop: 1 }} />
                       {f}
                     </li>
                   ))}
@@ -621,8 +625,8 @@ const Landing = () => {
                   style={{
                     width: '100%', padding: '13px', borderRadius: 10, fontSize: 14, fontWeight: 700,
                     cursor: 'pointer',
-                    background: plan.highlight ? '#fff' : '#0a0a0a',
-                    color: plan.highlight ? '#0a0a0a' : '#fff',
+                    background: plan.highlight ? '#fff' : R,
+                    color: plan.highlight ? R : '#fff',
                     border: 'none',
                     transition: 'opacity 0.2s',
                   }}
@@ -643,8 +647,8 @@ const Landing = () => {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 100, alignItems: 'center' }} className="split-grid">
 
             <div>
-              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(0,0,0,0.3)', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 24 }}>About</div>
-              <h2 style={{ fontSize: 'clamp(26px, 3vw, 44px)', fontWeight: 800, color: '#0a0a0a', lineHeight: 1.12, letterSpacing: '-2px', marginBottom: 28 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: R, letterSpacing: 2, textTransform: 'uppercase', marginBottom: 24 }}>About</div>
+              <h2 style={{ fontSize: 'clamp(26px, 3vw, 44px)', fontWeight: 800, color: '#1a1a1a', lineHeight: 1.12, letterSpacing: '-2px', marginBottom: 28 }}>
                 Built to level the
                 <br />playing field.
               </h2>
@@ -662,9 +666,9 @@ const Landing = () => {
                   { icon: Clock, title: 'Start in minutes', desc: 'Onboard fast. See results on day one.' },
                   { icon: Zap, title: 'Continuously improving', desc: 'Gets smarter with every interaction.' },
                 ].map((item, i) => (
-                  <div key={i} style={{ background: '#f5f5f5', borderRadius: 14, padding: '20px 18px' }}>
-                    <item.icon size={17} color="#0a0a0a" style={{ marginBottom: 12 }} />
-                    <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0a0a0a', marginBottom: 5 }}>{item.title}</div>
+                  <div key={i} style={{ background: '#fff1f1', borderRadius: 14, padding: '20px 18px' }}>
+                    <item.icon size={17} color={R} style={{ marginBottom: 12 }} />
+                    <div style={{ fontSize: 13.5, fontWeight: 700, color: '#1a1a1a', marginBottom: 5 }}>{item.title}</div>
                     <div style={{ fontSize: 12.5, color: 'rgba(0,0,0,0.4)', lineHeight: 1.6 }}>{item.desc}</div>
                   </div>
                 ))}
@@ -672,7 +676,7 @@ const Landing = () => {
             </div>
 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
-              <div style={{ background: '#0a0a0a', borderRadius: 20, padding: '40px 36px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 36 }}>
+              <div style={{ background: `linear-gradient(135deg, ${R} 0%, ${RDD} 100%)`, borderRadius: 20, padding: '40px 36px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 36 }}>
                 {[
                   { val: '500+', label: 'Active businesses' },
                   { val: '1,000+', label: 'Leads per day' },
@@ -681,7 +685,7 @@ const Landing = () => {
                 ].map((s, i) => (
                   <div key={i}>
                     <div style={{ fontSize: 34, fontWeight: 900, color: '#fff', letterSpacing: '-1.5px', marginBottom: 6 }}>{s.val}</div>
-                    <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8, fontWeight: 600 }}>{s.label}</div>
+                    <div style={{ fontSize: 11.5, color: 'rgba(255,255,255,0.45)', textTransform: 'uppercase', letterSpacing: 0.8, fontWeight: 600 }}>{s.label}</div>
                   </div>
                 ))}
               </div>
@@ -692,17 +696,17 @@ const Landing = () => {
                   { initials: 'HK', name: 'Himanshu Kumar', role: 'Co-Founder' },
                 ].map((p, i) => (
                   <div key={i} style={{
-                    background: '#f5f5f5', borderRadius: 14, padding: '22px 18px',
+                    background: '#fff1f1', borderRadius: 14, padding: '22px 18px',
                     display: 'flex', alignItems: 'center', gap: 12,
                   }}>
                     <div style={{
                       width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
-                      background: '#0a0a0a',
+                      background: R,
                       display: 'flex', alignItems: 'center', justifyContent: 'center',
                       fontSize: 14, fontWeight: 800, color: '#fff',
                     }}>{p.initials}</div>
                     <div>
-                      <div style={{ fontSize: 13.5, fontWeight: 700, color: '#0a0a0a' }}>{p.name}</div>
+                      <div style={{ fontSize: 13.5, fontWeight: 700, color: '#1a1a1a' }}>{p.name}</div>
                       <div style={{ fontSize: 12, color: 'rgba(0,0,0,0.4)', marginTop: 2 }}>{p.role}</div>
                     </div>
                   </div>
@@ -715,18 +719,18 @@ const Landing = () => {
       </section>
 
       {/* FINAL CTA */}
-      <section style={{ background: '#0a0a0a', padding: '120px 28px' }}>
+      <section style={{ background: `linear-gradient(135deg, ${RDD} 0%, ${R} 60%, ${RDD} 100%)`, padding: '120px 28px' }}>
         <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
           <h2 style={{ fontSize: 'clamp(36px, 5vw, 68px)', fontWeight: 900, color: '#fff', lineHeight: 1.05, letterSpacing: '-3px', marginBottom: 24 }}>
             Ready to fill your pipeline?
           </h2>
-          <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, marginBottom: 52 }}>
+          <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.55)', lineHeight: 1.7, marginBottom: 52 }}>
             Get a personalised walkthrough and see exactly how QWII works for your industry and target market.
           </p>
           <div style={{ display: 'flex', justifyContent: 'center', gap: 10, flexWrap: 'wrap' }}>
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: '#fff', color: '#0a0a0a',
+              background: '#fff', color: R,
               padding: '14px 32px', borderRadius: 10, fontSize: 15, fontWeight: 700,
               textDecoration: 'none',
             }}>
@@ -735,9 +739,9 @@ const Landing = () => {
             </a>
             <button onClick={() => scrollToSection('pricing')} style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
-              background: 'transparent', color: 'rgba(255,255,255,0.4)',
+              background: 'transparent', color: 'rgba(255,255,255,0.55)',
               padding: '14px 32px', borderRadius: 10, fontSize: 15, fontWeight: 500,
-              cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)',
+              cursor: 'pointer', border: '1px solid rgba(255,255,255,0.2)',
             }}>
               View Plans
             </button>
@@ -746,7 +750,7 @@ const Landing = () => {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ background: '#050505', borderTop: '1px solid rgba(255,255,255,0.05)', padding: '56px 28px 28px' }}>
+      <footer style={{ background: FOOT, borderTop: `1px solid rgba(185,28,28,0.15)`, padding: '56px 28px 28px' }}>
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 48, marginBottom: 48 }} className="footer-grid">
             <div>
@@ -758,8 +762,8 @@ const Landing = () => {
                 B2B lead generation and business intelligence for India.
               </p>
               <div style={{ display: 'flex', gap: 14 }}>
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.25)' }}><Phone size={15} /></a>
-                <a href="mailto:contact@qwii.in" style={{ color: 'rgba(255,255,255,0.25)' }}><Mail size={15} /></a>
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.3)' }}><Phone size={15} /></a>
+                <a href="mailto:contact@qwii.in" style={{ color: 'rgba(255,255,255,0.3)' }}><Mail size={15} /></a>
               </div>
             </div>
 
@@ -795,8 +799,8 @@ const Landing = () => {
           </div>
 
           <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 22, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 10 }}>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.18)' }}>&copy; {new Date().getFullYear()} {settings.app_name}. All rights reserved.</p>
-            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.18)' }}>Made in India</p>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.15)' }}>&copy; {new Date().getFullYear()} {settings.app_name}. All rights reserved.</p>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.15)' }}>Made in India</p>
           </div>
         </div>
       </footer>
