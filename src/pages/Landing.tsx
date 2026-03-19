@@ -1,15 +1,17 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useAppSettings } from '@/hooks/useAppSettings';
 import WhatsAppButton from '@/components/WhatsAppButton';
 import PlanRegistrationForm from '@/components/PlanRegistrationForm';
-import { Target, Users, TrendingUp, Phone, Mail, MapPin, CircleCheck as CheckCircle, ArrowRight, Star, ChevronRight, Zap, ChartBar as BarChart3, Building2, MessageSquare, Shield, Clock, IndianRupee, Briefcase, Award, MapPinned, Layers, ChartLine as LineChart, Package, FileText } from 'lucide-react';
+import { Target, Users, TrendingUp, Phone, Mail, MapPin, ArrowRight, Star, ChevronRight, Zap, Building2, MessageSquare, Shield, Clock, Briefcase, Award, Layers, ChartLine as LineChart, Package, FileText, ChartBar as BarChart3, CircleCheck as CheckCircle, MapPinned, IndianRupee, Menu, X } from 'lucide-react';
 
 const Landing = () => {
   const { settings } = useAppSettings();
   const [isAnnual, setIsAnnual] = useState(false);
   const [activeSection, setActiveSection] = useState('home');
   const [registrationDialogOpen, setRegistrationDialogOpen] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const [selectedPlan, setSelectedPlan] = useState<{
     name: string;
     price: number;
@@ -18,6 +20,7 @@ const Landing = () => {
 
   useEffect(() => {
     const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
       const sections = ['home', 'features', 'pricing', 'about'];
       for (const section of sections) {
         const el = document.getElementById(section);
@@ -35,7 +38,7 @@ const Landing = () => {
   }, []);
 
   const whatsappNumber = '917303408500';
-  const whatsappLink = `https://wa.me/${whatsappNumber}?text=Hi! I'm interested in learning more about QWII.`;
+  const whatsappLink = `https://wa.me/${whatsappNumber}?text=Hi! I'd like to learn more about QWII.`;
   const qwiiLogoUrl = 'https://exkmbvfehmzehnsnfzww.supabase.co/storage/v1/object/public/logos/logo-1767650736764.png';
 
   const handlePlanSelection = (planName: string, price: number) => {
@@ -44,149 +47,12 @@ const Landing = () => {
   };
 
   const scrollToSection = (id: string) => {
+    setMobileMenuOpen(false);
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
   const formatPrice = (price: number) =>
     new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 0 }).format(price);
-
-  const leadFeatures = [
-    {
-      icon: Target,
-      title: 'Targeted Prospect Discovery',
-      desc: 'Automatically identify thousands of qualified business prospects matching your ideal customer profile — by industry, city, and segment.',
-    },
-    {
-      icon: MapPinned,
-      title: 'Pan-India Coverage',
-      desc: 'From metros to Tier-2 and Tier-3 cities — reach businesses anywhere in India. Expand your market without hiring more feet on street.',
-    },
-    {
-      icon: Users,
-      title: 'Complete Contact Intelligence',
-      desc: 'Every lead comes enriched with business name, contact details, location, and industry category — ready for your sales team to act on.',
-    },
-    {
-      icon: Clock,
-      title: 'Daily Fresh Pipeline',
-      desc: 'Your lead pipeline refreshes automatically every day. No stale data, no recycled lists. Always new, always relevant.',
-    },
-    {
-      icon: Zap,
-      title: 'Instant Export & Action',
-      desc: 'Download leads as Excel or CSV in one click. Assign to your sales team and start outreach the same morning.',
-    },
-    {
-      icon: BarChart3,
-      title: 'Lead Performance Tracking',
-      desc: 'Track which leads convert, which channels work best, and where your team should focus — all in one dashboard.',
-    },
-  ];
-
-  const otherFeatures = [
-    { icon: LineChart, title: 'Sales Forecasting', desc: 'Predict revenue, spot seasonal trends, and make confident inventory and hiring decisions months in advance.' },
-    { icon: MessageSquare, title: 'AI Business Assistant', desc: 'Get instant answers to any business question — from pricing strategy to market sizing — powered by AI.' },
-    { icon: Building2, title: 'Client & Order Management', desc: 'Manage all your clients, track orders, and monitor payment status from a single, clean interface.' },
-    { icon: Package, title: 'Inventory Intelligence', desc: 'Know exactly what to stock and when. Reduce waste and never lose a sale to out-of-stock situations.' },
-    { icon: FileText, title: 'Digital Agreements & Invoices', desc: 'Create, send, and collect signed agreements and invoices digitally — professional and paperless.' },
-    { icon: TrendingUp, title: 'Market Intelligence', desc: 'Understand where the market is heading, what competitors are doing, and where your next big opportunity lies.' },
-  ];
-
-  const stats = [
-    { value: '1,000+', label: 'Fresh Leads Per Day' },
-    { value: '500+', label: 'Businesses Onboarded' },
-    { value: '95%', label: 'Data Accuracy' },
-    { value: '₹0.50', label: 'Average Cost Per Lead' },
-  ];
-
-  const testimonials = [
-    {
-      name: 'Rajesh Agarwal',
-      city: 'Jaipur',
-      business: 'Hardware Distribution',
-      text: 'We used to spend hours building prospect lists manually. QWII now delivers hundreds of qualified leads every morning. Our sales team is closing 40% more deals.',
-      rating: 5,
-    },
-    {
-      name: 'Sunita Gupta',
-      city: 'Kanpur',
-      business: 'Textile Wholesale',
-      text: 'The quality of leads is genuinely impressive. Every contact is verified and relevant to our business. We have expanded to 3 new cities in just 2 months.',
-      rating: 5,
-    },
-    {
-      name: 'Mahesh Bansal',
-      city: 'Ahmedabad',
-      business: 'Chemical Distribution',
-      text: 'QWII has completely transformed how we acquire new clients. In the first month alone, we onboarded 200 new accounts. The ROI is extraordinary.',
-      rating: 5,
-    },
-  ];
-
-  const pricingPlans = [
-    {
-      name: 'BASIC',
-      subtitle: 'Business Insights',
-      monthlyPrice: 2999,
-      annualPrice: 29999,
-      bestFor: 'Small businesses & service providers',
-      features: [
-        'Monthly business performance report',
-        'Key metrics tracking',
-        'Insights & recommendations',
-        'Email / WhatsApp delivery',
-        'Email support',
-      ],
-      cta: 'Start with Basic',
-      popular: false,
-    },
-    {
-      name: 'GROWTH',
-      subtitle: 'Lead Generation + Analytics',
-      monthlyPrice: 6999,
-      annualPrice: 69999,
-      bestFor: 'Growing MSMEs & trading companies',
-      features: [
-        'Everything in Basic',
-        'Lead Generation — up to 500 per day',
-        'City & industry targeting',
-        'Sales trend analysis',
-        'Customer behavior insights',
-        'Custom dashboard access',
-        'Monthly strategy call',
-      ],
-      cta: 'Grow Your Business',
-      popular: true,
-    },
-    {
-      name: 'PRO',
-      subtitle: 'Full AI Business Suite',
-      monthlyPrice: 14999,
-      annualPrice: 149999,
-      bestFor: 'Established businesses & distributors',
-      features: [
-        'Everything in Growth',
-        'Lead Generation — up to 1,000 per day',
-        'Advanced AI decision support',
-        'Dedicated business analyst',
-        'Weekly performance reports',
-        'Custom AI model',
-        'Multi-user access',
-        'Priority support',
-      ],
-      cta: 'Scale with AI',
-      popular: false,
-    },
-  ];
-
-  const industries = [
-    'Hardware & Steel',
-    'Textile & Apparel',
-    'Chemicals & Pharma',
-    'FMCG & Distribution',
-    'Real Estate',
-    'Manufacturing',
-  ];
 
   const navItems = [
     { id: 'home', label: 'Home' },
@@ -195,31 +61,162 @@ const Landing = () => {
     { id: 'about', label: 'About' },
   ];
 
-  return (
-    <div style={{ fontFamily: "'Inter', -apple-system, sans-serif", background: '#ffffff', color: '#1a1a1a', overflowX: 'hidden' }}>
+  const features = [
+    {
+      icon: Target,
+      title: 'Precision Targeting',
+      desc: 'Reach exactly the right prospects — filtered by industry, geography, and business profile. Every outreach counts.',
+    },
+    {
+      icon: Zap,
+      title: 'Auto-Refreshing Pipeline',
+      desc: 'Fresh, verified leads delivered to your dashboard every day. No stale lists, no manual sourcing.',
+    },
+    {
+      icon: Users,
+      title: 'Enriched Contact Data',
+      desc: 'Each lead includes business name, contact details, location, and category — ready for immediate action.',
+    },
+    {
+      icon: LineChart,
+      title: 'Sales Forecasting',
+      desc: 'Predict revenue, spot trends early, and make smarter hiring and inventory decisions with confidence.',
+    },
+    {
+      icon: MessageSquare,
+      title: 'AI Business Assistant',
+      desc: 'Instant answers to complex business questions — from pricing strategy to market expansion analysis.',
+    },
+    {
+      icon: BarChart3,
+      title: 'Performance Intelligence',
+      desc: 'Track conversion rates, team performance, and channel effectiveness from one unified dashboard.',
+    },
+    {
+      icon: Building2,
+      title: 'Client & Order Management',
+      desc: 'Full visibility over clients, orders, and payment status — all in one clean, fast interface.',
+    },
+    {
+      icon: Package,
+      title: 'Inventory Intelligence',
+      desc: 'Know what to stock and when. Reduce waste, eliminate stockouts, and optimize working capital.',
+    },
+    {
+      icon: FileText,
+      title: 'Digital Documents',
+      desc: 'Create, send, and collect signed agreements and invoices digitally — paperless and professional.',
+    },
+  ];
 
-      {/* Navigation */}
+  const stats = [
+    { value: '1,000+', label: 'Leads generated daily' },
+    { value: '500+', label: 'Businesses onboarded' },
+    { value: '95%', label: 'Data accuracy rate' },
+    { value: '8hrs', label: 'Saved per team per day' },
+  ];
+
+  const testimonials = [
+    {
+      name: 'Rajesh Agarwal',
+      title: 'Director, Hardware Distribution',
+      location: 'Jaipur',
+      text: 'Our sales team used to spend half their day just finding people to call. Now that pipeline fills itself. Close rates are up 40% in three months.',
+      rating: 5,
+    },
+    {
+      name: 'Sunita Gupta',
+      title: 'CEO, Textile Wholesale',
+      location: 'Kanpur',
+      text: 'The quality of leads is what surprised us most. Every contact is relevant, every detail is accurate. We expanded into 3 new cities within 2 months.',
+      rating: 5,
+    },
+    {
+      name: 'Mahesh Bansal',
+      title: 'Managing Director',
+      location: 'Ahmedabad',
+      text: '200 new accounts in our first month. The ROI was immediate and the platform paid for itself before the first invoice.',
+      rating: 5,
+    },
+  ];
+
+  const pricingPlans = [
+    {
+      name: 'Basic',
+      subtitle: 'Business Insights',
+      monthlyPrice: 2999,
+      annualPrice: 29999,
+      description: 'For small businesses that need clarity on their numbers.',
+      features: [
+        'Monthly performance report',
+        'Key business metrics',
+        'Actionable recommendations',
+        'WhatsApp & email delivery',
+        'Email support',
+      ],
+      cta: 'Get Started',
+      popular: false,
+    },
+    {
+      name: 'Growth',
+      subtitle: 'Leads + Analytics',
+      monthlyPrice: 6999,
+      annualPrice: 69999,
+      description: 'For growing businesses ready to scale their pipeline.',
+      features: [
+        'Everything in Basic',
+        'Up to 500 leads per day',
+        'City & industry targeting',
+        'Sales trend analysis',
+        'Custom dashboard',
+        'Monthly strategy call',
+      ],
+      cta: 'Start Growing',
+      popular: true,
+    },
+    {
+      name: 'Pro',
+      subtitle: 'Full AI Suite',
+      monthlyPrice: 14999,
+      annualPrice: 149999,
+      description: 'For established businesses that want the full picture.',
+      features: [
+        'Everything in Growth',
+        'Up to 1,000 leads per day',
+        'AI decision support',
+        'Dedicated business analyst',
+        'Weekly reports',
+        'Multi-user access',
+        'Priority support',
+      ],
+      cta: 'Go Pro',
+      popular: false,
+    },
+  ];
+
+  return (
+    <div style={{ fontFamily: "'Inter', -apple-system, BlinkMacSystemFont, sans-serif", background: '#0a0a0a', color: '#fff', overflowX: 'hidden' }}>
+
+      {/* Nav */}
       <nav style={{
-        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
-        background: 'rgba(255,255,255,0.96)', backdropFilter: 'blur(16px)',
-        borderBottom: '1px solid #f5e8e8', boxShadow: '0 1px 16px rgba(0,0,0,0.06)'
+        position: 'fixed', top: 0, left: 0, right: 0, zIndex: 1000,
+        background: scrolled ? 'rgba(10,10,10,0.92)' : 'transparent',
+        backdropFilter: scrolled ? 'blur(20px)' : 'none',
+        borderBottom: scrolled ? '1px solid rgba(255,255,255,0.06)' : '1px solid transparent',
+        transition: 'all 0.3s ease',
       }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', height: 68, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-            <img src={qwiiLogoUrl} alt="QWII" style={{ height: 38, width: 'auto' }} />
-            <div>
-              <div style={{ fontSize: 19, fontWeight: 800, color: '#cc1f1f', letterSpacing: '-0.3px' }}>{settings.app_name}</div>
-              <div style={{ fontSize: 10, color: '#aaa', letterSpacing: 1.2, textTransform: 'uppercase' }}>{settings.tagline}</div>
-            </div>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 28px', height: 64, display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
+            <img src={qwiiLogoUrl} alt="QWII" style={{ height: 32, width: 'auto' }} />
+            <span style={{ fontSize: 18, fontWeight: 800, color: '#fff', letterSpacing: '-0.3px' }}>{settings.app_name}</span>
           </div>
 
-          <div style={{ display: 'flex', alignItems: 'center', gap: 36 }} className="nav-links">
+          <div style={{ display: 'flex', alignItems: 'center', gap: 32 }} className="nav-desktop">
             {navItems.map(item => (
               <button key={item.id} onClick={() => scrollToSection(item.id)} style={{
                 background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, fontWeight: 500,
-                color: activeSection === item.id ? '#cc1f1f' : '#555',
-                borderBottom: activeSection === item.id ? '2px solid #cc1f1f' : '2px solid transparent',
-                paddingBottom: 2, transition: 'all 0.2s'
+                color: activeSection === item.id ? '#fff' : 'rgba(255,255,255,0.5)',
+                transition: 'color 0.2s', padding: 0,
               }}>
                 {item.label}
               </button>
@@ -228,317 +225,303 @@ const Landing = () => {
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <Link to="/auth" style={{
-              padding: '9px 22px', borderRadius: 8, border: '1.5px solid #cc1f1f',
-              color: '#cc1f1f', fontSize: 13, fontWeight: 600, textDecoration: 'none'
+              padding: '8px 20px', borderRadius: 8, border: '1px solid rgba(255,255,255,0.15)',
+              color: 'rgba(255,255,255,0.7)', fontSize: 13, fontWeight: 500, textDecoration: 'none',
+              transition: 'all 0.2s', background: 'transparent',
             }}>
-              Login
+              Sign in
             </Link>
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{
-              padding: '9px 22px', borderRadius: 8, background: '#cc1f1f',
-              color: '#fff', fontSize: 13, fontWeight: 600, textDecoration: 'none',
-              display: 'flex', alignItems: 'center', gap: 6
+              padding: '8px 20px', borderRadius: 8,
+              background: '#fff', color: '#0a0a0a',
+              fontSize: 13, fontWeight: 600, textDecoration: 'none',
+              transition: 'opacity 0.2s',
             }}>
-              <Phone size={13} />
-              Contact Sales
+              Book a Demo
             </a>
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              style={{ background: 'none', border: 'none', cursor: 'pointer', color: '#fff', padding: 4, display: 'none' }}
+              className="nav-mobile-btn"
+            >
+              {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
           </div>
         </div>
+
+        {mobileMenuOpen && (
+          <div style={{
+            background: '#111', borderTop: '1px solid rgba(255,255,255,0.08)',
+            padding: '16px 28px 24px', display: 'flex', flexDirection: 'column', gap: 4,
+          }}>
+            {navItems.map(item => (
+              <button key={item.id} onClick={() => scrollToSection(item.id)} style={{
+                background: 'none', border: 'none', cursor: 'pointer', fontSize: 16, fontWeight: 500,
+                color: 'rgba(255,255,255,0.8)', padding: '10px 0', textAlign: 'left',
+              }}>
+                {item.label}
+              </button>
+            ))}
+          </div>
+        )}
       </nav>
 
       {/* Hero */}
       <section id="home" style={{
-        paddingTop: 120, paddingBottom: 100,
-        background: 'linear-gradient(160deg, #fff 0%, #fff8f8 50%, #fdf2f2 100%)',
-        minHeight: '95vh', display: 'flex', alignItems: 'center'
+        minHeight: '100vh', display: 'flex', alignItems: 'center',
+        paddingTop: 80, paddingBottom: 80,
+        position: 'relative', overflow: 'hidden',
+        background: 'radial-gradient(ellipse 80% 60% at 50% 0%, rgba(220,38,38,0.12) 0%, transparent 70%), #0a0a0a',
       }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 24px', width: '100%' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '55% 45%', gap: 64, alignItems: 'center' }} className="hero-grid">
+        <div style={{
+          position: 'absolute', inset: 0, opacity: 0.03,
+          backgroundImage: 'linear-gradient(rgba(255,255,255,0.8) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.8) 1px, transparent 1px)',
+          backgroundSize: '60px 60px',
+        }} />
 
-            <div>
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fff0f0',
-                border: '1px solid #f5a0a0', borderRadius: 100, padding: '6px 16px', marginBottom: 28
-              }}>
-                <Target size={13} style={{ color: '#cc1f1f' }} />
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#cc1f1f', letterSpacing: 0.5 }}>
-                  India's Leading B2B Lead Generation Platform
-                </span>
-              </div>
+        <div style={{ maxWidth: 1200, margin: '0 auto', padding: '0 28px', width: '100%', position: 'relative' }}>
+          <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
 
-              <h1 style={{ fontSize: 'clamp(34px, 4vw, 56px)', fontWeight: 900, lineHeight: 1.12, marginBottom: 22, letterSpacing: '-1.5px', color: '#111' }}>
-                Turn Every City Into
-                <br />
-                <span style={{ color: '#cc1f1f' }}>Your Sales Territory.</span>
-              </h1>
-
-              <p style={{ fontSize: 18, color: '#555', lineHeight: 1.75, marginBottom: 36, maxWidth: 500 }}>
-                QWII delivers hundreds of <strong style={{ color: '#111' }}>verified, targeted business leads</strong> to your team every single day — so your pipeline never runs dry and your salespeople always have someone to call.
-              </p>
-
-              <div style={{ display: 'flex', gap: 14, flexWrap: 'wrap', marginBottom: 56 }}>
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{
-                  display: 'flex', alignItems: 'center', gap: 8, background: '#cc1f1f',
-                  color: '#fff', padding: '15px 32px', borderRadius: 10, fontSize: 15,
-                  fontWeight: 700, textDecoration: 'none',
-                  boxShadow: '0 6px 24px rgba(204,31,31,0.3)', transition: 'transform 0.15s'
-                }}>
-                  <Phone size={17} />
-                  Get a Free Demo
-                </a>
-                <button onClick={() => scrollToSection('pricing')} style={{
-                  display: 'flex', alignItems: 'center', gap: 8, background: '#fff',
-                  color: '#cc1f1f', padding: '15px 32px', borderRadius: 10, fontSize: 15,
-                  fontWeight: 700, cursor: 'pointer', border: '2px solid #cc1f1f', transition: 'all 0.2s'
-                }}>
-                  View Pricing
-                  <ArrowRight size={17} />
-                </button>
-              </div>
-
-              <div style={{ display: 'flex', gap: 40, flexWrap: 'wrap' }}>
-                {stats.map((s, i) => (
-                  <div key={i} style={{ borderLeft: i > 0 ? '1px solid #eee' : 'none', paddingLeft: i > 0 ? 40 : 0 }}>
-                    <div style={{ fontSize: 30, fontWeight: 900, color: '#cc1f1f', letterSpacing: '-1px' }}>{s.value}</div>
-                    <div style={{ fontSize: 12, color: '#888', fontWeight: 500, marginTop: 2 }}>{s.label}</div>
-                  </div>
-                ))}
-              </div>
+            <div style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              border: '1px solid rgba(220,38,38,0.4)',
+              background: 'rgba(220,38,38,0.08)',
+              borderRadius: 100, padding: '6px 18px', marginBottom: 36,
+            }}>
+              <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444' }} />
+              <span style={{ fontSize: 13, fontWeight: 500, color: 'rgba(255,255,255,0.7)', letterSpacing: 0.2 }}>
+                B2B Lead Intelligence Platform
+              </span>
             </div>
 
-            {/* Hero Card */}
-            <div style={{ position: 'relative' }}>
-              <div style={{
-                background: '#fff', borderRadius: 20, padding: 28,
-                boxShadow: '0 12px 60px rgba(204,31,31,0.1), 0 2px 16px rgba(0,0,0,0.06)',
-                border: '1px solid #fde8e8'
+            <h1 style={{
+              fontSize: 'clamp(40px, 6vw, 76px)', fontWeight: 900, lineHeight: 1.05,
+              letterSpacing: '-3px', marginBottom: 28, color: '#fff',
+            }}>
+              Your sales team
+              <br />
+              <span style={{
+                background: 'linear-gradient(135deg, #f87171 0%, #ef4444 50%, #dc2626 100%)',
+                WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
               }}>
-                <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
-                  <div style={{ fontSize: 13, fontWeight: 700, color: '#333' }}>Live Lead Pipeline</div>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, background: '#f0fdf4', border: '1px solid #bbf7d0', borderRadius: 100, padding: '4px 12px' }}>
-                    <div style={{ width: 7, height: 7, borderRadius: '50%', background: '#16a34a' }} />
-                    <span style={{ fontSize: 11, fontWeight: 700, color: '#16a34a' }}>Active</span>
-                  </div>
-                </div>
+                deserves better leads.
+              </span>
+            </h1>
 
-                {[
-                  { name: 'Sharma Traders & Co.', city: 'Jaipur, Rajasthan', segment: 'Hardware', score: 92 },
-                  { name: 'Gupta Fabrics Pvt. Ltd.', city: 'Surat, Gujarat', segment: 'Textiles', score: 88 },
-                  { name: 'Mehta Steel Industries', city: 'Rajkot, Gujarat', segment: 'Steel', score: 85 },
-                  { name: 'Agarwal Distribution', city: 'Kanpur, UP', segment: 'Chemicals', score: 81 },
-                ].map((lead, i) => (
-                  <div key={i} style={{
-                    display: 'flex', alignItems: 'center', justifyContent: 'space-between',
-                    padding: '12px 14px',
-                    background: i === 0 ? '#fff8f8' : '#fafafa',
-                    borderRadius: 10, marginBottom: 8,
-                    border: `1px solid ${i === 0 ? '#fecaca' : '#f0f0f0'}`
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                      <div style={{
-                        width: 36, height: 36, borderRadius: 10, background: i === 0 ? '#fef2f2' : '#f4f4f4',
-                        display: 'flex', alignItems: 'center', justifyContent: 'center',
-                        fontSize: 13, fontWeight: 800, color: i === 0 ? '#cc1f1f' : '#888'
-                      }}>
-                        {lead.name.charAt(0)}
-                      </div>
-                      <div>
-                        <div style={{ fontSize: 13, fontWeight: 700, color: '#111' }}>{lead.name}</div>
-                        <div style={{ fontSize: 11, color: '#999', marginTop: 1 }}>
-                          <MapPin size={9} style={{ display: 'inline', marginRight: 3 }} />
-                          {lead.city} &middot; {lead.segment}
-                        </div>
-                      </div>
-                    </div>
-                    <div style={{ textAlign: 'right' }}>
-                      <div style={{ fontSize: 16, fontWeight: 900, color: i === 0 ? '#cc1f1f' : '#888' }}>{lead.score}</div>
-                      <div style={{ fontSize: 10, color: '#aaa' }}>score</div>
-                    </div>
-                  </div>
-                ))}
+            <p style={{
+              fontSize: 18, color: 'rgba(255,255,255,0.5)', lineHeight: 1.75,
+              marginBottom: 44, maxWidth: 560, margin: '0 auto 44px',
+            }}>
+              QWII delivers hundreds of verified, high-intent business prospects to your pipeline every single day — automatically, intelligently, at scale.
+            </p>
 
-                <div style={{
-                  marginTop: 16, padding: '14px 16px', background: 'linear-gradient(135deg, #cc1f1f, #991b1b)',
-                  borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between'
-                }}>
-                  <div>
-                    <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.7)', marginBottom: 2 }}>Today's leads generated</div>
-                    <div style={{ fontSize: 22, fontWeight: 900, color: '#fff' }}>847 prospects</div>
-                  </div>
-                  <div style={{ background: 'rgba(255,255,255,0.15)', borderRadius: 10, padding: '8px 14px', textAlign: 'center' }}>
-                    <div style={{ fontSize: 16, fontWeight: 900, color: '#fff' }}>₹423</div>
-                    <div style={{ fontSize: 10, color: 'rgba(255,255,255,0.7)' }}>total cost</div>
-                  </div>
-                </div>
-              </div>
-
-              <div style={{
-                position: 'absolute', top: -14, right: -14, background: '#16a34a',
-                color: '#fff', borderRadius: 100, padding: '7px 16px', fontSize: 11,
-                fontWeight: 800, boxShadow: '0 4px 16px rgba(22,163,74,0.35)', letterSpacing: 0.3
+            <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap', marginBottom: 80 }}>
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                background: '#fff', color: '#0a0a0a',
+                padding: '13px 28px', borderRadius: 10, fontSize: 15, fontWeight: 700,
+                textDecoration: 'none', transition: 'opacity 0.2s',
               }}>
-                Running on Auto-Pilot
-              </div>
+                Get a Free Demo
+                <ArrowRight size={16} />
+              </a>
+              <button onClick={() => scrollToSection('pricing')} style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                background: 'transparent', color: 'rgba(255,255,255,0.7)',
+                padding: '13px 28px', borderRadius: 10, fontSize: 15, fontWeight: 500,
+                cursor: 'pointer', border: '1px solid rgba(255,255,255,0.12)', transition: 'border-color 0.2s',
+              }}>
+                View Pricing
+              </button>
             </div>
 
-          </div>
-        </div>
-      </section>
-
-      {/* Industry Trust Bar */}
-      <div style={{ background: '#cc1f1f', padding: '18px 24px' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 40, flexWrap: 'wrap' }}>
-          <span style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.6)', letterSpacing: 1.5, textTransform: 'uppercase' }}>Trusted Across Industries</span>
-          {industries.map((ind, i) => (
-            <div key={i} style={{ display: 'flex', alignItems: 'center', gap: 7 }}>
-              <CheckCircle size={13} style={{ color: '#fca5a5' }} />
-              <span style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{ind}</span>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      {/* Lead Generation Deep Dive */}
-      <section style={{ padding: '100px 24px', background: '#fff' }}>
-        <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '42% 58%', gap: 80, alignItems: 'center' }} className="hero-grid">
-            <div>
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fff0f0',
-                border: '1px solid #f5a0a0', borderRadius: 100, padding: '6px 16px', marginBottom: 24
-              }}>
-                <Target size={13} style={{ color: '#cc1f1f' }} />
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#cc1f1f', letterSpacing: 0.3 }}>Lead Generation</span>
-              </div>
-              <h2 style={{ fontSize: 'clamp(26px, 3vw, 40px)', fontWeight: 900, color: '#111', marginBottom: 20, lineHeight: 1.2, letterSpacing: '-0.5px' }}>
-                Stop Chasing Leads.<br />
-                <span style={{ color: '#cc1f1f' }}>Let Them Come to You.</span>
-              </h2>
-              <p style={{ fontSize: 16, color: '#666', lineHeight: 1.8, marginBottom: 28 }}>
-                Most businesses lose growth to a simple problem — their sales team spends more time finding prospects than actually selling. QWII solves this completely.
-              </p>
-              <p style={{ fontSize: 16, color: '#666', lineHeight: 1.8, marginBottom: 36 }}>
-                Our AI platform identifies, verifies, and delivers a fresh batch of high-quality business leads to your dashboard every single day — targeted by industry, city, and customer segment.
-              </p>
-              <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
-                {[
-                  'Thousands of verified prospects delivered daily',
-                  'Target by city, district, industry, and business size',
-                  'Export instantly — your team can start calling same day',
-                  'No stale databases. Always fresh, always relevant',
-                ].map((point, i) => (
-                  <div key={i} style={{ display: 'flex', alignItems: 'flex-start', gap: 12 }}>
-                    <div style={{ width: 22, height: 22, borderRadius: '50%', background: '#fef2f2', border: '1.5px solid #fca5a5', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 1 }}>
-                      <CheckCircle size={13} style={{ color: '#cc1f1f' }} />
-                    </div>
-                    <span style={{ fontSize: 15, color: '#444', lineHeight: 1.6 }}>{point}</span>
-                  </div>
-                ))}
-              </div>
-            </div>
-
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-              {leadFeatures.map((f, i) => (
+            <div style={{
+              display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)',
+              gap: 0, border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 16, overflow: 'hidden', background: 'rgba(255,255,255,0.02)',
+            }} className="stats-grid">
+              {stats.map((s, i) => (
                 <div key={i} style={{
-                  background: i % 3 === 0 ? '#fef2f2' : '#fff',
-                  border: `1.5px solid ${i % 3 === 0 ? '#fca5a5' : '#f0f0f0'}`,
-                  borderRadius: 16, padding: '24px 20px', transition: 'all 0.2s', cursor: 'default'
-                }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#cc1f1f'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 8px 32px rgba(204,31,31,0.1)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = i % 3 === 0 ? '#fca5a5' : '#f0f0f0'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}
-                >
-                  <div style={{ width: 44, height: 44, borderRadius: 12, background: '#fff0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 14 }}>
-                    <f.icon size={20} style={{ color: '#cc1f1f' }} />
-                  </div>
-                  <h3 style={{ fontSize: 14, fontWeight: 800, color: '#111', marginBottom: 8, lineHeight: 1.3 }}>{f.title}</h3>
-                  <p style={{ fontSize: 13, color: '#777', lineHeight: 1.65 }}>{f.desc}</p>
+                  padding: '28px 24px', textAlign: 'center',
+                  borderRight: i < stats.length - 1 ? '1px solid rgba(255,255,255,0.06)' : 'none',
+                }}>
+                  <div style={{ fontSize: 'clamp(22px, 2.5vw, 30px)', fontWeight: 800, color: '#fff', letterSpacing: '-1px', marginBottom: 6 }}>{s.value}</div>
+                  <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', fontWeight: 500, textTransform: 'uppercase', letterSpacing: 0.8 }}>{s.label}</div>
                 </div>
               ))}
             </div>
+
           </div>
         </div>
       </section>
 
-      {/* Why Businesses Choose QWII */}
-      <section style={{ padding: '100px 24px', background: '#fafafa' }}>
+      {/* Lead Generation Focus */}
+      <section style={{ padding: '120px 28px', background: '#0f0f0f', position: 'relative' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 72 }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fff0f0',
-              border: '1px solid #f5a0a0', borderRadius: 100, padding: '6px 16px', marginBottom: 20
-            }}>
-              <Award size={13} style={{ color: '#cc1f1f' }} />
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#cc1f1f', letterSpacing: 0.3 }}>The QWII Advantage</span>
-            </div>
-            <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 42px)', fontWeight: 900, color: '#111', marginBottom: 16, letterSpacing: '-0.5px' }}>
-              Built for the Way Indian Business Works
-            </h2>
-            <p style={{ fontSize: 17, color: '#666', maxWidth: 560, margin: '0 auto', lineHeight: 1.7 }}>
-              We understand the pace, the relationships, and the ambition that drives Indian enterprise. QWII is engineered around it.
-            </p>
-          </div>
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }} className="split-grid">
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 28 }} className="three-col">
-            {[
-              { icon: Target, title: 'Hyper-Targeted Outreach', desc: 'Reach exactly the right buyer — by geography, industry, and company profile. No spray and pray.' },
-              { icon: MapPinned, title: 'Every City, Every District', desc: 'From Tier-1 metros to emerging Tier-3 markets — build presence everywhere your customers are.' },
-              { icon: Clock, title: 'Save 8+ Hours Per Day', desc: 'Your sales team should be selling, not building lists. QWII gives them their time — and results — back.' },
-              { icon: IndianRupee, title: 'Lowest Cost Per Lead in India', desc: 'At a fraction of what agencies or field teams cost, QWII delivers better-qualified leads at scale.' },
-              { icon: Shield, title: 'Verified, High-Quality Data', desc: 'Every lead is validated for accuracy. Your team reaches real, active businesses — not ghost contacts.' },
-              { icon: Zap, title: 'Operational in Minutes', desc: 'No complex onboarding. Set your targeting criteria, and your first batch of leads arrives within minutes.' },
-            ].map((item, i) => (
-              <div key={i} style={{
-                background: '#fff', border: '1.5px solid #ece8e8', borderRadius: 16,
-                padding: '28px 24px', transition: 'all 0.2s', cursor: 'default'
-              }}
-                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#cc1f1f'; (e.currentTarget as HTMLDivElement).style.transform = 'translateY(-2px)'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 12px 40px rgba(204,31,31,0.08)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#ece8e8'; (e.currentTarget as HTMLDivElement).style.transform = 'none'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}
-              >
-                <div style={{ width: 50, height: 50, borderRadius: 14, background: '#fff0f0', border: '1.5px solid #fca5a5', display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18 }}>
-                  <item.icon size={22} style={{ color: '#cc1f1f' }} />
-                </div>
-                <h3 style={{ fontSize: 16, fontWeight: 800, color: '#111', marginBottom: 10 }}>{item.title}</h3>
-                <p style={{ fontSize: 14, color: '#777', lineHeight: 1.7 }}>{item.desc}</p>
+            <div>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#ef4444', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20 }}>
+                Lead Generation
               </div>
-            ))}
+              <h2 style={{ fontSize: 'clamp(28px, 3.5vw, 48px)', fontWeight: 800, color: '#fff', lineHeight: 1.15, letterSpacing: '-1.5px', marginBottom: 24 }}>
+                Stop sourcing leads.<br />Start closing them.
+              </h2>
+              <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', lineHeight: 1.8, marginBottom: 40 }}>
+                Most sales teams spend over half their time looking for who to contact. QWII eliminates that entirely — a fresh, targeted list hits your dashboard every morning before you start work.
+              </p>
+
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 20, marginBottom: 44 }}>
+                {[
+                  { title: 'Targeted by industry & location', desc: 'Filter by sector, city, district, and company size to reach the exact businesses you want.' },
+                  { title: 'Verified contact data', desc: 'Every lead is validated for accuracy — real businesses, real contacts, no dead ends.' },
+                  { title: 'Export-ready in one click', desc: 'Download as Excel or CSV. Your team can start calling the same morning.' },
+                ].map((item, i) => (
+                  <div key={i} style={{ display: 'flex', gap: 16, alignItems: 'flex-start' }}>
+                    <div style={{
+                      width: 20, height: 20, borderRadius: '50%',
+                      background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.3)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0, marginTop: 2,
+                    }}>
+                      <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#ef4444' }} />
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#fff', marginBottom: 4 }}>{item.title}</div>
+                      <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', lineHeight: 1.6 }}>{item.desc}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{
+                display: 'inline-flex', alignItems: 'center', gap: 8,
+                background: '#ef4444', color: '#fff',
+                padding: '12px 26px', borderRadius: 9, fontSize: 14, fontWeight: 600,
+                textDecoration: 'none', transition: 'background 0.2s',
+              }}>
+                See it in action
+                <ArrowRight size={15} />
+              </a>
+            </div>
+
+            {/* Live UI Card */}
+            <div style={{
+              background: '#141414', border: '1px solid rgba(255,255,255,0.08)',
+              borderRadius: 20, padding: 24, position: 'relative',
+            }}>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 20 }}>
+                <div>
+                  <div style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>Today's Pipeline</div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 2 }}>Auto-refreshed 6 min ago</div>
+                </div>
+                <div style={{
+                  display: 'flex', alignItems: 'center', gap: 6,
+                  background: 'rgba(34,197,94,0.1)', border: '1px solid rgba(34,197,94,0.2)',
+                  borderRadius: 100, padding: '5px 12px',
+                }}>
+                  <div style={{ width: 6, height: 6, borderRadius: '50%', background: '#22c55e' }} />
+                  <span style={{ fontSize: 11, color: '#22c55e', fontWeight: 600 }}>Live</span>
+                </div>
+              </div>
+
+              {[
+                { name: 'Sharma Trading Co.', city: 'Jaipur', seg: 'Hardware', score: 94, new: true },
+                { name: 'Mehta Steel Works', city: 'Rajkot', seg: 'Steel', score: 89, new: true },
+                { name: 'Gupta Fabrics Ltd.', city: 'Surat', seg: 'Textiles', score: 86, new: false },
+                { name: 'Agarwal Distributors', city: 'Kanpur', seg: 'FMCG', score: 82, new: false },
+                { name: 'Singh Chemicals', city: 'Ludhiana', seg: 'Pharma', score: 79, new: false },
+              ].map((lead, i) => (
+                <div key={i} style={{
+                  display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+                  padding: '11px 14px', borderRadius: 10, marginBottom: 6,
+                  background: lead.new ? 'rgba(239,68,68,0.06)' : 'rgba(255,255,255,0.02)',
+                  border: `1px solid ${lead.new ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.05)'}`,
+                  transition: 'background 0.2s',
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                    <div style={{
+                      width: 34, height: 34, borderRadius: 8,
+                      background: lead.new ? 'rgba(239,68,68,0.15)' : 'rgba(255,255,255,0.06)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 12, fontWeight: 700, color: lead.new ? '#ef4444' : 'rgba(255,255,255,0.3)',
+                    }}>
+                      {lead.name.charAt(0)}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 13, fontWeight: 600, color: '#fff' }}>{lead.name}</div>
+                      <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.3)', marginTop: 1 }}>
+                        {lead.city} &middot; {lead.seg}
+                      </div>
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                    {lead.new && (
+                      <span style={{ fontSize: 10, fontWeight: 700, color: '#ef4444', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)', borderRadius: 4, padding: '2px 6px' }}>
+                        NEW
+                      </span>
+                    )}
+                    <div style={{ textAlign: 'right' }}>
+                      <div style={{ fontSize: 15, fontWeight: 700, color: lead.new ? '#ef4444' : 'rgba(255,255,255,0.4)' }}>{lead.score}</div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+
+              <div style={{
+                marginTop: 16, padding: '16px 18px',
+                background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.15)',
+                borderRadius: 12, display: 'flex', alignItems: 'center', justifyContent: 'space-between',
+              }}>
+                <div>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 4 }}>Generated today</div>
+                  <div style={{ fontSize: 24, fontWeight: 800, color: '#fff', letterSpacing: '-1px' }}>847 leads</div>
+                </div>
+                <div style={{ textAlign: 'right' }}>
+                  <div style={{ fontSize: 11, color: 'rgba(255,255,255,0.35)', marginBottom: 4 }}>Total cost</div>
+                  <div style={{ fontSize: 18, fontWeight: 700, color: '#ef4444' }}>₹423</div>
+                </div>
+              </div>
+            </div>
+
           </div>
         </div>
       </section>
 
-      {/* Full Feature Suite */}
-      <section id="features" style={{ padding: '100px 24px', background: '#fff' }}>
+      {/* Features */}
+      <section id="features" style={{ padding: '120px 28px', background: '#0a0a0a' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 72 }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fff0f0',
-              border: '1px solid #f5a0a0', borderRadius: 100, padding: '6px 16px', marginBottom: 20
-            }}>
-              <Layers size={13} style={{ color: '#cc1f1f' }} />
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#cc1f1f', letterSpacing: 0.3 }}>Complete Platform</span>
+          <div style={{ marginBottom: 72 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#ef4444', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20 }}>
+              Platform
             </div>
-            <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 42px)', fontWeight: 900, color: '#111', marginBottom: 16, letterSpacing: '-0.5px' }}>
-              Beyond Leads — A Full Business Intelligence Suite
-            </h2>
-            <p style={{ fontSize: 17, color: '#666', maxWidth: 600, margin: '0 auto', lineHeight: 1.7 }}>
-              Lead generation is just where QWII starts. Manage your entire business — from forecasting to operations — in one platform.
-            </p>
+            <div style={{ display: 'flex', alignItems: 'flex-end', justifyContent: 'space-between', gap: 40, flexWrap: 'wrap' }}>
+              <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 46px)', fontWeight: 800, color: '#fff', lineHeight: 1.12, letterSpacing: '-1.5px', maxWidth: 480, margin: 0 }}>
+                Everything your business needs to grow.
+              </h2>
+              <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, maxWidth: 340, margin: 0 }}>
+                Lead generation is the foundation. But QWII is a complete operating system for business growth.
+              </p>
+            </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }} className="three-col">
-            {otherFeatures.map((f, i) => (
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 1, background: 'rgba(255,255,255,0.06)', borderRadius: 16, overflow: 'hidden' }} className="three-col-feature">
+            {features.map((f, i) => (
               <div key={i} style={{
-                background: '#fff', border: '1.5px solid #f0eded', borderRadius: 16, padding: '26px 22px',
-                display: 'flex', alignItems: 'flex-start', gap: 16, transition: 'all 0.2s', cursor: 'default'
+                background: '#0a0a0a', padding: '32px 28px',
+                transition: 'background 0.2s', cursor: 'default',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#cc1f1f'; (e.currentTarget as HTMLDivElement).style.background = '#fff8f8'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#f0eded'; (e.currentTarget as HTMLDivElement).style.background = '#fff'; }}
+                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = '#111'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = '#0a0a0a'; }}
               >
-                <div style={{ width: 46, height: 46, borderRadius: 12, background: '#fff0f0', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
-                  <f.icon size={20} style={{ color: '#cc1f1f' }} />
+                <div style={{
+                  width: 40, height: 40, borderRadius: 10,
+                  background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)',
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 20,
+                }}>
+                  <f.icon size={18} style={{ color: '#ef4444' }} />
                 </div>
-                <div>
-                  <h3 style={{ fontSize: 15, fontWeight: 700, color: '#111', marginBottom: 7 }}>{f.title}</h3>
-                  <p style={{ fontSize: 13, color: '#777', lineHeight: 1.65 }}>{f.desc}</p>
-                </div>
+                <h3 style={{ fontSize: 15, fontWeight: 600, color: '#fff', marginBottom: 10 }}>{f.title}</h3>
+                <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)', lineHeight: 1.7, margin: 0 }}>{f.desc}</p>
               </div>
             ))}
           </div>
@@ -546,46 +529,47 @@ const Landing = () => {
       </section>
 
       {/* Testimonials */}
-      <section style={{ padding: '100px 24px', background: 'linear-gradient(135deg, #cc1f1f 0%, #991b1b 100%)' }}>
+      <section style={{ padding: '120px 28px', background: '#0f0f0f' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 64 }}>
-            <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 40px)', fontWeight: 900, color: '#fff', marginBottom: 12, letterSpacing: '-0.5px' }}>
-              Businesses That Scaled with QWII
+          <div style={{ marginBottom: 72 }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#ef4444', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20 }}>
+              Social Proof
+            </div>
+            <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 46px)', fontWeight: 800, color: '#fff', lineHeight: 1.12, letterSpacing: '-1.5px', maxWidth: 480, margin: 0 }}>
+              Trusted by businesses across India.
             </h2>
-            <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.75)', maxWidth: 480, margin: '0 auto' }}>
-              Real results from real business owners across India
-            </p>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24 }} className="three-col">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16 }} className="three-col">
             {testimonials.map((t, i) => (
               <div key={i} style={{
-                background: 'rgba(255,255,255,0.1)', border: '1px solid rgba(255,255,255,0.2)',
-                borderRadius: 18, padding: '32px 28px', backdropFilter: 'blur(8px)',
-                transition: 'all 0.2s'
+                background: '#141414', border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: 16, padding: '32px 28px',
+                transition: 'border-color 0.2s', cursor: 'default',
               }}
-                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.15)'; }}
-                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.background = 'rgba(255,255,255,0.1)'; }}
+                onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(239,68,68,0.3)'; }}
+                onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = 'rgba(255,255,255,0.07)'; }}
               >
-                <div style={{ display: 'flex', gap: 3, marginBottom: 20 }}>
+                <div style={{ display: 'flex', gap: 2, marginBottom: 20 }}>
                   {[...Array(t.rating)].map((_, j) => (
-                    <Star key={j} size={15} style={{ color: '#fbbf24', fill: '#fbbf24' }} />
+                    <Star key={j} size={13} style={{ color: '#f59e0b', fill: '#f59e0b' }} />
                   ))}
                 </div>
-                <p style={{ fontSize: 15, color: '#fff', lineHeight: 1.75, marginBottom: 24 }}>
+                <p style={{ fontSize: 15, color: 'rgba(255,255,255,0.7)', lineHeight: 1.75, marginBottom: 28 }}>
                   "{t.text}"
                 </p>
-                <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}>
+                <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{
-                    width: 46, height: 46, borderRadius: '50%', background: 'rgba(255,255,255,0.15)',
+                    width: 40, height: 40, borderRadius: '50%',
+                    background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.2)',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 17, fontWeight: 900, color: '#fff', border: '1.5px solid rgba(255,255,255,0.25)'
+                    fontSize: 14, fontWeight: 700, color: '#ef4444',
                   }}>
                     {t.name.charAt(0)}
                   </div>
                   <div>
-                    <div style={{ fontSize: 15, fontWeight: 700, color: '#fff' }}>{t.name}</div>
-                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.65)' }}>{t.business} &middot; {t.city}</div>
+                    <div style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>{t.name}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{t.title} &middot; {t.location}</div>
                   </div>
                 </div>
               </div>
@@ -595,30 +579,27 @@ const Landing = () => {
       </section>
 
       {/* Pricing */}
-      <section id="pricing" style={{ padding: '100px 24px', background: '#fafafa' }}>
+      <section id="pricing" style={{ padding: '120px 28px', background: '#0a0a0a' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ textAlign: 'center', marginBottom: 64 }}>
-            <div style={{
-              display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fff0f0',
-              border: '1px solid #f5a0a0', borderRadius: 100, padding: '6px 16px', marginBottom: 20
-            }}>
-              <IndianRupee size={13} style={{ color: '#cc1f1f' }} />
-              <span style={{ fontSize: 12, fontWeight: 700, color: '#cc1f1f', letterSpacing: 0.3 }}>Transparent Pricing</span>
+          <div style={{ marginBottom: 64, textAlign: 'center' }}>
+            <div style={{ fontSize: 11, fontWeight: 700, color: '#ef4444', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20 }}>
+              Pricing
             </div>
-            <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 42px)', fontWeight: 900, color: '#111', marginBottom: 16, letterSpacing: '-0.5px' }}>
-              Simple Plans. Real Results.
+            <h2 style={{ fontSize: 'clamp(26px, 3.5vw, 46px)', fontWeight: 800, color: '#fff', lineHeight: 1.12, letterSpacing: '-1.5px', marginBottom: 16 }}>
+              Simple, transparent pricing.
             </h2>
-            <p style={{ fontSize: 17, color: '#666', maxWidth: 480, margin: '0 auto 36px', lineHeight: 1.7 }}>
-              Whether you're a growing MSME or a large distributor, there's a plan built for your stage.
+            <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.4)', marginBottom: 40 }}>
+              No surprises. Cancel anytime.
             </p>
 
-            <div style={{ display: 'inline-flex', alignItems: 'center', gap: 4, background: '#fff', border: '1.5px solid #e5e5e5', borderRadius: 100, padding: '6px' }}>
+            <div style={{ display: 'inline-flex', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 10, padding: 4 }}>
               <button
                 onClick={() => setIsAnnual(false)}
                 style={{
-                  background: !isAnnual ? '#cc1f1f' : 'none', color: !isAnnual ? '#fff' : '#666',
-                  border: 'none', borderRadius: 100, padding: '8px 22px',
-                  cursor: 'pointer', fontSize: 13, fontWeight: 600, transition: 'all 0.2s'
+                  background: !isAnnual ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  border: 'none', borderRadius: 7, padding: '8px 24px',
+                  cursor: 'pointer', fontSize: 13, fontWeight: 500,
+                  color: !isAnnual ? '#fff' : 'rgba(255,255,255,0.4)', transition: 'all 0.2s',
                 }}
               >
                 Monthly
@@ -626,66 +607,60 @@ const Landing = () => {
               <button
                 onClick={() => setIsAnnual(true)}
                 style={{
-                  background: isAnnual ? '#cc1f1f' : 'none', color: isAnnual ? '#fff' : '#666',
-                  border: 'none', borderRadius: 100, padding: '8px 22px',
-                  cursor: 'pointer', fontSize: 13, fontWeight: 600, transition: 'all 0.2s',
-                  display: 'flex', alignItems: 'center', gap: 8
+                  background: isAnnual ? 'rgba(255,255,255,0.1)' : 'transparent',
+                  border: 'none', borderRadius: 7, padding: '8px 24px',
+                  cursor: 'pointer', fontSize: 13, fontWeight: 500,
+                  color: isAnnual ? '#fff' : 'rgba(255,255,255,0.4)', transition: 'all 0.2s',
+                  display: 'flex', alignItems: 'center', gap: 8,
                 }}
               >
                 Annual
                 <span style={{
-                  background: isAnnual ? 'rgba(255,255,255,0.2)' : '#fff0f0',
-                  color: isAnnual ? '#fff' : '#cc1f1f',
-                  fontSize: 11, fontWeight: 700, padding: '2px 10px', borderRadius: 100
+                  background: 'rgba(239,68,68,0.2)', color: '#ef4444',
+                  fontSize: 10, fontWeight: 700, padding: '2px 8px', borderRadius: 4,
                 }}>
-                  Save 2 months
+                  2 months free
                 </span>
               </button>
             </div>
           </div>
 
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 24, alignItems: 'start' }} className="three-col">
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, alignItems: 'start' }} className="three-col">
             {pricingPlans.map((plan, i) => (
               <div key={i} style={{
-                background: '#fff',
-                border: `2px solid ${plan.popular ? '#cc1f1f' : '#ece8e8'}`,
-                borderRadius: 20, padding: '36px 30px', position: 'relative',
-                transform: plan.popular ? 'scale(1.04)' : 'none',
-                boxShadow: plan.popular ? '0 16px 56px rgba(204,31,31,0.15)' : '0 2px 16px rgba(0,0,0,0.04)',
+                background: plan.popular ? 'rgba(239,68,68,0.04)' : '#111',
+                border: `1px solid ${plan.popular ? 'rgba(239,68,68,0.3)' : 'rgba(255,255,255,0.07)'}`,
+                borderRadius: 16, padding: '36px 30px', position: 'relative',
               }}>
                 {plan.popular && (
                   <div style={{
-                    position: 'absolute', top: -14, left: '50%', transform: 'translateX(-50%)',
-                    background: '#cc1f1f', color: '#fff', borderRadius: 100,
-                    padding: '6px 22px', fontSize: 11, fontWeight: 800,
-                    display: 'flex', alignItems: 'center', gap: 6, whiteSpace: 'nowrap', letterSpacing: 0.5
+                    position: 'absolute', top: -12, left: '50%', transform: 'translateX(-50%)',
+                    background: '#ef4444', color: '#fff', borderRadius: 100,
+                    padding: '4px 16px', fontSize: 11, fontWeight: 700, letterSpacing: 0.5,
+                    whiteSpace: 'nowrap',
                   }}>
-                    <Star size={11} style={{ fill: '#fff' }} />
                     Most Popular
                   </div>
                 )}
 
-                <div style={{ marginBottom: 6 }}>
-                  <div style={{ fontSize: 11, fontWeight: 800, color: '#cc1f1f', letterSpacing: 1.5, textTransform: 'uppercase' }}>{plan.name}</div>
-                  <div style={{ fontSize: 19, fontWeight: 800, color: '#111', marginTop: 6 }}>{plan.subtitle}</div>
+                <div style={{ marginBottom: 28 }}>
+                  <div style={{ fontSize: 16, fontWeight: 700, color: '#fff', marginBottom: 4 }}>{plan.name}</div>
+                  <div style={{ fontSize: 13, color: 'rgba(255,255,255,0.35)' }}>{plan.description}</div>
                 </div>
 
-                <div style={{ margin: '24px 0 20px' }}>
-                  <span style={{ fontSize: 42, fontWeight: 900, color: '#111', letterSpacing: '-1px' }}>
+                <div style={{ marginBottom: 28 }}>
+                  <span style={{ fontSize: 44, fontWeight: 800, color: '#fff', letterSpacing: '-2px' }}>
                     {formatPrice(isAnnual ? plan.annualPrice : plan.monthlyPrice)}
                   </span>
-                  <span style={{ fontSize: 14, color: '#999', marginLeft: 4 }}>{isAnnual ? '/year' : '/month'}</span>
+                  <span style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', marginLeft: 6 }}>
+                    /{isAnnual ? 'yr' : 'mo'}
+                  </span>
                 </div>
 
-                <div style={{ background: '#f8f8f8', borderRadius: 10, padding: '10px 14px', marginBottom: 24, border: '1px solid #eeeeee' }}>
-                  <span style={{ fontSize: 12, color: '#999' }}>Best for: </span>
-                  <span style={{ fontSize: 12, fontWeight: 700, color: '#333' }}>{plan.bestFor}</span>
-                </div>
-
-                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 28px', display: 'flex', flexDirection: 'column', gap: 13 }}>
+                <ul style={{ listStyle: 'none', padding: 0, margin: '0 0 32px', display: 'flex', flexDirection: 'column', gap: 12 }}>
                   {plan.features.map((f, j) => (
-                    <li key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 14, color: '#444', lineHeight: 1.5 }}>
-                      <CheckCircle size={16} style={{ color: '#16a34a', flexShrink: 0, marginTop: 1 }} />
+                    <li key={j} style={{ display: 'flex', alignItems: 'flex-start', gap: 10, fontSize: 13, color: 'rgba(255,255,255,0.6)', lineHeight: 1.5 }}>
+                      <CheckCircle size={14} style={{ color: '#22c55e', flexShrink: 0, marginTop: 1 }} />
                       {f}
                     </li>
                   ))}
@@ -694,17 +669,17 @@ const Landing = () => {
                 <button
                   onClick={() => handlePlanSelection(plan.name, isAnnual ? plan.annualPrice : plan.monthlyPrice)}
                   style={{
-                    width: '100%', padding: '14px', borderRadius: 10, fontSize: 14, fontWeight: 700,
-                    cursor: 'pointer', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 8,
-                    background: plan.popular ? '#cc1f1f' : '#fff',
-                    color: plan.popular ? '#fff' : '#cc1f1f',
-                    border: '2px solid #cc1f1f',
-                    boxShadow: plan.popular ? '0 6px 20px rgba(204,31,31,0.25)' : 'none',
-                    transition: 'all 0.2s'
+                    width: '100%', padding: '13px', borderRadius: 9, fontSize: 14, fontWeight: 600,
+                    cursor: 'pointer',
+                    background: plan.popular ? '#ef4444' : 'rgba(255,255,255,0.06)',
+                    color: '#fff',
+                    border: plan.popular ? 'none' : '1px solid rgba(255,255,255,0.1)',
+                    transition: 'all 0.2s',
                   }}
+                  onMouseEnter={e => { if (!plan.popular) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.1)'; }}
+                  onMouseLeave={e => { if (!plan.popular) (e.currentTarget as HTMLButtonElement).style.background = 'rgba(255,255,255,0.06)'; }}
                 >
                   {plan.cta}
-                  <ChevronRight size={15} />
                 </button>
               </div>
             ))}
@@ -713,192 +688,192 @@ const Landing = () => {
       </section>
 
       {/* About */}
-      <section id="about" style={{ padding: '100px 24px', background: '#fff' }}>
+      <section id="about" style={{ padding: '120px 28px', background: '#0f0f0f' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }} className="hero-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 80, alignItems: 'center' }} className="split-grid">
             <div>
-              <div style={{
-                display: 'inline-flex', alignItems: 'center', gap: 8, background: '#fff0f0',
-                border: '1px solid #f5a0a0', borderRadius: 100, padding: '6px 16px', marginBottom: 28
-              }}>
-                <Briefcase size={13} style={{ color: '#cc1f1f' }} />
-                <span style={{ fontSize: 12, fontWeight: 700, color: '#cc1f1f', letterSpacing: 0.3 }}>Our Mission</span>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#ef4444', letterSpacing: 2, textTransform: 'uppercase', marginBottom: 20 }}>
+                About
               </div>
-              <h2 style={{ fontSize: 'clamp(26px, 3vw, 38px)', fontWeight: 900, color: '#111', marginBottom: 22, lineHeight: 1.2, letterSpacing: '-0.5px' }}>
-                Democratizing Business Intelligence for Every Indian Enterprise
+              <h2 style={{ fontSize: 'clamp(26px, 3vw, 42px)', fontWeight: 800, color: '#fff', lineHeight: 1.15, letterSpacing: '-1.5px', marginBottom: 24 }}>
+                Built to put every business on an equal footing.
               </h2>
-              <p style={{ fontSize: 16, color: '#666', lineHeight: 1.8, marginBottom: 18 }}>
-                QWII was built with a clear purpose — to give every Indian business owner access to the same sophisticated growth tools that large corporations have always had, but at a price and simplicity that works for everyone.
+              <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', lineHeight: 1.8, marginBottom: 20 }}>
+                For too long, sophisticated sales intelligence has been a privilege of large corporations with big budgets. We built QWII to change that.
               </p>
-              <p style={{ fontSize: 16, color: '#666', lineHeight: 1.8, marginBottom: 36 }}>
-                We believe that the next wave of India's economic growth will be driven by MSMEs, traders, and manufacturers who have the right information at the right time. That is exactly what we deliver.
+              <p style={{ fontSize: 16, color: 'rgba(255,255,255,0.45)', lineHeight: 1.8, marginBottom: 48 }}>
+                Every MSME, distributor, and manufacturer deserves access to the same quality of prospect data and business intelligence. That's the mission.
               </p>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 12 }}>
                 {[
-                  { icon: Award, title: 'India-First Philosophy', desc: 'Designed for Indian markets, Indian industries, and Indian business realities.' },
-                  { icon: Shield, title: 'Your Data, Your Privacy', desc: 'Zero data sharing. Your business intelligence stays completely private.' },
+                  { icon: Award, title: 'India-first design', desc: 'Every feature is built around how Indian businesses actually operate.' },
+                  { icon: Shield, title: 'Your data stays yours', desc: 'Zero third-party sharing. Complete data privacy, always.' },
+                  { icon: Clock, title: 'Built for speed', desc: 'Onboard in minutes. See results on day one.' },
+                  { icon: Zap, title: 'Continuously improving', desc: 'The platform learns and gets smarter with every interaction.' },
                 ].map((item, i) => (
-                  <div key={i} style={{ background: '#fafafa', border: '1.5px solid #ece8e8', borderRadius: 14, padding: '22px 18px' }}>
-                    <item.icon size={22} style={{ color: '#cc1f1f', marginBottom: 12 }} />
-                    <div style={{ fontSize: 14, fontWeight: 700, color: '#111', marginBottom: 6 }}>{item.title}</div>
-                    <div style={{ fontSize: 13, color: '#888', lineHeight: 1.6 }}>{item.desc}</div>
+                  <div key={i} style={{
+                    background: '#141414', border: '1px solid rgba(255,255,255,0.07)',
+                    borderRadius: 12, padding: '20px 18px',
+                  }}>
+                    <item.icon size={18} style={{ color: '#ef4444', marginBottom: 12 }} />
+                    <div style={{ fontSize: 13, fontWeight: 600, color: '#fff', marginBottom: 6 }}>{item.title}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)', lineHeight: 1.6 }}>{item.desc}</div>
                   </div>
                 ))}
               </div>
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 20 }}>
-              {[
-                { initials: 'MB', name: 'Mayank Bajaj', role: 'Co-Founder' },
-                { initials: 'HK', name: 'Himanshu Kumar', role: 'Co-Founder' },
-              ].map((person, i) => (
-                <div key={i} style={{
-                  background: '#fff', border: '1.5px solid #ece8e8', borderRadius: 18,
-                  padding: '36px 24px', textAlign: 'center', transition: 'all 0.2s', cursor: 'default'
-                }}
-                  onMouseEnter={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#cc1f1f'; (e.currentTarget as HTMLDivElement).style.boxShadow = '0 8px 36px rgba(204,31,31,0.1)'; }}
-                  onMouseLeave={e => { (e.currentTarget as HTMLDivElement).style.borderColor = '#ece8e8'; (e.currentTarget as HTMLDivElement).style.boxShadow = 'none'; }}
-                >
-                  <div style={{
-                    width: 80, height: 80, borderRadius: '50%',
-                    background: 'linear-gradient(135deg, #cc1f1f, #7f1d1d)',
-                    display: 'flex', alignItems: 'center', justifyContent: 'center',
-                    fontSize: 26, fontWeight: 900, color: '#fff', margin: '0 auto 20px',
-                    boxShadow: '0 6px 24px rgba(204,31,31,0.25)'
-                  }}>
-                    {person.initials}
-                  </div>
-                  <div style={{ fontSize: 17, fontWeight: 800, color: '#111', marginBottom: 6 }}>{person.name}</div>
-                  <div style={{ fontSize: 13, fontWeight: 600, color: '#cc1f1f' }}>{person.role}</div>
-                </div>
-              ))}
-
+            <div style={{ display: 'flex', flexDirection: 'column', gap: 16 }}>
               <div style={{
-                gridColumn: '1 / -1', background: 'linear-gradient(135deg, #fff8f8, #fef2f2)',
-                border: '1.5px solid #fca5a5', borderRadius: 18, padding: '28px 24px', textAlign: 'center'
+                background: '#141414', border: '1px solid rgba(255,255,255,0.07)',
+                borderRadius: 16, padding: '36px 32px',
+                display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 32,
               }}>
-                <div style={{ fontSize: 36, fontWeight: 900, color: '#cc1f1f', letterSpacing: '-1px' }}>500+</div>
-                <div style={{ fontSize: 14, color: '#777', marginTop: 6 }}>Businesses growing with QWII across India</div>
+                {[
+                  { val: '500+', label: 'Active businesses' },
+                  { val: '1,000+', label: 'Leads per day' },
+                  { val: '95%', label: 'Data accuracy' },
+                  { val: '₹0.50', label: 'Avg. cost per lead' },
+                ].map((s, i) => (
+                  <div key={i}>
+                    <div style={{ fontSize: 32, fontWeight: 800, color: '#fff', letterSpacing: '-1px', marginBottom: 6 }}>{s.val}</div>
+                    <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.3)', textTransform: 'uppercase', letterSpacing: 0.8 }}>{s.label}</div>
+                  </div>
+                ))}
+              </div>
+
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 16 }}>
+                {[
+                  { initials: 'MB', name: 'Mayank Bajaj', role: 'Co-Founder' },
+                  { initials: 'HK', name: 'Himanshu Kumar', role: 'Co-Founder' },
+                ].map((person, i) => (
+                  <div key={i} style={{
+                    background: '#141414', border: '1px solid rgba(255,255,255,0.07)',
+                    borderRadius: 14, padding: '24px 20px', display: 'flex', alignItems: 'center', gap: 14,
+                  }}>
+                    <div style={{
+                      width: 44, height: 44, borderRadius: '50%',
+                      background: 'rgba(239,68,68,0.15)', border: '1px solid rgba(239,68,68,0.25)',
+                      display: 'flex', alignItems: 'center', justifyContent: 'center',
+                      fontSize: 15, fontWeight: 700, color: '#ef4444', flexShrink: 0,
+                    }}>
+                      {person.initials}
+                    </div>
+                    <div>
+                      <div style={{ fontSize: 14, fontWeight: 600, color: '#fff' }}>{person.name}</div>
+                      <div style={{ fontSize: 12, color: 'rgba(255,255,255,0.35)' }}>{person.role}</div>
+                    </div>
+                  </div>
+                ))}
               </div>
             </div>
+
           </div>
         </div>
       </section>
 
-      {/* Final CTA */}
-      <section style={{ padding: '88px 24px', background: 'linear-gradient(135deg, #111 0%, #2a0a0a 50%, #111 100%)' }}>
-        <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
-          <h2 style={{ fontSize: 'clamp(28px, 4vw, 46px)', fontWeight: 900, color: '#fff', marginBottom: 18, lineHeight: 1.15, letterSpacing: '-1px' }}>
-            Ready to Fill Your Pipeline<br />
-            <span style={{ color: '#f87171' }}>Every Single Day?</span>
+      {/* CTA */}
+      <section style={{
+        padding: '120px 28px',
+        background: 'radial-gradient(ellipse 60% 80% at 50% 100%, rgba(220,38,38,0.15) 0%, transparent 70%), #0a0a0a',
+        borderTop: '1px solid rgba(255,255,255,0.06)',
+      }}>
+        <div style={{ maxWidth: 640, margin: '0 auto', textAlign: 'center' }}>
+          <h2 style={{ fontSize: 'clamp(32px, 5vw, 60px)', fontWeight: 800, color: '#fff', lineHeight: 1.1, letterSpacing: '-2px', marginBottom: 20 }}>
+            Ready to scale your pipeline?
           </h2>
-          <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.7)', marginBottom: 44, lineHeight: 1.7 }}>
-            Talk to our team and get a free 30-minute walkthrough of how QWII can work for your specific business, industry, and target markets.
+          <p style={{ fontSize: 17, color: 'rgba(255,255,255,0.4)', lineHeight: 1.7, marginBottom: 48 }}>
+            Get a personalised walkthrough and see how QWII works for your industry and target market.
           </p>
-          <div style={{ display: 'flex', justifyContent: 'center', gap: 16, flexWrap: 'wrap' }}>
+          <div style={{ display: 'flex', justifyContent: 'center', gap: 12, flexWrap: 'wrap' }}>
             <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{
-              display: 'flex', alignItems: 'center', gap: 9, background: '#cc1f1f',
-              color: '#fff', padding: '17px 38px', borderRadius: 12, fontSize: 16,
-              fontWeight: 800, textDecoration: 'none',
-              boxShadow: '0 8px 32px rgba(204,31,31,0.45)', transition: 'all 0.2s'
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: '#fff', color: '#0a0a0a',
+              padding: '14px 32px', borderRadius: 10, fontSize: 15, fontWeight: 700,
+              textDecoration: 'none',
             }}>
-              <Phone size={19} />
+              <Phone size={16} />
               Book a Free Demo
             </a>
-            <button
-              onClick={() => scrollToSection('pricing')}
-              style={{
-                display: 'flex', alignItems: 'center', gap: 8, background: 'transparent',
-                color: '#fff', padding: '17px 38px', borderRadius: 12, fontSize: 16,
-                fontWeight: 600, cursor: 'pointer', border: '2px solid rgba(255,255,255,0.3)', transition: 'all 0.2s'
-              }}
-            >
-              Explore Plans
-              <ArrowRight size={17} />
+            <button onClick={() => scrollToSection('pricing')} style={{
+              display: 'inline-flex', alignItems: 'center', gap: 8,
+              background: 'transparent', color: 'rgba(255,255,255,0.5)',
+              padding: '14px 32px', borderRadius: 10, fontSize: 15, fontWeight: 500,
+              cursor: 'pointer', border: '1px solid rgba(255,255,255,0.1)',
+            }}>
+              View Plans
+              <ChevronRight size={15} />
             </button>
           </div>
         </div>
       </section>
 
       {/* Footer */}
-      <footer style={{ background: '#0d0d0d', padding: '64px 24px 32px' }}>
+      <footer style={{ background: '#050505', borderTop: '1px solid rgba(255,255,255,0.05)', padding: '60px 28px 32px' }}>
         <div style={{ maxWidth: 1200, margin: '0 auto' }}>
-          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 48, marginBottom: 52 }} className="footer-grid">
+          <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 48, marginBottom: 48 }} className="footer-grid">
             <div>
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 18 }}>
-                <img src={qwiiLogoUrl} alt="QWII" style={{ height: 34, width: 'auto' }} />
-                <span style={{ fontSize: 19, fontWeight: 800, color: '#f87171' }}>{settings.app_name}</span>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 16 }}>
+                <img src={qwiiLogoUrl} alt="QWII" style={{ height: 28, width: 'auto' }} />
+                <span style={{ fontSize: 16, fontWeight: 700, color: '#fff' }}>{settings.app_name}</span>
               </div>
-              <p style={{ fontSize: 13, color: '#666', lineHeight: 1.75, marginBottom: 22, maxWidth: 260 }}>
-                India's leading AI-powered lead generation and business intelligence platform for MSMEs and growing enterprises.
+              <p style={{ fontSize: 13, color: 'rgba(255,255,255,0.3)', lineHeight: 1.75, maxWidth: 240, marginBottom: 24 }}>
+                B2B lead generation and business intelligence for Indian enterprises.
               </p>
-              <div style={{ display: 'flex', gap: 14 }}>
-                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{ color: '#555' }}>
-                  <Phone size={17} />
+              <div style={{ display: 'flex', gap: 12 }}>
+                <a href={whatsappLink} target="_blank" rel="noopener noreferrer" style={{ color: 'rgba(255,255,255,0.3)', transition: 'color 0.2s' }}>
+                  <Phone size={16} />
                 </a>
-                <a href="mailto:contact@qwii.in" style={{ color: '#555' }}>
-                  <Mail size={17} />
+                <a href="mailto:contact@qwii.in" style={{ color: 'rgba(255,255,255,0.3)', transition: 'color 0.2s' }}>
+                  <Mail size={16} />
                 </a>
               </div>
             </div>
 
             <div>
-              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 18, letterSpacing: 0.5, textTransform: 'uppercase' }}>Navigation</h4>
-              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 20 }}>Navigation</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {navItems.map((item, i) => (
-                  <li key={i}>
-                    <button onClick={() => scrollToSection(item.id)} style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: 14, color: '#666', padding: 0 }}>
-                      {item.label}
-                    </button>
-                  </li>
+                  <button key={i} onClick={() => scrollToSection(item.id)} style={{
+                    background: 'none', border: 'none', cursor: 'pointer',
+                    fontSize: 14, color: 'rgba(255,255,255,0.4)', padding: 0, textAlign: 'left', transition: 'color 0.2s',
+                  }}>
+                    {item.label}
+                  </button>
                 ))}
-                <li><Link to="/auth" style={{ fontSize: 14, color: '#666', textDecoration: 'none' }}>Login</Link></li>
-              </ul>
+                <Link to="/auth" style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>Sign in</Link>
+              </div>
             </div>
 
             <div>
-              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 18, letterSpacing: 0.5, textTransform: 'uppercase' }}>Legal</h4>
-              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 12 }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 20 }}>Legal</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {[
-                  { label: 'Terms & Conditions', to: '/terms' },
-                  { label: 'Privacy Policy', to: '/privacy' },
+                  { label: 'Terms', to: '/terms' },
+                  { label: 'Privacy', to: '/privacy' },
                   { label: 'Refund Policy', to: '/refund' },
                 ].map((item, i) => (
-                  <li key={i}>
-                    <Link to={item.to} style={{ fontSize: 14, color: '#666', textDecoration: 'none' }}>{item.label}</Link>
-                  </li>
+                  <Link key={i} to={item.to} style={{ fontSize: 14, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>{item.label}</Link>
                 ))}
-              </ul>
+              </div>
             </div>
 
             <div>
-              <h4 style={{ fontSize: 13, fontWeight: 700, color: '#fff', marginBottom: 18, letterSpacing: 0.5, textTransform: 'uppercase' }}>Contact</h4>
-              <ul style={{ listStyle: 'none', padding: 0, display: 'flex', flexDirection: 'column', gap: 14 }}>
-                <li style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                  <Phone size={13} style={{ color: '#cc1f1f' }} />
-                  <a href="tel:+917303408500" style={{ fontSize: 13, color: '#666', textDecoration: 'none' }}>+91 73034 08500</a>
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                  <Phone size={13} style={{ color: '#cc1f1f' }} />
-                  <a href="tel:+918383954181" style={{ fontSize: 13, color: '#666', textDecoration: 'none' }}>+91 83839 54181</a>
-                </li>
-                <li style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-                  <Mail size={13} style={{ color: '#cc1f1f' }} />
-                  <a href="mailto:contact@qwii.in" style={{ fontSize: 13, color: '#666', textDecoration: 'none' }}>contact@qwii.in</a>
-                </li>
-                <li style={{ display: 'flex', alignItems: 'flex-start', gap: 9 }}>
-                  <MapPin size={13} style={{ color: '#cc1f1f', marginTop: 1 }} />
-                  <span style={{ fontSize: 13, color: '#666' }}>India</span>
-                </li>
-              </ul>
+              <div style={{ fontSize: 11, fontWeight: 700, color: 'rgba(255,255,255,0.25)', letterSpacing: 1.5, textTransform: 'uppercase', marginBottom: 20 }}>Contact</div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
+                <a href="tel:+917303408500" style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>+91 73034 08500</a>
+                <a href="tel:+918383954181" style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>+91 83839 54181</a>
+                <a href="mailto:contact@qwii.in" style={{ fontSize: 13, color: 'rgba(255,255,255,0.4)', textDecoration: 'none' }}>contact@qwii.in</a>
+              </div>
             </div>
           </div>
 
-          <div style={{ borderTop: '1px solid #1a1a1a', paddingTop: 28, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
-            <p style={{ fontSize: 13, color: '#444' }}>
+          <div style={{ borderTop: '1px solid rgba(255,255,255,0.05)', paddingTop: 24, display: 'flex', justifyContent: 'space-between', alignItems: 'center', flexWrap: 'wrap', gap: 12 }}>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>
               &copy; {new Date().getFullYear()} {settings.app_name}. All rights reserved.
             </p>
-            <p style={{ fontSize: 13, color: '#444' }}>Made with pride in India</p>
+            <p style={{ fontSize: 12, color: 'rgba(255,255,255,0.2)' }}>Made in India</p>
           </div>
         </div>
       </footer>
@@ -917,13 +892,18 @@ const Landing = () => {
 
       <style>{`
         @media (max-width: 900px) {
-          .hero-grid { grid-template-columns: 1fr !important; }
+          .split-grid { grid-template-columns: 1fr !important; gap: 48px !important; }
           .three-col { grid-template-columns: 1fr 1fr !important; }
-          .nav-links { display: none !important; }
+          .three-col-feature { grid-template-columns: 1fr 1fr !important; }
+          .nav-desktop { display: none !important; }
+          .nav-mobile-btn { display: flex !important; }
+          .stats-grid { grid-template-columns: 1fr 1fr !important; }
           .footer-grid { grid-template-columns: 1fr 1fr !important; }
         }
         @media (max-width: 540px) {
           .three-col { grid-template-columns: 1fr !important; }
+          .three-col-feature { grid-template-columns: 1fr !important; }
+          .stats-grid { grid-template-columns: 1fr 1fr !important; }
           .footer-grid { grid-template-columns: 1fr !important; }
         }
       `}</style>
