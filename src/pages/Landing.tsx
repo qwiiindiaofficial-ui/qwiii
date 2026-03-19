@@ -11,10 +11,10 @@ import {
   Menu, X, ArrowUpRight, TrendingUp,
 } from 'lucide-react';
 
-const R = '#b91c1c';
-const RD = '#991b1b';
-const RDD = '#7f1d1d';
-const FOOT = '#1a0404';
+const R = '#9b1239';
+const RD = '#7e0f2e';
+const RDD = '#5c0b22';
+const FOOT = '#180510';
 
 const Landing = () => {
   const { settings } = useAppSettings();
@@ -211,14 +211,14 @@ const Landing = () => {
       }}>
         <div style={{
           position: 'absolute', top: 0, right: 0, width: '55%', height: '100%',
-          background: 'linear-gradient(135deg, #fff1f1 0%, #ffe4e4 100%)',
+          background: 'linear-gradient(135deg, #fdf2f5 0%, #fce7ed 100%)',
           clipPath: 'polygon(12% 0, 100% 0, 100% 100%, 0% 100%)',
         }} />
         <div style={{
           position: 'absolute', top: '15%', right: '4%', width: 480,
           background: '#fff', borderRadius: 20,
-          border: '1px solid rgba(185,28,28,0.1)',
-          boxShadow: '0 24px 80px rgba(185,28,28,0.08)',
+          border: '1px solid rgba(155,18,57,0.1)',
+          boxShadow: '0 24px 80px rgba(155,18,57,0.08)',
           overflow: 'hidden',
         }} className="hero-card">
           <div style={{ padding: '20px 22px', borderBottom: '1px solid rgba(0,0,0,0.06)', display: 'flex', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -239,8 +239,8 @@ const Landing = () => {
               <div key={i} style={{
                 display: 'flex', alignItems: 'center', justifyContent: 'space-between',
                 padding: '10px 12px', borderRadius: 10,
-                background: lead.fresh ? '#fff8f8' : 'transparent',
-                border: `1px solid ${lead.fresh ? 'rgba(185,28,28,0.1)' : 'transparent'}`,
+                background: lead.fresh ? '#fdf4f7' : 'transparent',
+                border: `1px solid ${lead.fresh ? 'rgba(155,18,57,0.1)' : 'transparent'}`,
               }}>
                 <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
                   <div style={{
@@ -281,7 +281,7 @@ const Landing = () => {
           <div style={{ maxWidth: 540 }}>
             <div style={{
               display: 'inline-flex', alignItems: 'center', gap: 7,
-              background: '#fff1f1', border: '1px solid rgba(185,28,28,0.15)',
+              background: '#fdf2f5', border: '1px solid rgba(155,18,57,0.15)',
               borderRadius: 100, padding: '5px 14px', marginBottom: 32,
             }}>
               <TrendingUp size={12} color={R} />
@@ -395,7 +395,7 @@ const Landing = () => {
                     padding: '20px 0',
                     borderBottom: i < 2 ? '1px solid rgba(0,0,0,0.06)' : 'none',
                   }}>
-                    <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(185,28,28,0.3)', paddingTop: 2 }}>{item.n}</span>
+                    <span style={{ fontSize: 12, fontWeight: 700, color: 'rgba(155,18,57,0.3)', paddingTop: 2 }}>{item.n}</span>
                     <div>
                       <div style={{ fontSize: 14.5, fontWeight: 700, color: '#1a1a1a', marginBottom: 5 }}>{item.title}</div>
                       <div style={{ fontSize: 13, color: 'rgba(0,0,0,0.4)', lineHeight: 1.65 }}>{item.desc}</div>
@@ -423,12 +423,12 @@ const Landing = () => {
                 { val: '95%', label: 'Data accuracy across all deliveries', dark: true },
               ].map((s, i) => (
                 <div key={i} style={{
-                  background: s.dark ? `linear-gradient(135deg, ${R} 0%, ${RDD} 100%)` : '#f9f0f0',
+                  background: s.dark ? `linear-gradient(135deg, ${R} 0%, ${RDD} 100%)` : '#fdf0f4',
                   borderRadius: 18,
                   padding: '32px 28px',
                 }}>
                   <div style={{ fontSize: 'clamp(36px, 4vw, 52px)', fontWeight: 900, color: s.dark ? '#fff' : R, letterSpacing: '-2px', lineHeight: 1, marginBottom: 12 }}>{s.val}</div>
-                  <div style={{ fontSize: 13, color: s.dark ? 'rgba(255,255,255,0.55)' : 'rgba(185,28,28,0.55)', lineHeight: 1.55 }}>{s.label}</div>
+                  <div style={{ fontSize: 13, color: s.dark ? 'rgba(255,255,255,0.55)' : 'rgba(155,18,57,0.55)', lineHeight: 1.55 }}>{s.label}</div>
                 </div>
               ))}
             </div>
@@ -463,8 +463,8 @@ const Landing = () => {
               }}
                 onMouseEnter={e => {
                   const el = e.currentTarget as HTMLDivElement;
-                  el.style.boxShadow = '0 8px 40px rgba(185,28,28,0.08)';
-                  el.style.borderColor = 'rgba(185,28,28,0.12)';
+                  el.style.boxShadow = '0 8px 40px rgba(155,18,57,0.08)';
+                  el.style.borderColor = 'rgba(155,18,57,0.12)';
                 }}
                 onMouseLeave={e => {
                   const el = e.currentTarget as HTMLDivElement;
@@ -474,7 +474,7 @@ const Landing = () => {
               >
                 <div style={{
                   width: 38, height: 38, borderRadius: 9,
-                  background: '#fff1f1',
+                  background: '#fdf2f5',
                   display: 'flex', alignItems: 'center', justifyContent: 'center', marginBottom: 18,
                 }}>
                   <f.icon size={17} color={R} />
@@ -525,7 +525,7 @@ const Landing = () => {
                 <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                   <div style={{
                     width: 40, height: 40, borderRadius: '50%', flexShrink: 0,
-                    background: i === 1 ? 'rgba(255,255,255,0.15)' : '#ffe4e4',
+                    background: i === 1 ? 'rgba(255,255,255,0.15)' : '#fce7ed',
                     display: 'flex', alignItems: 'center', justifyContent: 'center',
                     fontSize: 14, fontWeight: 700, color: i === 1 ? '#fff' : R,
                   }}>
@@ -582,7 +582,7 @@ const Landing = () => {
                 background: plan.highlight ? `linear-gradient(145deg, ${R} 0%, ${RDD} 100%)` : '#fff',
                 borderRadius: 20, padding: '36px 30px',
                 position: 'relative',
-                boxShadow: plan.highlight ? `0 24px 60px rgba(185,28,28,0.3)` : 'none',
+                boxShadow: plan.highlight ? `0 24px 60px rgba(155,18,57,0.3)` : 'none',
                 transform: plan.highlight ? 'scale(1.025)' : 'scale(1)',
               }}>
                 {plan.highlight && (
@@ -591,7 +591,7 @@ const Landing = () => {
                     background: '#fff', color: R,
                     borderRadius: 100, padding: '4px 16px',
                     fontSize: 10.5, fontWeight: 800, letterSpacing: 0.5, textTransform: 'uppercase',
-                    whiteSpace: 'nowrap', boxShadow: '0 2px 12px rgba(185,28,28,0.2)',
+                    whiteSpace: 'nowrap', boxShadow: '0 2px 12px rgba(155,18,57,0.2)',
                   }}>
                     Most Popular
                   </div>
@@ -666,7 +666,7 @@ const Landing = () => {
                   { icon: Clock, title: 'Start in minutes', desc: 'Onboard fast. See results on day one.' },
                   { icon: Zap, title: 'Continuously improving', desc: 'Gets smarter with every interaction.' },
                 ].map((item, i) => (
-                  <div key={i} style={{ background: '#fff1f1', borderRadius: 14, padding: '20px 18px' }}>
+                  <div key={i} style={{ background: '#fdf2f5', borderRadius: 14, padding: '20px 18px' }}>
                     <item.icon size={17} color={R} style={{ marginBottom: 12 }} />
                     <div style={{ fontSize: 13.5, fontWeight: 700, color: '#1a1a1a', marginBottom: 5 }}>{item.title}</div>
                     <div style={{ fontSize: 12.5, color: 'rgba(0,0,0,0.4)', lineHeight: 1.6 }}>{item.desc}</div>
@@ -696,7 +696,7 @@ const Landing = () => {
                   { initials: 'HK', name: 'Himanshu Kumar', role: 'Co-Founder' },
                 ].map((p, i) => (
                   <div key={i} style={{
-                    background: '#fff1f1', borderRadius: 14, padding: '22px 18px',
+                    background: '#fdf2f5', borderRadius: 14, padding: '22px 18px',
                     display: 'flex', alignItems: 'center', gap: 12,
                   }}>
                     <div style={{
@@ -750,7 +750,7 @@ const Landing = () => {
       </section>
 
       {/* FOOTER */}
-      <footer style={{ background: FOOT, borderTop: `1px solid rgba(185,28,28,0.15)`, padding: '56px 28px 28px' }}>
+      <footer style={{ background: FOOT, borderTop: `1px solid rgba(155,18,57,0.15)`, padding: '56px 28px 28px' }}>
         <div style={{ maxWidth: 1160, margin: '0 auto' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '2fr 1fr 1fr 1fr', gap: 48, marginBottom: 48 }} className="footer-grid">
             <div>
